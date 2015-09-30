@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry exported="true" kind="con" path="GROOVY_SUPPORT"/>
+	<classpathentry exported="true" kind="con" path="GROOVY_DSL_SUPPORT"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="/home/tcarstens/invlim/robot-fast-track/3d-scan-by-focus/code/usb4java-javax-1.2.0/lib/usb-api-1.0.2.jar"/>
+	<classpathentry kind="lib" path="/home/tcarstens/invlim/robot-fast-track/3d-scan-by-focus/code/usb4java-javax-1.2.0/lib/usb4java-javax-1.2.0.jar"/>
+	<classpathentry kind="lib" path="/home/tcarstens/invlim/robot-fast-track/3d-scan-by-focus/code/usb4java-1.2.0/lib/commons-lang3-3.2.1.jar"/>
+	<classpathentry kind="lib" path="/home/tcarstens/invlim/robot-fast-track/3d-scan-by-focus/code/usb4java-1.2.0/lib/libusb4java-1.2.0-linux-x86_64.jar"/>
+	<classpathentry kind="lib" path="/home/tcarstens/invlim/robot-fast-track/3d-scan-by-focus/code/usb4java-1.2.0/lib/usb4java-1.2.0.jar"/>
+	<classpathentry kind="lib" path="/home/tcarstens/invlim/robot-fast-track/3d-scan-by-focus/code/usb4java-1.2.0/lib/libusb4java-1.2.0-windows-x86_64.jar"/>
+	<classpathentry kind="lib" path="/home/tcarstens/invlim/robot-fast-track/3d-scan-by-focus/code/usb4java-1.2.0/lib/libusb4java-1.2.0-windows-x86.jar"/>
+	<classpathentry kind="lib" path="/home/tcarstens/invlim/robot-fast-track/3d-scan-by-focus/code/usb4java-1.2.0/lib/libusb4java-1.2.0-linux-arm.jar"/>
+	<classpathentry kind="lib" path="/home/tcarstens/invlim/robot-fast-track/3d-scan-by-focus/code/usb4java-1.2.0/lib/libusb4java-1.2.0-linux-x86.jar"/>
+	<classpathentry kind="lib" path="/home/tcarstens/invlim/robot-fast-track/3d-scan-by-focus/code/usb4java-1.2.0/lib/libusb4java-1.2.0-osx-x86_64.jar"/>
+	<classpathentry kind="lib" path="/home/tcarstens/invlim/robot-fast-track/3d-scan-by-focus/code/usb4java-1.2.0/lib/libusb4java-1.2.0-osx-x86.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

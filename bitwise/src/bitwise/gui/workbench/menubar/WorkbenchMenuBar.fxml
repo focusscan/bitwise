@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import bitwise.gui.workbench.menubar.menus.AppsMenu?>
+<?import bitwise.gui.workbench.menubar.menus.DevicesMenu?>
+<?import bitwise.gui.workbench.menubar.menus.EditMenu?>
+<?import bitwise.gui.workbench.menubar.menus.FileMenu?>
+<?import bitwise.gui.workbench.menubar.menus.HelpMenu?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+
+
+<fx:root type="javafx.scene.control.MenuBar" xmlns:fx="http://javafx.com/fxml">
+	<menus>
+		<FileMenu />
+		<EditMenu />
+		<AppsMenu />
+		<DevicesMenu />
+		<HelpMenu />
+	</menus>
+</fx:root>

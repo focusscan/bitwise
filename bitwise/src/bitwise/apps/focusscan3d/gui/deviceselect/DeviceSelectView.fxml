@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+
+<fx:root type="javafx.scene.layout.BorderPane" xmlns:fx="http://javafx.com/fxml"
+	prefWidth="980" prefHeight="500">
+	<center>
+		<TableView fx:id="tableView">
+			<columns>
+				<TableColumn fx:id="colVendorID" text="Vendor ID"
+					prefWidth="100" />
+				<TableColumn fx:id="colProductID" text="Product ID"
+					prefWidth="100" />
+				<TableColumn fx:id="colManufacturer" text="Manufacturer"
+					prefWidth="175" />
+				<TableColumn fx:id="colProduct" text="Product"
+					prefWidth="175" />
+				<TableColumn fx:id="colSerial" text="Serial #"
+					prefWidth="175" />
+				<TableColumn fx:id="colDriver" text="Driver" prefWidth="175" />
+				<TableColumn fx:id="colInUse" text="In Use" prefWidth="75" />
+			</columns>
+		</TableView>
+	</center>
+	<bottom>
+		<HBox alignment="bottom_right">
+			<Button fx:id="btnUseDevice" text="Use Device" onAction="#handleUseDevice"/>
+		</HBox>
+	</bottom>
+</fx:root>
