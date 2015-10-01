@@ -1,5 +1,7 @@
 package bitwise.devices.usb;
 
+import bitwise.apps.App;
+
 public abstract class UsbDriverFactory<D extends UsbDriver> {
 	private final UsbDriverFactoryID id;
 	
@@ -29,5 +31,5 @@ public abstract class UsbDriverFactory<D extends UsbDriver> {
 	public abstract String getName();
 	public abstract Class<D> getDriverClass();
 	public abstract boolean isCompatibleWith(UsbDevice in);
-	protected abstract D makeDriver(UsbDevice in);
+	protected abstract D makeDriver(App in_app, UsbDevice in_device);
 }

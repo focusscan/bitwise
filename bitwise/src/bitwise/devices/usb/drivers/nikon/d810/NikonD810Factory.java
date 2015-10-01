@@ -1,5 +1,6 @@
 package bitwise.devices.usb.drivers.nikon.d810;
 
+import bitwise.apps.App;
 import bitwise.devices.usb.UsbDevice;
 import bitwise.devices.usb.UsbDriverFactory;
 
@@ -21,10 +22,10 @@ public class NikonD810Factory extends UsbDriverFactory<NikonD810> {
 	}
 
 	@Override
-	protected NikonD810 makeDriver(UsbDevice in) {
-		if (!isCompatibleWith(in))
+	protected NikonD810 makeDriver(App in_app, UsbDevice in_device) {
+		if (!isCompatibleWith(in_device))
 			return null;
-		return new NikonD810(in);
+		return new NikonD810(in_app, in_device);
 	}
 
 	@Override

@@ -28,7 +28,7 @@ public class UsbService extends Service implements UsbServicesListener {
 	}
 	
 	public static int threadPoolSize() {
-		return 1;
+		return 4;
 	}
 	
 	private final UsbServices platformServices;
@@ -40,6 +40,11 @@ public class UsbService extends Service implements UsbServicesListener {
 		super(serviceName(), threadPoolSize());
 		platformServices = UsbHostManager.getUsbServices();
 		assert(null != platformServices);
+	}
+	
+	public void enqueueRequest(UsbRequest in) {
+		assert(null != in);
+		getExecutor().submit(in);
 	}
 	
 	public ObservableList<UsbDevice> getDevices() {
@@ -152,19 +157,5 @@ public class UsbService extends Service implements UsbServicesListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-	
-	public synchronized <D extends UsbDriver> D getDriver(ReadyDevice<D> r) {
-		UsbDevice device = r.getDevice();
-		UsbDriverFactory<D> factory = r.getDriverFactory();
-		D driver = null;
-		synchronized(device) {
-			if (device.inUse())
-				return null;
-			driver = factory.makeDriver(device);
-			assert(null != driver);
-			device.setDriver(driver);
-		}
-		return driver;
 	}
 }

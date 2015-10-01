@@ -1,14 +1,19 @@
 package bitwise.devices.usb;
 
+import bitwise.apps.App;
 import bitwise.devices.kinds.DeviceKind;
 
 public abstract class UsbDriver implements DeviceKind {
 	private final UsbDriverID id;
+	private final App app;
 	private final UsbDevice device;
 	
-	public UsbDriver(UsbDevice in_device) {
+	public UsbDriver(App in_app, UsbDevice in_device) {
 		id = new UsbDriverID();
+		app = in_app;
 		device = in_device;
+		assert(null != app);
+		assert(null != device);
 	}
 	
 	@Override

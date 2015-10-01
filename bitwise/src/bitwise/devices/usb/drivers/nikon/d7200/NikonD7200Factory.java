@@ -1,5 +1,6 @@
 package bitwise.devices.usb.drivers.nikon.d7200;
 
+import bitwise.apps.App;
 import bitwise.devices.usb.UsbDevice;
 import bitwise.devices.usb.UsbDriverFactory;
 
@@ -21,10 +22,10 @@ public class NikonD7200Factory extends UsbDriverFactory<NikonD7200> {
 	}
 
 	@Override
-	protected NikonD7200 makeDriver(UsbDevice in) {
-		if (!isCompatibleWith(in))
+	protected NikonD7200 makeDriver(App in_app, UsbDevice in_device) {
+		if (!isCompatibleWith(in_device))
 			return null;
-		return new NikonD7200(in);
+		return new NikonD7200(in_app, in_device);
 	}
 
 	@Override

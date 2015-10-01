@@ -8,8 +8,8 @@ import javafx.collections.ObservableList;
 import bitwise.apps.events.AppLaunchedEvent;
 import bitwise.devices.kinds.DeviceKind;
 import bitwise.devices.usb.ReadyDevice;
-import bitwise.devices.usb.UsbDevice;
 import bitwise.devices.usb.UsbDriver;
+import bitwise.devices.usb.UsbGetDriverRequest;
 import bitwise.engine.eventbus.Event;
 import bitwise.engine.eventbus.EventNode;
 import bitwise.engine.supervisor.Supervisor;
@@ -17,7 +17,7 @@ import bitwise.engine.supervisor.Supervisor;
 public abstract class App implements Runnable {
 	private final AppID id;
 	private boolean m_isRunning;
-	private final ObservableList<UsbDriver> drivers = FXCollections.observableArrayList();
+	private final ObservableList<UsbGetDriverRequest<?, ?>> driverRequests = FXCollections.observableArrayList();
 	
 	public App() {
 		id = new AppID();
@@ -34,8 +34,8 @@ public abstract class App implements Runnable {
 	
 	public final void terminate() {
 		m_isRunning = false;
-		for (UsbDriver driver : drivers)
-			driver.disableDriver();
+		for (UsbGetDriverRequest<?, ?> driverRequest : driverRequests)
+			driverRequest.cancelOrTerminate();
 	}
 	
 	@Override
@@ -78,23 +78,12 @@ public abstract class App implements Runnable {
 		Supervisor.getApps().notifyAppTerminated(this);
 	}
 	
-	@SuppressWarnings("unchecked")
-	protected final <K extends DeviceKind> K getDriver(ReadyDevice<?> ready, Class<K> asKind) {
+	protected final <D extends UsbDriver, K extends DeviceKind> UsbGetDriverRequest<D, K> getDriver(ReadyDevice<D> ready, Class<K> asKind) {
 		assert(null != ready);
-		UsbDevice device = ready.getDevice();
-		synchronized(device) {
-			if (device.inUse())
-				return null;
-			UsbDriver driver = Supervisor.getUSB().getDriver(ready);
-			if (asKind.isAssignableFrom(driver.getClass())) {
-				drivers.add(driver);
-				return (K)driver;
-			}
-			else {
-				driver.disableDriver();
-				return null;
-			}
-		}
+		assert(null != asKind);
+		UsbGetDriverRequest<D, K> req = new UsbGetDriverRequest<D, K>(this, ready, asKind);
+		driverRequests.add(req);
+		return req;
 	}
 	
 	public abstract String getName();
