@@ -14,7 +14,7 @@ public abstract class NikonBase extends PTPCamera {
 	private static final byte interruptEPNum = (byte)0x83;
 	
 	public NikonBase(App in_app, UsbDevice in_device) {
-		super(dataInEPNum, dataOutEPNum, interruptEPNum, in_app, in_device);
+		super(dataOutEPNum, dataInEPNum, interruptEPNum, in_app, in_device);
 	}
 
 	@Override

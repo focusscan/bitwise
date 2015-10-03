@@ -30,7 +30,7 @@ public class Int16 extends Datatype {
 	public void serialize(ByteArrayOutputStream stream) {
 		byte v1 = (byte) (value >> 8);
 		byte v0 = (byte) value;
-		stream.write(v1);
 		stream.write(v0);
+		stream.write(v1);
 	}
 }

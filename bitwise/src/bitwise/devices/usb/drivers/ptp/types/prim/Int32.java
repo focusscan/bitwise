@@ -32,9 +32,9 @@ public class Int32 extends Datatype {
 		byte v2 = (byte) (value >> 16);
 		byte v1 = (byte) (value >> 8);
 		byte v0 = (byte) value;
-		stream.write(v3);
-		stream.write(v2);
-		stream.write(v1);
 		stream.write(v0);
+		stream.write(v1);
+		stream.write(v2);
+		stream.write(v3);
 	}
 }

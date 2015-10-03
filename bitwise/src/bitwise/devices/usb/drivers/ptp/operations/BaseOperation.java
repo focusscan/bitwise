@@ -4,10 +4,14 @@ import java.io.ByteArrayOutputStream;
 
 import bitwise.devices.usb.drivers.ptp.types.SessionID;
 import bitwise.devices.usb.drivers.ptp.types.TransactionID;
-import bitwise.devices.usb.drivers.ptp.types.prim.UInt16;
 import bitwise.devices.usb.drivers.ptp.types.prim.Int32;
+import bitwise.devices.usb.drivers.ptp.types.prim.UInt16;
+import bitwise.devices.usb.drivers.ptp.types.prim.UInt32;
+import bitwise.devices.usb.drivers.ptp.types.prim.Unused;
 
 public abstract class BaseOperation<A1 extends Int32, A2 extends Int32, A3 extends Int32, A4 extends Int32, A5 extends Int32> implements Operation {
+	private static final UInt16 containerTypeCommand = new UInt16((short) 1);
+	
 	private final UInt16 operationCode;
 	private final SessionID sessionID;
 	private final TransactionID transactionID;
@@ -77,13 +81,30 @@ public abstract class BaseOperation<A1 extends Int32, A2 extends Int32, A3 exten
 	
 	@Override
 	public void serialize(ByteArrayOutputStream stream) {
+		ByteArrayOutputStream cmd = new ByteArrayOutputStream();
+		argSerial: do {
+			if (arg1 instanceof Unused)
+				break argSerial;
+			arg1.serialize(cmd);
+			if (arg2 instanceof Unused)
+				break argSerial;
+			arg2.serialize(cmd);
+			if (arg3 instanceof Unused)
+				break argSerial;
+			arg3.serialize(cmd);
+			if (arg4 instanceof Unused)
+				break argSerial;
+			arg4.serialize(cmd);
+			if (arg5 instanceof Unused)
+				break argSerial;
+			arg5.serialize(cmd);
+		} while (false);
+		byte[] cmdBytes = cmd.toByteArray();
+		
+		UInt32 length = new UInt32(cmdBytes.length + 12);
+		length.serialize(stream);
+		containerTypeCommand.serialize(stream);		
 		operationCode.serialize(stream);
-		sessionID.serialize(stream);
 		transactionID.serialize(stream);
-		arg1.serialize(stream);
-		arg2.serialize(stream);
-		arg3.serialize(stream);
-		arg4.serialize(stream);
-		arg5.serialize(stream);
 	}
 }

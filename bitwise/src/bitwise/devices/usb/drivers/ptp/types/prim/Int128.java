@@ -50,21 +50,21 @@ public class Int128 extends Datatype {
 		byte v2_lo = (byte) (value_lo >> 16);
 		byte v1_lo = (byte) (value_lo >> 8);
 		byte v0_lo = (byte) value_lo;
-		stream.write(v7_hi);
-		stream.write(v6_hi);
-		stream.write(v5_hi);
-		stream.write(v4_hi);
-		stream.write(v3_hi);
-		stream.write(v2_hi);
-		stream.write(v1_hi);
-		stream.write(v0_hi);
-		stream.write(v7_lo);
-		stream.write(v6_lo);
-		stream.write(v5_lo);
-		stream.write(v4_lo);
-		stream.write(v3_lo);
-		stream.write(v2_lo);
-		stream.write(v1_lo);
 		stream.write(v0_lo);
+		stream.write(v1_lo);
+		stream.write(v2_lo);
+		stream.write(v3_lo);
+		stream.write(v4_lo);
+		stream.write(v5_lo);
+		stream.write(v6_lo);
+		stream.write(v7_lo);
+		stream.write(v0_hi);
+		stream.write(v1_hi);
+		stream.write(v2_hi);
+		stream.write(v3_hi);
+		stream.write(v4_hi);
+		stream.write(v5_hi);
+		stream.write(v6_hi);
+		stream.write(v7_hi);
 	}
 }

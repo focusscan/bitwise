@@ -15,21 +15,21 @@ import bitwise.devices.usb.UsbDevice;
 import bitwise.devices.usb.UsbDriver;
 import bitwise.devices.usb.drivers.ptp.operations.GetDeviceInfo;
 
-public abstract class PTPCamera extends UsbDriver implements FullCamera, UsbPipeListener {
-	private final byte dataInEPNum;
+public abstract class PTPCamera extends UsbDriver implements FullCamera {
 	private final byte dataOutEPNum;
+	private final byte dataInEPNum;
 	private final byte interruptEPNum;
-	private javax.usb.UsbEndpoint dataInEP;
 	private javax.usb.UsbEndpoint dataOutEP;
+	private javax.usb.UsbEndpoint dataInEP;
 	private javax.usb.UsbEndpoint interruptEP;
-	private javax.usb.UsbPipe dataInPipe;
 	private javax.usb.UsbPipe dataOutPipe;
+	private javax.usb.UsbPipe dataInPipe;
 	private javax.usb.UsbPipe interruptPipe;
 	
-	public PTPCamera(byte in_dataInEPNum, byte in_dataOutEPNum, byte in_interruptEPNum, App in_app, UsbDevice in_device) {
+	public PTPCamera(byte in_dataOutEPNum, byte in_dataInEPNum, byte in_interruptEPNum, App in_app, UsbDevice in_device) {
 		super(in_app, in_device);
-		dataInEPNum = in_dataInEPNum;
-		dataOutEPNum = in_dataOutEPNum;
+		dataOutEPNum = in_dataInEPNum;
+		dataInEPNum = in_dataOutEPNum;
 		interruptEPNum = in_interruptEPNum;
 	}
 	
@@ -37,27 +37,23 @@ public abstract class PTPCamera extends UsbDriver implements FullCamera, UsbPipe
 	public boolean initialize() throws UsbNotActiveException, UsbDisconnectedException, UsbException {
 		if (!super.initialize())
 			return false;
-		dataInEP = getIface().getUsbEndpoint(dataInEPNum);
 		dataOutEP = getIface().getUsbEndpoint(dataOutEPNum);
+		dataInEP = getIface().getUsbEndpoint(dataInEPNum);
 		interruptEP = getIface().getUsbEndpoint(interruptEPNum);
-		assert(null != dataInEP);
 		assert(null != dataOutEP);
+		assert(null != dataInEP);
 		assert(null != interruptEP);
-		System.out.println(String.format("dataInEP: %02x, type %02x", dataInEP.getUsbEndpointDescriptor().bEndpointAddress(), dataInEP.getType()));
-		System.out.println(String.format("dataOutEP: %02x, type %02x", dataOutEP.getUsbEndpointDescriptor().bEndpointAddress(), dataOutEP.getType()));
+		System.out.println(String.format("dataInEP: %02x, type %02x", dataOutEP.getUsbEndpointDescriptor().bEndpointAddress(), dataOutEP.getType()));
+		System.out.println(String.format("dataOutEP: %02x, type %02x", dataInEP.getUsbEndpointDescriptor().bEndpointAddress(), dataInEP.getType()));
 		System.out.println(String.format("interruptEP: %02x, type %02x", interruptEP.getUsbEndpointDescriptor().bEndpointAddress(), interruptEP.getType()));
 		
-		dataInPipe = dataInEP.getUsbPipe();
-		dataInPipe.open();
-		dataInPipe.addUsbPipeListener(this);
 		dataOutPipe = dataOutEP.getUsbPipe();
 		dataOutPipe.open();
-		dataOutPipe.addUsbPipeListener(this);
+		dataInPipe = dataInEP.getUsbPipe();
+		dataInPipe.open();
 		interruptPipe = interruptEP.getUsbPipe();
 		interruptPipe.open();
-		interruptPipe.addUsbPipeListener(this);
 		
-		/*
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		GetDeviceInfo.instance.serialize(stream);
 		byte[] out = stream.toByteArray();
@@ -68,26 +64,13 @@ public abstract class PTPCamera extends UsbDriver implements FullCamera, UsbPipe
 			System.out.println("");
 		}
 		System.out.println("Submitting...");
-		int sent = dataInPipe.syncSubmit(out);
-		System.out.println(String.format("Submitted %s bytes", sent));
-		*/
+		int sent = dataOutPipe.syncSubmit(out);
+		System.out.println(String.format("Submitted %d bytes", sent));
+		
+		byte[] resp = new byte[dataInPipe.getUsbEndpoint().getUsbEndpointDescriptor().wMaxPacketSize()];
+		int recv = dataInPipe.syncSubmit(resp);
+		System.out.println(String.format("Read %d bytes (max %d bytes)", recv, resp.length));
+		
 		return true;
-	}
-	
-	@Override
-	public synchronized final void dataEventOccurred(UsbPipeDataEvent event) {
-		System.out.println(String.format("dataEventOccurred(Pipe: %s)", event));
-		byte data[] = event.getData();
-		if (null != data) {
-			System.out.print(String.format("Read %d bytes: ", data.length));
-			for (byte b : data)
-				System.out.print(String.format("%02x", b));
-			System.out.println("");
-		}
-	}
-	
-	@Override
-	public synchronized final void errorEventOccurred(UsbPipeErrorEvent event) {
-		System.out.println(String.format("errorEventOccurred(Pipe: %s)", event));
 	}
 }
