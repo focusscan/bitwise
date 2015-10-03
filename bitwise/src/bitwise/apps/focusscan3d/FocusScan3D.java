@@ -40,6 +40,10 @@ public class FocusScan3D extends App {
 	private UsbGetDriverRequest<?, FullCamera> cameraRequest = null;
 	private FullCamera driver = null;
 	
+	public FullCamera getDriver() {
+		return driver;
+	}
+	
 	private void handleLaunched() {
 		showDeviceSelect();
 	}
@@ -63,7 +67,7 @@ public class FocusScan3D extends App {
 	}
 	
 	public void fx_deviceSelectViewClosed() {
-		if (null == driver)
+		if (null == cameraRequest)
 			terminate();
 	}
 	

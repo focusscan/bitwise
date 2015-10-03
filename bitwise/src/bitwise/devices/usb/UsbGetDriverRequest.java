@@ -1,5 +1,9 @@
 package bitwise.devices.usb;
 
+import javax.usb.UsbDisconnectedException;
+import javax.usb.UsbException;
+import javax.usb.UsbNotActiveException;
+
 import bitwise.apps.App;
 import bitwise.devices.kinds.DeviceKind;
 
@@ -23,8 +27,12 @@ public class UsbGetDriverRequest<D extends UsbDriver, K extends DeviceKind> exte
 	
 	public synchronized void cancelOrTerminate() {
 		if (!terminated) {
-			if (null != driver)
-				driver.disableDriver();
+			if (null != driver) {
+				try {
+					driver.disableDriver();
+				} catch (UsbNotActiveException | UsbDisconnectedException | UsbException e) {
+				}
+			}
 			terminated = true;
 		}
 	}
@@ -39,7 +47,7 @@ public class UsbGetDriverRequest<D extends UsbDriver, K extends DeviceKind> exte
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected synchronized void serveRequest() {
+	protected synchronized void serveRequest() throws UsbNotActiveException, UsbDisconnectedException, UsbException {
 		if (terminated)
 			return;
 		UsbDevice device = ready.getDevice();
@@ -52,6 +60,10 @@ public class UsbGetDriverRequest<D extends UsbDriver, K extends DeviceKind> exte
 			device.setDriver(driver);
 			if (asKind.isAssignableFrom(driver.getClass())) {
 				driverAsKind = (K)driver;
+				if (!driver.initialize()) {
+					driver = null;
+					driverAsKind = null;
+				}
 			}
 			else {
 				driver.disableDriver();

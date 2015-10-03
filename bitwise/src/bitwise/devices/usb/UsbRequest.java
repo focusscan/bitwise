@@ -1,5 +1,9 @@
 package bitwise.devices.usb;
 
+import javax.usb.UsbDisconnectedException;
+import javax.usb.UsbException;
+import javax.usb.UsbNotActiveException;
+
 import bitwise.devices.usb.events.UsbRequestFinishedEvent;
 import bitwise.engine.supervisor.Supervisor;
 
@@ -34,9 +38,14 @@ public abstract class UsbRequest implements Runnable {
 	
 	@Override
 	public void run() {
-		serveRequest();
+		try {
+			serveRequest();
+		} catch (UsbNotActiveException | UsbDisconnectedException | UsbException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		Supervisor.getEventBus().publishEventToBus(new UsbRequestFinishedEvent(this));
 	}
 	
-	protected abstract void serveRequest();
+	protected abstract void serveRequest() throws UsbNotActiveException, UsbDisconnectedException, UsbException;
 }
