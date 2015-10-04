@@ -1,5 +1,8 @@
 package bitwise.devices.usb;
 
+import bitwise.devices.usb.drivers.UsbDriver;
+import bitwise.devices.usb.drivers.UsbDriverFactory;
+
 public class ReadyDevice<D extends UsbDriver> {
 	private final UsbDevice device;
 	private final UsbDriverFactory<D> driverFactory;

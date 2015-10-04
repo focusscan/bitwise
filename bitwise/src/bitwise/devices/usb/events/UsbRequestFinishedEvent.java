@@ -1,24 +1,16 @@
 package bitwise.devices.usb.events;
 
+import bitwise.apps.events.RequestFinishedEvent;
 import bitwise.devices.usb.UsbRequest;
-import bitwise.engine.eventbus.Event;
 
 
-public final class UsbRequestFinishedEvent extends Event {
-	private final UsbRequest req;
-	
+public final class UsbRequestFinishedEvent extends RequestFinishedEvent<UsbRequest> {
 	public UsbRequestFinishedEvent(UsbRequest in_req) {
-		super("USB Request Finished");
-		req = in_req;
-		assert(null != req);
-	}
-	
-	public UsbRequest getRequest() {
-		return req;
+		super("USB Request Finished", in_req);
 	}
 
 	@Override
 	public String getDescription() {
-		return String.format("USB Request (%s) finished.", req);
+		return String.format("USB Request (%s) finished.", getRequest());
 	}
 }

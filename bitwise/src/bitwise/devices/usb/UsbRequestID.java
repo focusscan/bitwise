@@ -1,16 +1,11 @@
 package bitwise.devices.usb;
 
-import bitwise.engine.ID;
+import bitwise.apps.RequestID;
 
-public final class UsbRequestID extends ID {
+public final class UsbRequestID extends RequestID {
 	private static final String idKind = "UsbRequestID";
-	private static int NextValue = 1;	
-	private static synchronized int nextValue() {
-		return NextValue++;
-	}
 	
 	protected UsbRequestID() {
-		super(nextValue());
 	}
 	
 	@Override

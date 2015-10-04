@@ -7,28 +7,31 @@ import javafx.beans.property.SimpleBooleanProperty;
 
 import javax.usb.UsbDisconnectedException;
 import javax.usb.UsbException;
+import javax.usb.event.UsbDeviceDataEvent;
+import javax.usb.event.UsbDeviceErrorEvent;
+import javax.usb.event.UsbDeviceEvent;
+import javax.usb.event.UsbDeviceListener;
 
-public class UsbDevice {
+import bitwise.devices.usb.drivers.UsbDriver;
+import bitwise.devices.usb.events.UsbDriverSetEvent;
+import bitwise.devices.usb.events.UsbDriverUnsetEvent;
+
+public final class UsbDevice implements UsbDeviceListener {
 	private final UsbDeviceID id;
 	private final javax.usb.UsbDevice platformDevice;
-	private final javax.usb.UsbDeviceDescriptor platformDescriptor;
 	private final short vendorID;
 	private final short productID;
 	private String manufacturer = null;
 	private String product = null;
 	private String serialNumber = null;
 	
-	private UsbDriver driver = null;
-	private BooleanProperty deviceInUse = new SimpleBooleanProperty(false);
-	
 	public UsbDevice(javax.usb.UsbDevice in_platformDevice) throws UsbDisconnectedException, UsbException {
 		id = new UsbDeviceID();
 		platformDevice = in_platformDevice;
 		assert(null != platformDevice);
 		
-		platformDescriptor = platformDevice.getUsbDeviceDescriptor();
-		vendorID = platformDescriptor.idVendor();
-		productID = platformDescriptor.idProduct();
+		vendorID = platformDevice.getUsbDeviceDescriptor().idVendor();
+		productID = platformDevice.getUsbDeviceDescriptor().idProduct();
 		
 		try {
 			manufacturer = platformDevice.getManufacturerString();
@@ -40,16 +43,12 @@ public class UsbDevice {
 		}
 	}
 	
-	public UsbDeviceID getID() {
-		return id;
-	}
-	
-	protected javax.usb.UsbDevice getPlatformDevice() {
+	public javax.usb.UsbDevice getPlatformDevice() {
 		return platformDevice;
 	}
 	
-	protected javax.usb.UsbDeviceDescriptor getPlatformDescriptor() {
-		return platformDescriptor;
+	public UsbDeviceID getID() {
+		return id;
 	}
 	
 	public short getVendorID() {
@@ -72,23 +71,31 @@ public class UsbDevice {
 		return serialNumber;
 	}
 	
-	protected synchronized void setDriver(UsbDriver in_driver) {
-		assert(null == driver);
-		driver = in_driver;
-		deviceInUse.set(true);
-	}
-	
-	protected synchronized void unsetDriver() {
-		driver = null;
-		deviceInUse.set(false);
-	}
-	
-	public boolean inUse() {
-		return (null != driver);
-	}
+	private UsbDriver driver = null;
+	private BooleanProperty deviceInUse = new SimpleBooleanProperty(false);
 	
 	public BooleanProperty getDeviceInUse() {
 		return deviceInUse;
+	}
+	
+	public synchronized UsbDriver getDriver() {
+		return driver;
+	}
+	
+	public synchronized void setDriver(UsbDriver in_driver) {
+		assert(null == driver);
+		platformDevice.addUsbDeviceListener(this);
+		driver = in_driver;
+		deviceInUse.set(true);
+		bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new UsbDriverSetEvent(this, driver));
+	}
+	
+	public synchronized void unsetDriver() {
+		UsbDriver oldDriver = driver;
+		driver = null;
+		deviceInUse.set(false);
+		platformDevice.removeUsbDeviceListener(this);
+		bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new UsbDriverUnsetEvent(this, oldDriver));
 	}
 	
 	@Override
@@ -108,11 +115,22 @@ public class UsbDevice {
 	
 	@Override
 	public String toString() {
-		if (null != manufacturer && null != product && null != serialNumber)
-			return String.format("USB<%08x> (%s - %s ser# %s)", id.getValue(), manufacturer, product, serialNumber);
-		else if (null != manufacturer && null != product)
-			return String.format("USB<%08x> (%s - %s)", id.getValue(), manufacturer, product);
-		else
-			return String.format("USB<%08x> (%04x:%04x)", id.getValue(), vendorID, productID);
+		return String.format("USB<%08x> (%s - %s ser# %s)", id.getValue(), manufacturer, product, serialNumber);
+	}
+
+	@Override
+	public void dataEventOccurred(UsbDeviceDataEvent event) {
+		
+	}
+
+	@Override
+	public void errorEventOccurred(UsbDeviceErrorEvent event) {
+		System.out.println(String.format("errorEventOccurred(Device: %s)", event));
+	}
+
+	@Override
+	public void usbDeviceDetached(UsbDeviceEvent event) {
+		driver.resourceClose();
+		unsetDriver();
 	}
 }

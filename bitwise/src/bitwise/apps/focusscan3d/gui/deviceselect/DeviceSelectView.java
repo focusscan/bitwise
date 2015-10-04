@@ -125,7 +125,7 @@ public class DeviceSelectView extends BorderPane {
 		tableView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ReadyDevice<?>>() {
 			@Override
 			public void changed(ObservableValue<? extends ReadyDevice<?>> obs, ReadyDevice<?> oldR, ReadyDevice<?> newR) {
-				btnUseDevice.setDisable(null == newR || newR.getDevice().inUse());
+				btnUseDevice.setDisable(null == newR || newR.getDevice().getDeviceInUse().get());
 			}
 		});
 	}

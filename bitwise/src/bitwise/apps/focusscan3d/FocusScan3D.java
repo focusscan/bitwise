@@ -8,7 +8,7 @@ import bitwise.apps.focusscan3d.gui.camera.CameraView;
 import bitwise.apps.focusscan3d.gui.deviceselect.DeviceSelectView;
 import bitwise.devices.kinds.FullCamera;
 import bitwise.devices.usb.ReadyDevice;
-import bitwise.devices.usb.UsbGetDriverRequest;
+import bitwise.devices.usb.drivers.UsbGetDriverRequest;
 import bitwise.devices.usb.events.UsbRequestFinishedEvent;
 import bitwise.engine.eventbus.Event;
 import bitwise.engine.supervisor.Supervisor;
@@ -61,7 +61,7 @@ public class FocusScan3D extends App {
 	}
 	
 	public void fx_setDriver(ReadyDevice<?> ready) {
-		cameraRequest = getDriver(ready, FullCamera.class);
+		cameraRequest = getDriverRequest(ready, FullCamera.class);
 		Supervisor.getUSB().enqueueRequest(cameraRequest);
 		hideDeviceSelect();
 	}

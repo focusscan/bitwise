@@ -1,6 +1,7 @@
-package bitwise.devices.usb;
+package bitwise.devices.usb.drivers;
 
 import bitwise.apps.App;
+import bitwise.devices.usb.UsbDevice;
 
 public abstract class UsbDriverFactory<D extends UsbDriver> {
 	private final UsbDriverFactoryID id;

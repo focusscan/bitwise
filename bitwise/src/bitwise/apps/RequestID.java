@@ -1,15 +1,15 @@
-package bitwise.devices.usb;
+package bitwise.apps;
 
 import bitwise.engine.ID;
 
-public final class UsbDriverID extends ID {
-	private static final String idKind = "UsbDriverID";
+public abstract class RequestID extends ID {
+	private static final String idKind = "RequestID";
 	private static int NextValue = 1;	
 	private static synchronized int nextValue() {
 		return NextValue++;
 	}
 	
-	protected UsbDriverID() {
+	protected RequestID() {
 		super(nextValue());
 	}
 	

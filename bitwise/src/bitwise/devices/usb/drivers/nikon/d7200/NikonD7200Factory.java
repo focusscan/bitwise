@@ -2,7 +2,7 @@ package bitwise.devices.usb.drivers.nikon.d7200;
 
 import bitwise.apps.App;
 import bitwise.devices.usb.UsbDevice;
-import bitwise.devices.usb.UsbDriverFactory;
+import bitwise.devices.usb.drivers.UsbDriverFactory;
 
 public class NikonD7200Factory extends UsbDriverFactory<NikonD7200> {
 	protected static final String driverName = "Bitwise Nikon D7200";
@@ -25,7 +25,7 @@ public class NikonD7200Factory extends UsbDriverFactory<NikonD7200> {
 	protected NikonD7200 makeDriver(App in_app, UsbDevice in_device) {
 		if (!isCompatibleWith(in_device))
 			return null;
-		return new NikonD7200(in_app, in_device);
+		return new NikonD7200(in_app);
 	}
 
 	@Override

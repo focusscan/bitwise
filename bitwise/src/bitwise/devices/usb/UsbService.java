@@ -14,6 +14,7 @@ import javax.usb.event.UsbServicesEvent;
 import javax.usb.event.UsbServicesListener;
 
 import bitwise.devices.kinds.DeviceKind;
+import bitwise.devices.usb.drivers.UsbDriverFactory;
 import bitwise.devices.usb.events.UsbAttachedEvent;
 import bitwise.devices.usb.events.UsbDetachedEvent;
 import bitwise.devices.usb.events.UsbFastGoodbyeEvent;
@@ -100,13 +101,15 @@ public class UsbService extends Service implements UsbServicesListener {
 
 	@Override
 	public synchronized void usbDeviceDetached(UsbServicesEvent event) {
+		// Look for the detached device
 		UsbDevice foundIt = null;
 		for (UsbDevice device : devices) {
-			if (device.getPlatformDescriptor() == event.getUsbDevice().getUsbDeviceDescriptor()) {
+			if (device.getPlatformDevice().equals(event.getUsbDevice())) {
 				foundIt = device;
 				break;
 			}
 		}
+		// Remove it from our lists (if we found it)
 		if (null != foundIt) {
 			removeDevice(foundIt);
 			Supervisor.getEventBus().publishEventToBus(new UsbDetachedEvent(foundIt));
@@ -114,8 +117,10 @@ public class UsbService extends Service implements UsbServicesListener {
 	}
 	
 	private synchronized void removeDevice(UsbDevice device) {
+		// Remove from the device list
 		boolean deviceWasRemoved = devices.remove(device);
 		assert(deviceWasRemoved);
+		// Remove from the ready list
 		ready.removeIf(new Predicate<ReadyDevice<?>>() {
 			@Override
 			public boolean test(ReadyDevice<?> t) {
@@ -125,7 +130,9 @@ public class UsbService extends Service implements UsbServicesListener {
 	}
 	
 	private synchronized void addDevice(UsbDevice device) {
+		// Add to the device list
 		devices.add(device);
+		// Add to the ready list
 		for (UsbDriverFactory<?> driver : drivers) {
 			if (driver.isCompatibleWith(device)) {
 				ready.add(new ReadyDevice<>(device, driver));

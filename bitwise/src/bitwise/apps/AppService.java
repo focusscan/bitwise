@@ -1,5 +1,7 @@
 package bitwise.apps;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import bitwise.apps.events.AppFastGoodbyeEvent;
@@ -18,6 +20,7 @@ public class AppService extends Service {
 		return 4;
 	}
 	
+	private final BooleanProperty rememberTerminated = new SimpleBooleanProperty(true);
 	private final ObservableList<AppFactory<?>> appFactories = FXCollections.observableArrayList();
 	private final ObservableList<App> apps = FXCollections.observableArrayList();
 	
@@ -67,8 +70,10 @@ public class AppService extends Service {
 	}
 	
 	protected synchronized void notifyAppTerminated(App in) {
-		boolean removed = apps.remove(in);
-		assert(removed);
+		if (!rememberTerminated.get()) {
+			boolean removed = apps.remove(in);
+			assert(removed);
+		}
 		Supervisor.getEventBus().publishEventToBus(new AppTerminatedEvent(in));
 	}
 }
