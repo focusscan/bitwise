@@ -63,13 +63,20 @@ public abstract class UsbRequest implements Request, Runnable {
 	@Override
 	public void run() {
 		UsbContext ctx = new UsbContext();
-		serveRequest(ctx);
-		synchronized (this) {
-			completedSuccessfully.set(true);
-			requestServed.set(true);
+		try {
+			serveRequest(ctx);
+			synchronized (this) {
+				completedSuccessfully.set(true);
+				requestServed.set(true);
+			}
+		} catch (InterruptedException e) {
+			synchronized (this) {
+				completedSuccessfully.set(false);
+				requestServed.set(true);
+			}
 		}
 		Supervisor.getEventBus().publishEventToBus(new UsbRequestFinishedEvent(this));
 	}
 	
-	protected abstract void serveRequest(UsbContext ctx);
+	protected abstract void serveRequest(UsbContext ctx) throws InterruptedException;
 }

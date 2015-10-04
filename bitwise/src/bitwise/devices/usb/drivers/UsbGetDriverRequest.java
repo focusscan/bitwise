@@ -49,7 +49,7 @@ public class UsbGetDriverRequest<D extends UsbDriver, K extends DeviceKind> exte
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected synchronized void serveRequest(UsbContext ctx) {
+	protected synchronized void serveRequest(UsbContext ctx) throws InterruptedException {
 		if (getRequestCanceled().get())
 			return;
 		UsbDevice device = ready.getDevice();

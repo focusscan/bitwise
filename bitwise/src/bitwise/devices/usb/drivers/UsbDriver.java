@@ -31,7 +31,7 @@ public abstract class UsbDriver implements Resource, DeviceKind {
 		return device;
 	}
 	
-	protected abstract boolean onDriverInitialize(UsbContext ctx);
+	protected abstract boolean onDriverInitialize(UsbContext ctx) throws InterruptedException;
 	protected abstract void onDriverDisable();
 	public abstract String getName();
 	
@@ -54,7 +54,7 @@ public abstract class UsbDriver implements Resource, DeviceKind {
 		return resourceIsOpen;
 	}
 	
-	public synchronized final boolean initialize(UsbContext ctx, UsbDevice in_device) {
+	public synchronized final boolean initialize(UsbContext ctx, UsbDevice in_device) throws InterruptedException {
 		device = in_device;
 		resourceIsOpen.set(true);
 		driverInitialized = onDriverInitialize(ctx);

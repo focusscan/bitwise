@@ -1,6 +1,7 @@
 package bitwise.devices.usb.drivers.ptp.types.prim;
 
 import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 public class Str extends Datatype {
@@ -20,6 +21,21 @@ public class Str extends Datatype {
 	}
 	
 	private String value;
+	
+	public Str(ByteBuffer in) {
+		super((short) 0xffff);
+		int length = 0xff & in.get();
+		if (0 == length)
+			value = "";
+		else {
+			byte[] str = new byte[(length-1) * 2];
+			in.get(str);
+			value = new String(str, StandardCharsets.UTF_16LE);
+			// Consume the null terminator
+			in.get();
+			in.get();
+		}
+	}
 	
 	public Str(String in_value) throws StrTooLong {
 		super((short) 0xffff);
@@ -52,9 +68,14 @@ public class Str extends Datatype {
 	@Override
 	public void serialize(ByteArrayOutputStream stream) {
 		byte len = (byte)value.length();
-		byte[] encodedString = value.getBytes(StandardCharsets.UTF_16LE);
 		stream.write(len);
-		for (int i = 0; i < len; i++)
-			stream.write(encodedString[i]);
+		if (0 < len) {
+			byte[] encodedString = value.getBytes(StandardCharsets.UTF_16LE);
+			for (byte b : encodedString)
+				stream.write(b);
+			// Add null termination
+			stream.write(0);
+			stream.write(0);
+		}
 	}
 }

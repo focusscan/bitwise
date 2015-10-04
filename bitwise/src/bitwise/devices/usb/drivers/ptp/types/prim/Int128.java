@@ -1,12 +1,60 @@
 package bitwise.devices.usb.drivers.ptp.types.prim;
 
 import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
 
 public class Int128 extends Datatype {
 	public static final Int128 zero = new Int128(0, 0);
+	public static final DatatypeDecoder<Int128> decoder = new DatatypeDecoder<Int128>() {
+		@Override
+		public Int128 getSample() {
+			return zero;
+		}
+
+		@Override
+		public Int128 decode(ByteBuffer in) {
+			return new Int128(in);
+		}
+	};
 	
 	private long value_lo;
 	private long value_hi;
+	
+	public Int128(ByteBuffer in) {
+		super((short) 0x0009);
+		long v0_lo = 0xff & in.get();
+		long v1_lo = 0xff & in.get();
+		long v2_lo = 0xff & in.get();
+		long v3_lo = 0xff & in.get();
+		long v4_lo = 0xff & in.get();
+		long v5_lo = 0xff & in.get();
+		long v6_lo = 0xff & in.get();
+		long v7_lo = 0xff & in.get();
+		long v0_hi = 0xff & in.get();
+		long v1_hi = 0xff & in.get();
+		long v2_hi = 0xff & in.get();
+		long v3_hi = 0xff & in.get();
+		long v4_hi = 0xff & in.get();
+		long v5_hi = 0xff & in.get();
+		long v6_hi = 0xff & in.get();
+		long v7_hi = 0xff & in.get();
+		value_lo = v0_lo
+				 | (v1_lo << 8)
+				 | (v2_lo << 16)
+				 | (v3_lo << 24)
+				 | (v4_lo << 32)
+				 | (v5_lo << 40)
+				 | (v6_lo << 48)
+				 | (v7_lo << 56);
+		value_hi = v0_hi
+				 | (v1_hi << 8)
+				 | (v2_hi << 16)
+				 | (v3_hi << 24)
+				 | (v4_hi << 32)
+				 | (v5_hi << 40)
+				 | (v6_hi << 48)
+				 | (v7_hi << 56);
+	}
 	
 	public Int128(long in_value_hi, long in_value_lo) {
 		super((short) 0x0009);
