@@ -1,31 +1,34 @@
-package bitwise.devices.usb.drivers.ptp.datasets;
+package bitwise.devices.usb.drivers.ptp.responses;
 
 import java.nio.ByteBuffer;
 
+import bitwise.devices.usb.drivers.ptp.operations.GetDeviceInfo;
 import bitwise.devices.usb.drivers.ptp.types.DevicePropCode;
 import bitwise.devices.usb.drivers.ptp.types.EventCode;
 import bitwise.devices.usb.drivers.ptp.types.ObjectFormatCode;
 import bitwise.devices.usb.drivers.ptp.types.OperationCode;
 import bitwise.devices.usb.drivers.ptp.types.prim.*;
 
-public class DeviceInfo extends BaseDataset {
-	private UInt16 standardVersion;
-	private UInt32 vendorExtensionID;
-	private UInt16 vendorExtensionVersion;
-	private Str vendorExtensionDesc;
-	private UInt16 functionalMode;
-	private Arr<OperationCode> operationsSupported;
-	private Arr<EventCode> eventsSupported;
-	private Arr<DevicePropCode> devicePropertiesSupported;
-	private Arr<ObjectFormatCode> captureFormats;
-	private Arr<ObjectFormatCode> imageFormats;
-	private Str manufacturer;
-	private Str model;
-	private Str deviceVersion;
-	private Str serialNumber;
+public class DeviceInfo extends BaseResponse {
+	private UInt16 standardVersion = null;
+	private UInt32 vendorExtensionID = null;
+	private UInt16 vendorExtensionVersion = null;
+	private Str vendorExtensionDesc = null;
+	private UInt16 functionalMode = null;
+	private Arr<OperationCode> operationsSupported = null;
+	private Arr<EventCode> eventsSupported = null;
+	private Arr<DevicePropCode> devicePropertiesSupported = null;
+	private Arr<ObjectFormatCode> captureFormats = null;
+	private Arr<ObjectFormatCode> imageFormats = null;
+	private Str manufacturer = null;
+	private Str model = null;
+	private Str deviceVersion = null;
+	private Str serialNumber = null;
 	
 	public DeviceInfo(ByteBuffer in) {
 		super(in);
+		if (!getCode().equals(GetDeviceInfo.operationCode))
+			return;
 		standardVersion = new UInt16(in);
 		System.out.println(String.format("version %d", standardVersion.getValue()));
 		vendorExtensionID = new UInt32(in);

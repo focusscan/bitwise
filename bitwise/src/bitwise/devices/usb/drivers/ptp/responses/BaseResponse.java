@@ -1,37 +1,40 @@
-package bitwise.devices.usb.drivers.ptp.datasets;
+package bitwise.devices.usb.drivers.ptp.responses;
 
 import java.nio.ByteBuffer;
 
-import bitwise.devices.usb.drivers.ptp.types.OperationCode;
 import bitwise.devices.usb.drivers.ptp.types.TransactionID;
 import bitwise.devices.usb.drivers.ptp.types.prim.UInt16;
 import bitwise.devices.usb.drivers.ptp.types.prim.UInt32;
 
-public abstract class BaseDataset {
+public class BaseResponse implements Response {
 	private final UInt32 length;
 	private final UInt16 type;
-	private final OperationCode operationCode;
+	private final UInt16 code;
 	private final TransactionID transactionID;
 	
-	public BaseDataset(ByteBuffer in) {
+	public BaseResponse(ByteBuffer in) {
 		length = new UInt32(in);
 		type = new UInt16(in);
-		operationCode = new OperationCode(in);
+		code = new UInt16(in);
 		transactionID = new TransactionID(in);
 	}
 	
+	@Override
 	public int getLength() {
 		return length.getValue();
 	}
 	
+	@Override
 	public UInt16 getType() {
 		return type;
 	}
 	
-	public OperationCode getOperationCode() {
-		return operationCode;
+	@Override
+	public UInt16 getCode() {
+		return code;
 	}
 	
+	@Override
 	public TransactionID getTransactionID() {
 		return transactionID;
 	}
