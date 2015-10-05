@@ -4,8 +4,15 @@ import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
-public class Str extends Datatype {
+public class Str implements PtpType {
 	public static final int MaxStrLength = 254;
+	public static final Decoder<Str> decoder = new Decoder<Str>() {
+		@Override
+		public Str decode(ByteBuffer in) {
+			return new Str(in);
+		}
+	};
+	
 	public static class StrTooLong extends Exception {
 		private static final long serialVersionUID = -8164534523601745004L;
 		private final String string;
@@ -23,7 +30,6 @@ public class Str extends Datatype {
 	private String value;
 	
 	public Str(ByteBuffer in) {
-		super((short) 0xffff);
 		int length = 0xff & in.get();
 		if (0 == length)
 			value = "";
@@ -38,7 +44,6 @@ public class Str extends Datatype {
 	}
 	
 	public Str(String in_value) throws StrTooLong {
-		super((short) 0xffff);
 		setValue(in_value);
 	}
 	
@@ -64,8 +69,12 @@ public class Str extends Datatype {
 		Str that = (Str)o;
 		return this.value.equals(that.value);
 	}
-
+	
 	@Override
+	public String toString() {
+		return value;
+	}
+
 	public void serialize(ByteArrayOutputStream stream) {
 		byte len = (byte)value.length();
 		stream.write(len);

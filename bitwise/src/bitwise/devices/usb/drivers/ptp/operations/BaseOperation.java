@@ -1,14 +1,16 @@
 package bitwise.devices.usb.drivers.ptp.operations;
 
 import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
 import java.util.List;
 
+import bitwise.devices.usb.drivers.ptp.responses.BaseResponse;
 import bitwise.devices.usb.drivers.ptp.types.TransactionID;
 import bitwise.devices.usb.drivers.ptp.types.prim.Int32;
 import bitwise.devices.usb.drivers.ptp.types.prim.UInt16;
 import bitwise.devices.usb.drivers.ptp.types.prim.UInt32;
 
-public abstract class BaseOperation implements Operation {
+public abstract class BaseOperation<R extends BaseResponse> implements Operation {
 	private static final UInt16 containerTypeCommand = new UInt16((short) 1);
 	
 	private final String operationName;
@@ -26,6 +28,8 @@ public abstract class BaseOperation implements Operation {
 		assert(null != args);
 		assert(null != transactionID);
 	}
+	
+	public abstract R decodeResponse(ByteBuffer in);
 	
 	@Override
 	public UInt16 getOperationCode() {

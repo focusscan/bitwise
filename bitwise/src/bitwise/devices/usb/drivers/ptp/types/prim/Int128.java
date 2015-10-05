@@ -3,25 +3,26 @@ package bitwise.devices.usb.drivers.ptp.types.prim;
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 
-public class Int128 extends Datatype {
+public class Int128 extends IntegralType {
 	public static final Int128 zero = new Int128(0, 0);
-	public static final DatatypeDecoder<Int128> decoder = new DatatypeDecoder<Int128>() {
-		@Override
-		public Int128 getSample() {
-			return zero;
-		}
-
+	public static final Decoder<Int128> decoder = new Decoder<Int128>() {
 		@Override
 		public Int128 decode(ByteBuffer in) {
 			return new Int128(in);
 		}
 	};
+	public static final Decoder<Arr<Int128>> arrayDecoder = new Decoder<Arr<Int128>>() {
+		@Override
+		public Arr<Int128> decode(ByteBuffer in) {
+			return new Arr<>(decoder, in);
+		}
+	};
+
 	
 	private long value_lo;
 	private long value_hi;
 	
 	public Int128(ByteBuffer in) {
-		super((short) 0x0009);
 		long v0_lo = 0xff & in.get();
 		long v1_lo = 0xff & in.get();
 		long v2_lo = 0xff & in.get();
@@ -57,7 +58,6 @@ public class Int128 extends Datatype {
 	}
 	
 	public Int128(long in_value_hi, long in_value_lo) {
-		super((short) 0x0009);
 		value_lo = in_value_lo;
 		value_hi = in_value_hi;
 	}
@@ -78,6 +78,11 @@ public class Int128 extends Datatype {
 			return false;
 		Int128 that = (Int128)o;
 		return (this.value_lo == that.value_lo) && (this.value_hi == that.value_hi);
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("%016x%016x", value_hi, value_lo);
 	}
 	
 	@Override

@@ -3,24 +3,24 @@ package bitwise.devices.usb.drivers.ptp.types.prim;
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 
-public class Int64 extends Datatype {
+public class Int64 extends IntegralType {
 	public static final Int64 zero = new Int64(0);
-	public static final DatatypeDecoder<Int64> decoder = new DatatypeDecoder<Int64>() {
-		@Override
-		public Int64 getSample() {
-			return zero;
-		}
-
+	public static final Decoder<Int64> decoder = new Decoder<Int64>() {
 		@Override
 		public Int64 decode(ByteBuffer in) {
 			return new Int64(in);
+		}
+	};
+	public static final Decoder<Arr<Int64>> arrayDecoder = new Decoder<Arr<Int64>>() {
+		@Override
+		public Arr<Int64> decode(ByteBuffer in) {
+			return new Arr<>(decoder, in);
 		}
 	};
 	
 	private long value;
 	
 	public Int64(ByteBuffer in) {
-		super((short) 0x0007);
 		long v0 = 0xff & in.get();
 		long v1 = 0xff & in.get();
 		long v2 = 0xff & in.get();
@@ -40,7 +40,6 @@ public class Int64 extends Datatype {
 	}
 	
 	public Int64(long in_value) {
-		super((short) 0x0007);
 		value = in_value;
 	}
 	
@@ -56,6 +55,11 @@ public class Int64 extends Datatype {
 			return false;
 		Int64 that = (Int64)o;
 		return (this.value == that.value);
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("%016x", value);
 	}
 	
 	@Override
