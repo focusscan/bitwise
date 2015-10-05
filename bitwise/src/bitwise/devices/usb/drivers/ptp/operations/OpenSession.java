@@ -1,7 +1,6 @@
 package bitwise.devices.usb.drivers.ptp.operations;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 
 import bitwise.devices.usb.drivers.ptp.responses.BaseResponse;
 import bitwise.devices.usb.drivers.ptp.types.SessionID;
@@ -14,7 +13,7 @@ public class OpenSession extends BaseOperation<BaseResponse> {
 	private final SessionID sessionID;
 	
 	public OpenSession() {
-		super("OpenSession", operationCode, TransactionID.zero, new ArrayList<>(1));
+		super("OpenSession", operationCode, TransactionID.zero, 1);
 		sessionID = new SessionID();
 		getArgs().add(sessionID);
 	}

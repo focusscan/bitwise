@@ -1,7 +1,6 @@
 package bitwise.devices.usb.drivers.ptp.operations;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 
 import bitwise.devices.usb.drivers.ptp.responses.DeviceProperty;
 import bitwise.devices.usb.drivers.ptp.types.DevicePropCode;
@@ -14,7 +13,7 @@ public class GetDevicePropDesc extends BaseOperation<DeviceProperty> {
 	private final DevicePropCode devicePropCode;
 	
 	public GetDevicePropDesc(TransactionID id, DevicePropCode in_devicePropCode) {
-		super("GetDevicePropValue", operationCode, id, new ArrayList<>(1));
+		super("GetDevicePropValue", operationCode, id, 1);
 		devicePropCode = in_devicePropCode;
 		getArgs().add(devicePropCode.asInt32());
 	}

@@ -13,10 +13,15 @@ public class BaseResponse implements Response {
 	private final TransactionID transactionID;
 	
 	public BaseResponse(ByteBuffer in) {
+		System.out.println("BaseResponse");
 		length = new UInt32(in);
+		System.out.println(String.format(" length %s", length));
 		type = new UInt16(in);
+		System.out.println(String.format(" type %s", type));
 		code = new UInt16(in);
+		System.out.println(String.format(" code %s", code));
 		transactionID = new TransactionID(in);
+		System.out.println(String.format(" transactionID %s", transactionID));
 	}
 	
 	@Override

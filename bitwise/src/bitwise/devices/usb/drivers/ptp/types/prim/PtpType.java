@@ -1,5 +1,7 @@
 package bitwise.devices.usb.drivers.ptp.types.prim;
 
-public interface PtpType {
+import java.io.ByteArrayOutputStream;
 
+public interface PtpType {
+	public void serialize(ByteArrayOutputStream stream);
 }

@@ -30,6 +30,7 @@ public class Arr<D extends IntegralType> implements PtpType {
 			value = in_value;
 	}
 
+	@Override
 	public void serialize(ByteArrayOutputStream stream) {
 		UInt32 len = new UInt32(value.size());
 		len.serialize(stream);

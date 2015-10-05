@@ -29,39 +29,40 @@ public class DeviceInfo extends BaseResponse {
 		super(in);
 		if (!getCode().equals(GetDeviceInfo.operationCode))
 			return;
+		System.out.println("DeviceInfo");
 		standardVersion = new UInt16(in);
-		System.out.println(String.format("version %d", standardVersion.getValue()));
+		System.out.println(String.format(" version %d", standardVersion.getValue()));
 		vendorExtensionID = new UInt32(in);
-		System.out.println(String.format("vendorExtensionID %d", vendorExtensionID.getValue()));
+		System.out.println(String.format(" vendorExtensionID %d", vendorExtensionID.getValue()));
 		vendorExtensionVersion = new UInt16(in);
-		System.out.println(String.format("vendorExtensionVersion %d", vendorExtensionVersion.getValue()));
+		System.out.println(String.format(" vendorExtensionVersion %d", vendorExtensionVersion.getValue()));
 		vendorExtensionDesc = new Str(in);
-		System.out.println(String.format("vendorExtensionDesc %s", vendorExtensionDesc.getValue()));
+		System.out.println(String.format(" vendorExtensionDesc %s", vendorExtensionDesc.getValue()));
 		functionalMode = new UInt16(in);
-		System.out.println(String.format("functionalMode %04x", functionalMode.getValue()));
+		System.out.println(String.format(" functionalMode %s", functionalMode));
 		operationsSupported = new Arr<>(OperationCode.decoder, in);
 		for (OperationCode code : operationsSupported.getValue())
-			System.out.println(String.format("operationsSupported %04x", code.getValue()));
+			System.out.println(String.format(" operationsSupported %s", code));
 		eventsSupported = new Arr<>(EventCode.decoder, in);
 		for (EventCode code : eventsSupported.getValue())
-			System.out.println(String.format("eventsSupported %04x", code.getValue()));
+			System.out.println(String.format(" eventsSupported %s", code));
 		devicePropertiesSupported = new Arr<>(DevicePropCode.decoder, in);
 		for (DevicePropCode code : devicePropertiesSupported.getValue())
-			System.out.println(String.format("devicePropertiesSupported %04x", code.getValue()));
+			System.out.println(String.format(" devicePropertiesSupported %s", code));
 		captureFormats = new Arr<>(ObjectFormatCode.decoder, in);
 		for (ObjectFormatCode code : captureFormats.getValue())
-			System.out.println(String.format("captureFormats %04x", code.getValue()));
+			System.out.println(String.format(" captureFormats %s", code));
 		imageFormats = new Arr<>(ObjectFormatCode.decoder, in);
 		for (ObjectFormatCode code : imageFormats.getValue())
-			System.out.println(String.format("imageFormats %04x", code.getValue()));
+			System.out.println(String.format(" imageFormats %s", code));
 		manufacturer = new Str(in);
-		System.out.println(String.format("manufacturer %s", manufacturer.getValue()));
+		System.out.println(String.format(" manufacturer %s", manufacturer));
 		model = new Str(in);
-		System.out.println(String.format("model %s", model.getValue()));
+		System.out.println(String.format(" model %s", model));
 		deviceVersion = new Str(in);
-		System.out.println(String.format("deviceVersion %s", deviceVersion.getValue()));
+		System.out.println(String.format(" deviceVersion %s", deviceVersion));
 		serialNumber = new Str(in);
-		System.out.println(String.format("serialNumber %s", serialNumber.getValue()));
+		System.out.println(String.format(" serialNumber %s", serialNumber));
 	}
 	
 	public UInt16 getStandardVersion() {

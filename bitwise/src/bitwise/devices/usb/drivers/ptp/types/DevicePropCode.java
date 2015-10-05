@@ -37,8 +37,8 @@ public class DevicePropCode extends UInt16 {
 	public static final DevicePropCode uploadURL = new DevicePropCode((short) 0x501d);
 	public static final DevicePropCode artist = new DevicePropCode((short) 0x501e);
 	public static final DevicePropCode copyrightInfo = new DevicePropCode((short) 0x501f);
-
-
+	
+	
 	public static final Decoder<DevicePropCode> decoder = new Decoder<DevicePropCode>() {
 		@Override
 		public DevicePropCode decode(ByteBuffer in) {

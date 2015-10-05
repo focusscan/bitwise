@@ -75,6 +75,7 @@ public class Str implements PtpType {
 		return value;
 	}
 
+	@Override
 	public void serialize(ByteArrayOutputStream stream) {
 		byte len = (byte)value.length();
 		stream.write(len);

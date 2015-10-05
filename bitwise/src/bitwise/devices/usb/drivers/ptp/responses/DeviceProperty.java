@@ -1,39 +1,108 @@
 package bitwise.devices.usb.drivers.ptp.responses;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
 import bitwise.devices.usb.drivers.ptp.operations.GetDevicePropDesc;
 import bitwise.devices.usb.drivers.ptp.types.*;
 import bitwise.devices.usb.drivers.ptp.types.prim.*;
 
 public class DeviceProperty extends BaseResponse {
+	public static interface PropertyDescribingDataset {
+		
+	}
+	
+	public static class PropertyDescribingRange<P extends PtpType> implements PropertyDescribingDataset {
+		private P minimumValue = null;
+		private P maximumValue = null;
+		private P stepSize = null;
+		
+		public PropertyDescribingRange(Decoder<P> decoder, ByteBuffer in) {
+			System.out.println(" PropertyDescribingRange");
+			minimumValue = decoder.decode(in);
+			System.out.println(String.format("  minimumValue %s", minimumValue));
+			maximumValue = decoder.decode(in);
+			System.out.println(String.format("  maximumValue %s", maximumValue));
+			stepSize = decoder.decode(in);
+			System.out.println(String.format("  stepSize %s", stepSize));
+		}
+		
+		public P getMinimumValue() {
+			return minimumValue;
+		}
+		
+		public P getMaximumValue() {
+			return maximumValue;
+		}
+		
+		public P getStepSize() {
+			return stepSize;
+		}
+	}
+	
+	public static class PropertyDescribingEnum<P extends PtpType> implements PropertyDescribingDataset {
+		private UInt16 numberOfValues = null;
+		private ArrayList<P> supportedValues = null;
+		
+		public PropertyDescribingEnum(Decoder<P> decoder, ByteBuffer in) {
+			System.out.println(" PropertyDescribingEnum");
+			numberOfValues = new UInt16(in);
+			System.out.println(String.format("  numberOfValues %s", numberOfValues));
+			supportedValues = new ArrayList<>(getNumberOfValues());
+			for (int i = 0; i < getNumberOfValues(); i++) {
+				P decoded = decoder.decode(in);
+				supportedValues.add(decoded);
+				System.out.println(String.format("  decoded %s", decoded));
+			}
+		}
+		
+		public int getNumberOfValues() {
+			return 0xffff & numberOfValues.getValue();
+		}
+		
+		public ArrayList<P> getSupportedValues() {
+			return supportedValues;
+		}
+	}
+	
 	private DevicePropCode devicePropCode = null;
 	private DataType dataType = null;
 	private UInt8 getSet = null;
 	private PtpType factoryDefaultValue = null;
 	private PtpType currentValue = null;
 	private UInt8 formFlag = null;
-	// TODO: FORM
+	private PropertyDescribingDataset form = null;
 	
 	public DeviceProperty(ByteBuffer in) {
 		super(in);
 		if (!getCode().equals(GetDevicePropDesc.operationCode))
 			return;
+		System.out.println("DeviceProperty");
 		devicePropCode = new DevicePropCode(in);
-		System.out.println(String.format("devicePropCode %s", devicePropCode));
+		System.out.println(String.format(" devicePropCode %s", devicePropCode));
 		dataType = new DataType(in);
-		System.out.println(String.format("dataType %s", dataType));
+		System.out.println(String.format(" dataType %s", dataType));
 		getSet = new UInt8(in);
-		System.out.println(String.format("getSet %s", getSet));
+		System.out.println(String.format(" getSet %s", getSet));
 		Decoder<?> decoder = dataType.getDecoder();
 		if (null == decoder)
 			return;
 		factoryDefaultValue = decoder.decode(in);
-		System.out.println(String.format("factoryDefaultValue %s", factoryDefaultValue));
+		System.out.println(String.format(" factoryDefaultValue %s", factoryDefaultValue));
 		currentValue = decoder.decode(in);
-		System.out.println(String.format("currentValue %s", currentValue));
+		System.out.println(String.format(" currentValue %s", currentValue));
 		formFlag = new UInt8(in);
-		System.out.println(String.format("formFlag %s", formFlag));
+		System.out.println(String.format(" formFlag %s", formFlag));
+		switch (formFlag.getValue()) {
+		case (byte) 0x00:
+			break;
+		case (byte) 0x01:
+			form = new PropertyDescribingRange<>(decoder, in);
+			break;
+		case (byte) 0x02:
+			form = new PropertyDescribingEnum<>(decoder, in);
+			break;
+		}
 	}
 	
 	public DevicePropCode getDevicePropCode() {
@@ -58,5 +127,9 @@ public class DeviceProperty extends BaseResponse {
 	
 	public UInt8 getFormFlag() {
 		return formFlag;
+	}
+	
+	public PropertyDescribingDataset getForm() {
+		return form;
 	}
 }
