@@ -2,14 +2,20 @@ package bitwise.devices.usb.drivers.ptp.responses;
 
 import java.nio.ByteBuffer;
 
-import bitwise.devices.usb.drivers.ptp.operations.GetDeviceInfo;
 import bitwise.devices.usb.drivers.ptp.types.DevicePropCode;
 import bitwise.devices.usb.drivers.ptp.types.EventCode;
 import bitwise.devices.usb.drivers.ptp.types.ObjectFormatCode;
 import bitwise.devices.usb.drivers.ptp.types.OperationCode;
 import bitwise.devices.usb.drivers.ptp.types.prim.*;
 
-public class DeviceInfo extends BaseResponse {
+public class DeviceInfo implements Response {
+	public static final Decoder<DeviceInfo> decoder = new Decoder<DeviceInfo>() {
+		@Override
+		public DeviceInfo decode(ByteBuffer in) {
+			return new DeviceInfo(in);
+		}
+	};
+	
 	private UInt16 standardVersion = null;
 	private UInt32 vendorExtensionID = null;
 	private UInt16 vendorExtensionVersion = null;
@@ -26,9 +32,6 @@ public class DeviceInfo extends BaseResponse {
 	private Str serialNumber = null;
 	
 	public DeviceInfo(ByteBuffer in) {
-		super(in);
-		if (!getCode().equals(GetDeviceInfo.operationCode))
-			return;
 		System.out.println("DeviceInfo");
 		standardVersion = new UInt16(in);
 		System.out.println(String.format(" version %d", standardVersion.getValue()));

@@ -4,22 +4,29 @@ import java.nio.ByteBuffer;
 
 import bitwise.devices.usb.drivers.ptp.responses.DeviceProperty;
 import bitwise.devices.usb.drivers.ptp.types.DevicePropCode;
-import bitwise.devices.usb.drivers.ptp.types.TransactionID;
 import bitwise.devices.usb.drivers.ptp.types.prim.UInt16;
 
-public class GetDevicePropDesc extends BaseOperation<DeviceProperty> {
+public class GetDevicePropDesc extends Operation {
 	public static final UInt16 operationCode = new UInt16((short) 0x1014);
 	
 	private final DevicePropCode devicePropCode;
 	
-	public GetDevicePropDesc(TransactionID id, DevicePropCode in_devicePropCode) {
-		super("GetDevicePropValue", operationCode, id, 1);
+	public GetDevicePropDesc(DevicePropCode in_devicePropCode) {
+		super("GetDevicePropValue", operationCode, 1, null);
 		devicePropCode = in_devicePropCode;
-		getArgs().add(devicePropCode.asInt32());
+		getArguments().add(devicePropCode.asInt32());
 	}
-
+	
+	private DeviceProperty data = null;
+	
 	@Override
-	public DeviceProperty decodeResponse(ByteBuffer in) {
-		return new DeviceProperty(in);
+	public DeviceProperty getResponseData() {
+		return data;
+	}
+	
+	@Override
+	public boolean setResponseData(ByteBuffer in) {
+		data = DeviceProperty.decoder.decode(in);
+		return true;
 	}
 }

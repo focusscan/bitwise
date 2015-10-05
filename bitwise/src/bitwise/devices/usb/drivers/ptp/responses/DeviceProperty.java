@@ -7,7 +7,14 @@ import bitwise.devices.usb.drivers.ptp.operations.GetDevicePropDesc;
 import bitwise.devices.usb.drivers.ptp.types.*;
 import bitwise.devices.usb.drivers.ptp.types.prim.*;
 
-public class DeviceProperty extends BaseResponse {
+public class DeviceProperty implements Response {
+	public static final Decoder<DeviceProperty> decoder = new Decoder<DeviceProperty>() {
+		@Override
+		public DeviceProperty decode(ByteBuffer in) {
+			return new DeviceProperty(in);
+		}
+	};
+	
 	public static interface PropertyDescribingDataset {
 		
 	}
@@ -74,9 +81,6 @@ public class DeviceProperty extends BaseResponse {
 	private PropertyDescribingDataset form = null;
 	
 	public DeviceProperty(ByteBuffer in) {
-		super(in);
-		if (!getCode().equals(GetDevicePropDesc.operationCode))
-			return;
 		System.out.println("DeviceProperty");
 		devicePropCode = new DevicePropCode(in);
 		System.out.println(String.format(" devicePropCode %s", devicePropCode));
@@ -84,12 +88,12 @@ public class DeviceProperty extends BaseResponse {
 		System.out.println(String.format(" dataType %s", dataType));
 		getSet = new UInt8(in);
 		System.out.println(String.format(" getSet %s", getSet));
-		Decoder<?> decoder = dataType.getDecoder();
-		if (null == decoder)
+		Decoder<? extends PtpType> dataTypeDecoder = dataType.getDecoder();
+		if (null == dataTypeDecoder)
 			return;
-		factoryDefaultValue = decoder.decode(in);
+		factoryDefaultValue = dataTypeDecoder.decode(in);
 		System.out.println(String.format(" factoryDefaultValue %s", factoryDefaultValue));
-		currentValue = decoder.decode(in);
+		currentValue = dataTypeDecoder.decode(in);
 		System.out.println(String.format(" currentValue %s", currentValue));
 		formFlag = new UInt8(in);
 		System.out.println(String.format(" formFlag %s", formFlag));
@@ -97,10 +101,10 @@ public class DeviceProperty extends BaseResponse {
 		case (byte) 0x00:
 			break;
 		case (byte) 0x01:
-			form = new PropertyDescribingRange<>(decoder, in);
+			form = new PropertyDescribingRange<>(dataTypeDecoder, in);
 			break;
 		case (byte) 0x02:
-			form = new PropertyDescribingEnum<>(decoder, in);
+			form = new PropertyDescribingEnum<>(dataTypeDecoder, in);
 			break;
 		}
 	}

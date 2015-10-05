@@ -8,6 +8,7 @@ import bitwise.devices.usb.drivers.ptp.types.prim.Int16;
 import bitwise.devices.usb.drivers.ptp.types.prim.Int32;
 import bitwise.devices.usb.drivers.ptp.types.prim.Int64;
 import bitwise.devices.usb.drivers.ptp.types.prim.Int8;
+import bitwise.devices.usb.drivers.ptp.types.prim.PtpType;
 import bitwise.devices.usb.drivers.ptp.types.prim.Str;
 import bitwise.devices.usb.drivers.ptp.types.prim.UInt128;
 import bitwise.devices.usb.drivers.ptp.types.prim.UInt16;
@@ -24,7 +25,7 @@ public class DataType extends UInt16 {
 		super(in_value);
 	}
 	
-	public Decoder<?> getDecoder() {
+	public Decoder<? extends PtpType> getDecoder() {
 		switch (getValue()) {
 		case (short) 0x0000: return null;
 		case (short) 0x0001: return Int8.decoder;

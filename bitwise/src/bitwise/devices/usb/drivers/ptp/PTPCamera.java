@@ -2,6 +2,7 @@ package bitwise.devices.usb.drivers.ptp;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
 import javax.usb.UsbDisconnectedException;
 import javax.usb.UsbException;
@@ -15,19 +16,19 @@ import bitwise.apps.App;
 import bitwise.devices.kinds.FullCamera;
 import bitwise.devices.usb.UsbContext;
 import bitwise.devices.usb.drivers.UsbDriver;
-import bitwise.devices.usb.drivers.ptp.operations.BaseOperation;
 import bitwise.devices.usb.drivers.ptp.operations.CloseSession;
 import bitwise.devices.usb.drivers.ptp.operations.GetDeviceInfo;
 import bitwise.devices.usb.drivers.ptp.operations.GetDevicePropDesc;
 import bitwise.devices.usb.drivers.ptp.operations.OpenSession;
+import bitwise.devices.usb.drivers.ptp.operations.Operation;
 import bitwise.devices.usb.drivers.ptp.operations.SetDevicePropValue;
-import bitwise.devices.usb.drivers.ptp.responses.BaseResponse;
 import bitwise.devices.usb.drivers.ptp.responses.DeviceInfo;
-import bitwise.devices.usb.drivers.ptp.responses.Response;
+import bitwise.devices.usb.drivers.ptp.types.ContainerType;
 import bitwise.devices.usb.drivers.ptp.types.DevicePropCode;
-import bitwise.devices.usb.drivers.ptp.types.GenericContainer;
 import bitwise.devices.usb.drivers.ptp.types.TransactionID;
+import bitwise.devices.usb.drivers.ptp.types.prim.Int32;
 import bitwise.devices.usb.drivers.ptp.types.prim.UInt16;
+import bitwise.devices.usb.drivers.ptp.types.prim.UInt32;
 import javafx.concurrent.Task;
 
 public abstract class PTPCamera extends UsbDriver implements FullCamera {
@@ -143,10 +144,12 @@ public abstract class PTPCamera extends UsbDriver implements FullCamera {
 		
 		try {
 			runOperation(new OpenSession());
-			deviceInfo = runOperation(new GetDeviceInfo(newTransactionID()));
-			runOperation(new GetDevicePropDesc(newTransactionID(), DevicePropCode.exposureProgramMode));
-			runOperation(new SetDevicePropValue<>(newTransactionID(), DevicePropCode.exposureProgramMode, new UInt16((short) 0x0003)));
-			runOperation(new GetDevicePropDesc(newTransactionID(), DevicePropCode.exposureProgramMode));
+			GetDeviceInfo getDeviceInfo = new GetDeviceInfo();
+			runOperation(getDeviceInfo);
+			deviceInfo = getDeviceInfo.getResponseData();
+			runOperation(new GetDevicePropDesc(DevicePropCode.exposureProgramMode));
+			runOperation(new SetDevicePropValue<>(DevicePropCode.exposureProgramMode, new UInt16((short) 0x0003)));
+			runOperation(new GetDevicePropDesc(DevicePropCode.exposureProgramMode));
 		} catch (UsbNotActiveException | UsbNotOpenException | UsbDisconnectedException | UsbException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -161,8 +164,7 @@ public abstract class PTPCamera extends UsbDriver implements FullCamera {
 		interruptTask.cancel();
 		
 		try {
-			Response response = runOperation(new CloseSession(newTransactionID()));
-			System.out.println(String.format("CloseSession type %04x code: %04x", response.getType().getValue(), response.getCode().getValue()));
+			runOperation(new CloseSession());
 		} catch (InterruptedException | UsbNotActiveException | UsbNotOpenException | UsbDisconnectedException | UsbException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -198,44 +200,72 @@ public abstract class PTPCamera extends UsbDriver implements FullCamera {
 		}
 	}
 	
-	protected <R extends BaseResponse> R runOperation(BaseOperation<R> operation) throws UsbNotActiveException, UsbNotOpenException, UsbDisconnectedException, InterruptedException, UsbException {
-		System.out.println(String.format("Sending transaction %s (%s code %s)", operation.getTransactionID(), operation.getOperationName(), operation.getCode()));
+	protected void runOperation(Operation operation) throws UsbNotActiveException, UsbNotOpenException, UsbDisconnectedException, InterruptedException, UsbException {
+		if (null == operation.getTransactionID())
+			operation.setTransactionID(newTransactionID());
+		// Send the command
 		{
 			ByteArrayOutputStream commandStream = new ByteArrayOutputStream();
-			operation.serialize(commandStream);
+			
+			UInt32 length = new UInt32(12 + 4 * operation.getArguments().size());
+			length.serialize(commandStream);
+			ContainerType.containerTypeCommand.serialize(commandStream);
+			operation.getCode().serialize(commandStream);
+			operation.getTransactionID().serialize(commandStream);
+			
+			for (Int32 arg : operation.getArguments())
+				arg.serialize(commandStream);
 			javax.usb.UsbIrp outIrp = dataOutPipe.asyncSubmit(commandStream.toByteArray());
 			while (!outIrp.isComplete())
 				Thread.sleep(20);
-			System.out.println(String.format("Operation sent (%d bytes)", outIrp.getActualLength()));
+			System.out.println(String.format("Command sent for %s (%s)", operation.getTransactionID(), operation.getOperationName()));
 		}
-		{
+		// Send any outgoing data associated with the command
+		if (null != operation.getOutData()) {
+			byte[] data = null;
+			{
+				ByteArrayOutputStream dataOutStream = new ByteArrayOutputStream();
+				operation.getOutData().serialize(dataOutStream);
+				data = dataOutStream.toByteArray();
+			}
 			ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
-			if (operation.serializeData(dataStream)) {
-				javax.usb.UsbIrp outIrp = dataOutPipe.asyncSubmit(dataStream.toByteArray());
-				while (!outIrp.isComplete())
-					Thread.sleep(20);
-				System.out.println(String.format("Data sent (%d bytes)", outIrp.getActualLength()));
+			UInt32 length = new UInt32(12 + data.length);
+			length.serialize(dataStream);
+			ContainerType.containerTypeData.serialize(dataStream);
+			operation.getCode().serialize(dataStream);
+			operation.getTransactionID().serialize(dataStream);
+			for (byte b : data)
+				dataStream.write(b);
+			javax.usb.UsbIrp outIrp = dataOutPipe.asyncSubmit(dataStream.toByteArray());
+			while (!outIrp.isComplete())
+				Thread.sleep(20);
+			System.out.println(String.format("Data sent for %s (%s)", operation.getTransactionID(), operation.getOperationName()));
+		}
+		// Read any responses
+		while (null == operation.getResponseCode()) {
+			byte[] incoming = new byte[dataInEP.getUsbEndpointDescriptor().wMaxPacketSize()];
+			javax.usb.UsbIrp inIrp = dataInPipe.asyncSubmit(incoming);
+			while (!inIrp.isComplete())
+				Thread.sleep(20);
+			ByteBuffer incomingBuffer = ByteBuffer.wrap(incoming);
+			UInt32 length = UInt32.decoder.decode(incomingBuffer);
+			UInt16 type = UInt16.decoder.decode(incomingBuffer);
+			UInt16 code = UInt16.decoder.decode(incomingBuffer);
+			TransactionID.decoder.decode(incomingBuffer);
+			if (type.equals(ContainerType.containerTypeResponse)) {
+				operation.setResponseCode(code);
+				if (length.getValue() > 12) {
+					ArrayList<Int32> arguments = new ArrayList<>((length.getValue() - 12) / 4);
+					for (int i = 0; i < length.getValue(); i++)
+						arguments.add(Int32.decoder.decode(incomingBuffer));
+					operation.setResponseArguments(arguments);
+				}
+				System.out.println(String.format("Response read for %s (%s)", operation.getTransactionID(), operation.getOperationName()));
+			}
+			else if (type.equals(ContainerType.containerTypeData)) {
+				operation.setResponseData(incomingBuffer);
+				System.out.println(String.format("Response data read for %s (%s)", operation.getTransactionID(), operation.getOperationName()));
 			}
 		}
-		R response = null;
-		{
-			byte[] buf = new byte[dataInEP.getUsbEndpointDescriptor().wMaxPacketSize()];
-			javax.usb.UsbIrp inIrp = dataInPipe.asyncSubmit(buf);
-			while (!inIrp.isComplete())
-				Thread.sleep(20);
-			System.out.println(String.format("Response received (%d bytes)", inIrp.getActualLength()));
-			response = operation.decodeResponse(ByteBuffer.wrap(buf));
-			System.out.println(String.format("Response transaction %s (code %s)", response.getTransactionID(), response.getCode()));
-		} // while (!response.getTransactionID().equals(operation.getTransactionID()));
-		if (response.getType().equals(GenericContainer.containerTypeData)) {
-			byte[] buf = new byte[dataInEP.getUsbEndpointDescriptor().wMaxPacketSize()];
-			javax.usb.UsbIrp inIrp = dataInPipe.asyncSubmit(buf);
-			while (!inIrp.isComplete())
-				Thread.sleep(20);
-			System.out.println(String.format("Response received (%d bytes)", inIrp.getActualLength()));
-			BaseResponse response2 = new BaseResponse(ByteBuffer.wrap(buf));
-			System.out.println(String.format("Response transaction %s (code %s)", response2.getTransactionID(), response.getCode()));
-		}
-		return response;
 	}
 }
