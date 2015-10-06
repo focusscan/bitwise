@@ -1,15 +1,12 @@
-package bitwise.devices.usb.drivers.ptp.operations;
+package bitwise.devices.usb.drivers.ptp.types.operations;
 
 import java.nio.ByteBuffer;
 
-import bitwise.devices.usb.drivers.ptp.responses.DeviceInfo;
-import bitwise.devices.usb.drivers.ptp.types.prim.UInt16;
+import bitwise.devices.usb.drivers.ptp.types.responses.DeviceInfo;
 
 public class GetDeviceInfo extends Operation {
-	public static final UInt16 operationCode = new UInt16((short) 0x1001);
-	
 	public GetDeviceInfo() {
-		super("GetDeviceInfo", operationCode, 0, null);
+		super("GetDeviceInfo", OperationCode.getDeviceInfo, 0, null);
 	}
 	
 	private DeviceInfo data = null;

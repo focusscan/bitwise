@@ -1,10 +1,10 @@
-package bitwise.devices.usb.drivers.ptp.responses;
+package bitwise.devices.usb.drivers.ptp.types.responses;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
-import bitwise.devices.usb.drivers.ptp.operations.GetDevicePropDesc;
 import bitwise.devices.usb.drivers.ptp.types.*;
+import bitwise.devices.usb.drivers.ptp.types.deviceproperties.DevicePropCode;
 import bitwise.devices.usb.drivers.ptp.types.prim.*;
 
 public class DeviceProperty implements Response {

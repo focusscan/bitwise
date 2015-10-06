@@ -6,7 +6,7 @@ import bitwise.apps.App;
 import bitwise.apps.events.AppLaunchedEvent;
 import bitwise.apps.focusscan3d.gui.camera.CameraView;
 import bitwise.apps.focusscan3d.gui.deviceselect.DeviceSelectView;
-import bitwise.devices.kinds.FullCamera;
+import bitwise.devices.kinds.fullcamera.FullCamera;
 import bitwise.devices.usb.ReadyDevice;
 import bitwise.devices.usb.drivers.UsbGetDriverRequest;
 import bitwise.devices.usb.events.UsbRequestFinishedEvent;

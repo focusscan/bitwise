@@ -14,7 +14,7 @@ public class TransactionID extends UInt32 {
 		}
 	};
 	
-	public TransactionID(ByteBuffer in) {
+	protected TransactionID(ByteBuffer in) {
 		super(in);
 	}
 	

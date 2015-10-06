@@ -1,4 +1,4 @@
-package bitwise.devices.usb.drivers.ptp.types;
+package bitwise.devices.usb.drivers.ptp.types.deviceproperties;
 
 import java.nio.ByteBuffer;
 

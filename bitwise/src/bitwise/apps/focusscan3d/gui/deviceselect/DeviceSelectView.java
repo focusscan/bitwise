@@ -3,7 +3,7 @@ package bitwise.apps.focusscan3d.gui.deviceselect;
 import java.io.IOException;
 
 import bitwise.apps.focusscan3d.FocusScan3D;
-import bitwise.devices.kinds.FullCamera;
+import bitwise.devices.kinds.fullcamera.FullCamera;
 import bitwise.devices.usb.ReadyDevice;
 import bitwise.engine.supervisor.Supervisor;
 import javafx.beans.property.ReadOnlyObjectWrapper;

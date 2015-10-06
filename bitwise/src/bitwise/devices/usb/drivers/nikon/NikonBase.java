@@ -2,9 +2,9 @@ package bitwise.devices.usb.drivers.nikon;
 
 import bitwise.apps.App;
 import bitwise.devices.usb.UsbContext;
-import bitwise.devices.usb.drivers.ptp.PTPCamera;
+import bitwise.devices.usb.drivers.ptp.PtpCamera;
 
-public abstract class NikonBase extends PTPCamera {
+public abstract class NikonBase extends PtpCamera {
 	private static final byte interfaceAddr = (byte)0x00;
 	private static final byte dataInEPNum = (byte)0x02;
 	private static final byte dataOutEPNum = (byte)0x81;

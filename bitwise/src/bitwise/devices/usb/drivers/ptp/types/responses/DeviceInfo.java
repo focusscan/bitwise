@@ -1,11 +1,11 @@
-package bitwise.devices.usb.drivers.ptp.responses;
+package bitwise.devices.usb.drivers.ptp.types.responses;
 
 import java.nio.ByteBuffer;
 
-import bitwise.devices.usb.drivers.ptp.types.DevicePropCode;
-import bitwise.devices.usb.drivers.ptp.types.EventCode;
 import bitwise.devices.usb.drivers.ptp.types.ObjectFormatCode;
-import bitwise.devices.usb.drivers.ptp.types.OperationCode;
+import bitwise.devices.usb.drivers.ptp.types.deviceproperties.DevicePropCode;
+import bitwise.devices.usb.drivers.ptp.types.events.EventCode;
+import bitwise.devices.usb.drivers.ptp.types.operations.OperationCode;
 import bitwise.devices.usb.drivers.ptp.types.prim.*;
 
 public class DeviceInfo implements Response {
