@@ -2,6 +2,8 @@ package bitwise.devices.usb.drivers.ptp;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.usb.UsbDisconnectedException;
 import javax.usb.UsbException;
@@ -13,9 +15,11 @@ import javax.usb.UsbNotOpenException;
 
 import bitwise.apps.App;
 import bitwise.devices.kinds.fullcamera.ExposureMode;
-import bitwise.devices.kinds.fullcamera.FullCamera;
-import bitwise.devices.kinds.fullcamera.events.ExposureModeChanged;
+import bitwise.devices.kinds.fullcamera.FNumber;
+import bitwise.devices.kinds.fullcamera.FlashMode;
+import bitwise.devices.kinds.fullcamera.FocusMode;
 import bitwise.devices.usb.UsbContext;
+import bitwise.devices.usb.UsbRequest;
 import bitwise.devices.usb.drivers.UsbDriver;
 import bitwise.devices.usb.drivers.ptp.types.TransactionID;
 import bitwise.devices.usb.drivers.ptp.types.containers.DataContainer;
@@ -24,6 +28,8 @@ import bitwise.devices.usb.drivers.ptp.types.containers.OperationContainer;
 import bitwise.devices.usb.drivers.ptp.types.containers.ResponseContainer;
 import bitwise.devices.usb.drivers.ptp.types.deviceproperties.DevicePropCode;
 import bitwise.devices.usb.drivers.ptp.types.deviceproperties.ExposureProgramMode;
+import bitwise.devices.usb.drivers.ptp.types.deviceproperties.PtpFlashMode;
+import bitwise.devices.usb.drivers.ptp.types.deviceproperties.PtpFocusMode;
 import bitwise.devices.usb.drivers.ptp.types.events.DevicePropChanged;
 import bitwise.devices.usb.drivers.ptp.types.events.Event;
 import bitwise.devices.usb.drivers.ptp.types.operations.CloseSession;
@@ -36,10 +42,13 @@ import bitwise.devices.usb.drivers.ptp.types.prim.Int32;
 import bitwise.devices.usb.drivers.ptp.types.prim.PtpType;
 import bitwise.devices.usb.drivers.ptp.types.prim.UInt16;
 import bitwise.devices.usb.drivers.ptp.types.prim.UInt32;
+import bitwise.devices.usb.drivers.ptp.types.prim.UInt8;
 import bitwise.devices.usb.drivers.ptp.types.responses.DeviceInfo;
+import bitwise.devices.usb.drivers.ptp.types.responses.DeviceProperty;
+import bitwise.devices.usb.drivers.ptp.types.responses.DeviceProperty.PropertyDescribingEnum;
 import javafx.concurrent.Task;
 
-public abstract class PtpCamera extends UsbDriver implements FullCamera {
+public abstract class PtpCamera extends UsbDriver {
 	private final byte interfaceAddr;
 	private final byte dataOutEPNum;
 	private final byte dataInEPNum;
@@ -54,7 +63,6 @@ public abstract class PtpCamera extends UsbDriver implements FullCamera {
 	javax.usb.UsbPipe interruptPipe;
 	private Task<Void> interruptTask;
 	private DeviceInfo deviceInfo;
-	private ExposureMode exposureMode = ExposureMode.Unknown;
 	
 	public PtpCamera(byte in_interfaceAddr, byte in_dataOutEPNum, byte in_dataInEPNum, byte in_interruptEPNum, App in_app) {
 		super(in_app);
@@ -261,18 +269,60 @@ public abstract class PtpCamera extends UsbDriver implements FullCamera {
 				operation.setResponseData(resp.getPayload());
 			}
 		}
-	}	
+	}
 	
-	protected boolean setExposureProgramMode(ExposureProgramMode in) {
-		try {
-			runOperation(new SetDevicePropValue<>(DevicePropCode.exposureProgramMode, in));
-			return true;
-		} catch (UsbNotActiveException | UsbNotOpenException | UsbDisconnectedException | InterruptedException
-				| UsbException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	protected boolean handleEvent(Event preEvent) {
+		if (preEvent instanceof DevicePropChanged) {
+			DevicePropChanged event = (DevicePropChanged)preEvent;
+			if (event.getDevicePropCode().equals(DevicePropCode.exposureProgramMode)) {
+				updateExposureProgramMode();
+				return true;
+			}
+			if (event.getDevicePropCode().equals(DevicePropCode.fNumber)) {
+				updateFNumber();
+				return true;
+			}
+			if (event.getDevicePropCode().equals(DevicePropCode.batteryLevel)) {
+				updateBatteryLevel();
+				return true;
+			}
+			if (event.getDevicePropCode().equals(DevicePropCode.focalLength)) {
+				updateFocalLength();
+				return true;
+			}
+			if (event.getDevicePropCode().equals(DevicePropCode.focusMode)) {
+				updateFocusMode();
+				return true;
+			}
+			if (event.getDevicePropCode().equals(DevicePropCode.flashMode)) {
+				updateFlashMode();
+				return true;
+			}
+			if (event.getDevicePropCode().equals(DevicePropCode.exposureTime)) {
+				updateExposureTime();
+				return true;
+			}
+			if (event.getDevicePropCode().equals(DevicePropCode.exposureIndex)) {
+				updateExposureIndex();
+				return true;
+			}
 		}
 		return false;
+	}
+	
+	private ExposureMode exposureMode = ExposureMode.Unknown;
+	
+	public ExposureMode getExposureMode() {
+		return exposureMode;
+	}
+	
+	public void exposureModeChanged(ExposureMode in) {
+		exposureMode = in;
+	}
+	
+	protected boolean cmd_setExposureProgramMode(ExposureProgramMode in) throws UsbNotActiveException, UsbNotOpenException, UsbDisconnectedException, InterruptedException, UsbException {
+		runOperation(new SetDevicePropValue<>(DevicePropCode.exposureProgramMode, in));
+		return true;
 	}
 	
 	protected boolean updateExposureProgramMode() {
@@ -281,8 +331,8 @@ public abstract class PtpCamera extends UsbDriver implements FullCamera {
 			runOperation(operation);
 			PtpType currentValue = operation.getResponseData().getCurrentValue();
 			if (currentValue instanceof UInt16) {
-				ExposureProgramMode mode = new ExposureProgramMode(((UInt16)currentValue).getValue());
-					exposureMode = mode.getExposureMode();
+				ExposureProgramMode value = new ExposureProgramMode(((UInt16)currentValue).getValue());
+				exposureModeChanged(value.getExposureMode());
 				return true;
 			}
 		} catch (UsbNotActiveException | UsbNotOpenException | UsbDisconnectedException | InterruptedException
@@ -293,13 +343,243 @@ public abstract class PtpCamera extends UsbDriver implements FullCamera {
 		return false;
 	}
 	
-	protected void handleEvent(Event preEvent) {
-		if (preEvent instanceof DevicePropChanged) {
-			DevicePropChanged event = (DevicePropChanged)preEvent;
-			if (event.getDevicePropCode().equals(DevicePropCode.exposureProgramMode)) {
-				if (updateExposureProgramMode())
-					bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new ExposureModeChanged(this, exposureMode));
+	private FNumber fNumber = new FNumber((short) 0);
+	private List<FNumber> validFNumbers = new ArrayList<>(0);
+	
+	public FNumber getFNumber() {
+		return fNumber;
+	}
+	
+	public List<FNumber> getValidFNumbers() {
+		return validFNumbers;
+	}
+	
+	protected void fNumberChanged(FNumber in, List<FNumber> in2) {
+		fNumber = in;
+		validFNumbers = in2;
+	}
+	
+	public UsbRequest setFNumber(FNumber in) {
+		return new PtpSetFNumberRequest(this, in);
+	}
+	
+	protected boolean cmd_setFNumber(FNumber in) throws UsbNotActiveException, UsbNotOpenException, UsbDisconnectedException, InterruptedException, UsbException {
+		runOperation(new SetDevicePropValue<>(DevicePropCode.fNumber, new UInt16(in.getValue())));
+		return true;
+	}
+	
+	protected boolean updateFNumber() {
+		try {
+			GetDevicePropDesc operation = new GetDevicePropDesc(DevicePropCode.fNumber);
+			runOperation(operation);
+			PtpType currentValue = operation.getResponseData().getCurrentValue();
+			if (currentValue instanceof UInt16) {
+				FNumber value = new FNumber(((UInt16)currentValue).getValue());
+				ArrayList<FNumber> values = null;
+				if (null != operation.getResponseData().getForm() && operation.getResponseData().getForm() instanceof DeviceProperty.PropertyDescribingEnum<?>) {
+					DeviceProperty.PropertyDescribingEnum<?> enumerated = (PropertyDescribingEnum<?>) operation.getResponseData().getForm();
+					values = new ArrayList<FNumber>(enumerated.getNumberOfValues());
+					for (PtpType v : enumerated.getSupportedValues())
+						values.add(new FNumber(((UInt16)v).getValue()));
+				}
+				if (null == values)
+					values = new ArrayList<>(0);
+				fNumberChanged(value, values);
+				return true;
 			}
+		} catch (UsbNotActiveException | UsbNotOpenException | UsbDisconnectedException | InterruptedException
+				| UsbException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		return false;
+	}
+	
+	private byte batteryLevel = 0;
+	
+	public byte getBatteryLevel() {
+		return batteryLevel;
+	}
+	
+	protected void batteryLevelChanged(byte in) {
+		batteryLevel = in;
+	}
+	
+	protected boolean updateBatteryLevel() {
+		try {
+			GetDevicePropDesc operation = new GetDevicePropDesc(DevicePropCode.batteryLevel);
+			runOperation(operation);
+			PtpType currentValue = operation.getResponseData().getCurrentValue();
+			if (currentValue instanceof UInt8) {
+				UInt8 value = (UInt8)currentValue;
+				batteryLevelChanged(value.getValue());
+				return true;
+			}
+		} catch (UsbNotActiveException | UsbNotOpenException | UsbDisconnectedException | InterruptedException
+				| UsbException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	private int focalLength = 0;
+	
+	public int getFocalLength() {
+		return focalLength;
+	}
+	
+	protected void focalLengthChanged(int in) {
+		focalLength = in;
+	}
+	
+	protected boolean updateFocalLength() {
+		try {
+			GetDevicePropDesc operation = new GetDevicePropDesc(DevicePropCode.focalLength);
+			runOperation(operation);
+			PtpType currentValue = operation.getResponseData().getCurrentValue();
+			if (currentValue instanceof UInt32) {
+				UInt32 value = (UInt32)currentValue;
+				focalLengthChanged(value.getValue());
+				return true;
+			}
+		} catch (UsbNotActiveException | UsbNotOpenException | UsbDisconnectedException | InterruptedException
+				| UsbException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	private FocusMode focusMode = null;
+	
+	public FocusMode getFocusMode() {
+		return focusMode;
+	}
+	
+	protected void focusModeChanged(FocusMode in) {
+		focusMode = in;
+	}
+	
+	protected boolean cmd_setFocusMode(PtpFocusMode in) throws UsbNotActiveException, UsbNotOpenException, UsbDisconnectedException, InterruptedException, UsbException {
+		runOperation(new SetDevicePropValue<>(DevicePropCode.focusMode, in));
+		return true;
+	}
+	
+	protected boolean updateFocusMode() {
+		try {
+			GetDevicePropDesc operation = new GetDevicePropDesc(DevicePropCode.focusMode);
+			runOperation(operation);
+			PtpType currentValue = operation.getResponseData().getCurrentValue();
+			if (currentValue instanceof UInt16) {
+				PtpFocusMode value = new PtpFocusMode(((UInt16) currentValue).getValue());
+				focusModeChanged(value.getFocusMode());
+				return true;
+			}
+		} catch (UsbNotActiveException | UsbNotOpenException | UsbDisconnectedException | InterruptedException
+				| UsbException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	private FlashMode flashMode = null;
+	
+	public FlashMode getFlashMode() {
+		return flashMode;
+	}
+	
+	protected void flashModeChanged(FlashMode in) {
+		flashMode = in;
+	}
+	
+	protected boolean cmd_setFlashMode(PtpFlashMode in) throws UsbNotActiveException, UsbNotOpenException, UsbDisconnectedException, InterruptedException, UsbException {
+		runOperation(new SetDevicePropValue<>(DevicePropCode.flashMode, in));
+		return true;
+	}
+	
+	protected boolean updateFlashMode() {
+		try {
+			GetDevicePropDesc operation = new GetDevicePropDesc(DevicePropCode.flashMode);
+			runOperation(operation);
+			PtpType currentValue = operation.getResponseData().getCurrentValue();
+			if (currentValue instanceof UInt16) {
+				PtpFlashMode value = new PtpFlashMode(((UInt16) currentValue).getValue());
+				flashModeChanged(value.getFlashMode());
+				return true;
+			}
+		} catch (UsbNotActiveException | UsbNotOpenException | UsbDisconnectedException | InterruptedException
+				| UsbException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	private int exposureTime = 0;
+	
+	public int getExposureTime() {
+		return exposureTime;
+	}
+	
+	protected void exposureTimeChanged(int in) {
+		exposureTime = in;
+	}
+	
+	protected boolean cmd_setExposureTime(int in) throws UsbNotActiveException, UsbNotOpenException, UsbDisconnectedException, InterruptedException, UsbException {
+		runOperation(new SetDevicePropValue<>(DevicePropCode.exposureTime, new UInt32(in)));
+		return true;
+	}
+	
+	protected boolean updateExposureTime() {
+		try {
+			GetDevicePropDesc operation = new GetDevicePropDesc(DevicePropCode.exposureTime);
+			runOperation(operation);
+			PtpType currentValue = operation.getResponseData().getCurrentValue();
+			if (currentValue instanceof UInt32) {
+				UInt32 value = (UInt32)currentValue;
+				exposureTimeChanged(value.getValue());
+				return true;
+			}
+		} catch (UsbNotActiveException | UsbNotOpenException | UsbDisconnectedException | InterruptedException
+				| UsbException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	private short exposureIndex;
+	
+	public short getExposureIndex() {
+		return exposureIndex;
+	}
+	
+	protected void exposureIndexChanged(short in) {
+		exposureIndex = in;
+	}
+	
+	protected boolean cmd_setExposureIndex(short in) throws UsbNotActiveException, UsbNotOpenException, UsbDisconnectedException, InterruptedException, UsbException {
+		runOperation(new SetDevicePropValue<>(DevicePropCode.exposureIndex, new UInt16(in)));
+		return true;
+	}
+	
+	protected boolean updateExposureIndex() {
+		try {
+			GetDevicePropDesc operation = new GetDevicePropDesc(DevicePropCode.exposureIndex);
+			runOperation(operation);
+			PtpType currentValue = operation.getResponseData().getCurrentValue();
+			if (currentValue instanceof UInt16) {
+				UInt16 value = (UInt16)currentValue;
+				exposureIndexChanged(value.getValue());
+				return true;
+			}
+		} catch (UsbNotActiveException | UsbNotOpenException | UsbDisconnectedException | InterruptedException
+				| UsbException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
 	}
 }
