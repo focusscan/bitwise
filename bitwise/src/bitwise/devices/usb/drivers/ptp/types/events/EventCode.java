@@ -37,6 +37,10 @@ public class EventCode extends Code {
 	}
 	
 	public Decoder<? extends Event> getEventDecoder() {
+		if (this.equals(storeAdded))
+			return StoreAdded.decoder;
+		if (this.equals(storeRemoved))
+			return StoreRemoved.decoder;
 		if (this.equals(devicePropChanged))
 			return DevicePropChanged.decoder;
 		return null;

@@ -6,11 +6,12 @@ import bitwise.devices.kinds.DeviceKind;
 import bitwise.devices.usb.UsbRequest;
 
 public interface FullCamera extends DeviceKind {
-	public void fetchAllCameraProperties();
+	public UsbRequest fetchAllCameraProperties();
 	
 	public byte getBatteryLevel();
-	
 	public int getFocalLength();
+	public List<ImageFormat> getImageFormats();
+	public List<StorageDevice> getStorageDevices();
 	
 	public FNumber getFNumber();
 	public List<FNumber> getValidFNumbers();

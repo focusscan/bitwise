@@ -26,11 +26,8 @@ public class PtpCameraInterruptTask extends Task<Void> {
 				if (null != interrupt && interrupt instanceof EventContainer) {
 					Decoder<? extends Event> decoder = ((EventContainer) interrupt).getCode().getEventDecoder();
 					if (null != decoder) {
-						System.out.println("Decoder found");
 						Event event = decoder.decode(interrupt.getPayload());
-						System.out.println("Decoded");
 						camera.handleEvent(event);
-						System.out.println("Handled");
 					}
 				}
 			} while (keepRunning());

@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 
 import bitwise.devices.usb.drivers.ptp.types.responses.DeviceInfo;
 
-public class GetDeviceInfo extends Operation {
+public class GetDeviceInfo extends Operation<DeviceInfo> {
 	public GetDeviceInfo() {
 		super("GetDeviceInfo", OperationCode.getDeviceInfo, 0, null);
 	}

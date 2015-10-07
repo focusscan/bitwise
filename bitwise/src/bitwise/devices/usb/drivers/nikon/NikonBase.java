@@ -11,10 +11,14 @@ import bitwise.devices.kinds.fullcamera.FNumber;
 import bitwise.devices.kinds.fullcamera.FlashMode;
 import bitwise.devices.kinds.fullcamera.FocusMode;
 import bitwise.devices.kinds.fullcamera.FullCamera;
+import bitwise.devices.kinds.fullcamera.ImageFormat;
+import bitwise.devices.kinds.fullcamera.StorageDevice;
 import bitwise.devices.kinds.fullcamera.events.*;
 import bitwise.devices.usb.UsbContext;
 import bitwise.devices.usb.drivers.ptp.PtpCamera;
+import bitwise.devices.usb.drivers.ptp.types.ObjectFormatCode;
 import bitwise.devices.usb.drivers.ptp.types.events.Event;
+import bitwise.devices.usb.drivers.ptp.types.prim.Arr;
 
 public abstract class NikonBase extends PtpCamera implements FullCamera {
 	private static final byte interfaceAddr = (byte)0x00;
@@ -41,19 +45,118 @@ public abstract class NikonBase extends PtpCamera implements FullCamera {
 		return super.handleEvent(preEvent);
 	}
 	
+	private List<StorageDevice> storageDevices = null;
+	
 	@Override
-	public void fetchAllCameraProperties() {
-		System.out.println("checking battery properties");
-		updateBatteryLevel();
-		System.out.println("checking other properties");
-		updateExposureIndex();
-		updateExposureMode();
-		updateExposureTime();
-		updateFlashMode();
-		updateFNumber();
-		updateFocalLength();
-		updateFocusMode();
+	public List<StorageDevice> getStorageDevices() {
+		return storageDevices;
 	}
+	
+	@Override
+	protected void storageDevicesChanged(List<StorageDevice> in) {
+		storageDevices = in;
+		bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new StorageDevicesChanged(this, storageDevices));
+	}
+	
+	private ImageFormat decode_imageFormat(short in) {
+		String name = null;
+		switch (in) {
+			case (short) 0x3000:
+				name = "Nikon RAW";
+				break;
+			case (short) 0x3001:
+				name = "Association";
+				break;
+			case (short) 0x3002:
+				name = "Script";
+				break;
+			case (short) 0x3003:
+				name = "Executable";
+				break;
+			case (short) 0x3004:
+				name = "Text";
+				break;
+			case (short) 0x3005:
+				name = "HTML";
+				break;
+			case (short) 0x3006:
+				name = "DPOF";
+				break;
+			case (short) 0x3007:
+				name = "AIFF";
+				break;
+			case (short) 0x3008:
+				name = "WAV";
+				break;
+			case (short) 0x3009:
+				name = "MP3";
+				break;
+			case (short) 0x300a:
+				name = "AVI";
+				break;
+			case (short) 0x300b:
+				name = "MPEG";
+				break;
+			case (short) 0x300c:
+				name = "ASF";
+				break;
+			case (short) 0x3801:
+				name = "EXIF/JPEG";
+				break;
+			case (short) 0x3802:
+				name = "TIFF/EP";
+				break;
+			case (short) 0x3803:
+				name = "FlashPix";
+				break;
+			case (short) 0x3804:
+				name = "Windows BMP";
+				break;
+			case (short) 0x3805:
+				name = "Canon CIFF";
+				break;
+			case (short) 0x3807:
+				name = "GIF";
+				break;
+			case (short) 0x3808:
+				name = "JFIF";
+				break;
+			case (short) 0x3809:
+				name = "PCD";
+				break;
+			case (short) 0x380a:
+				name = "Quickdraw PICT";
+				break;
+			case (short) 0x380b:
+				name = "PNG";
+				break;
+			case (short) 0x380d:
+				name = "TIFF";
+				break;
+			case (short) 0x380e:
+				name = "TIFF/IT";
+				break;
+			case (short) 0x380f:
+				name = "JP2";
+				break;
+			case (short) 0x3810:
+				name = "JPX";
+				break;
+			default:
+				name = String.format("[code %04x]", in);
+		}
+		return new ImageFormat(name, in);
+	}
+	
+	@Override
+	public List<ImageFormat> getImageFormats() {
+		Arr<ObjectFormatCode> formats = getDeviceInfo().getCaptureFormats();
+		ArrayList<ImageFormat> ret = new ArrayList<>(formats.getValue().size());
+		for (ObjectFormatCode code : getDeviceInfo().getImageFormats().getValue())
+			ret.add(decode_imageFormat(code.getValue()));
+		return ret;
+	}
+	
 	
 	private ExposureMode prop_exposureMode = null;
 	private List<ExposureMode> prop_exposureModeValid = null;

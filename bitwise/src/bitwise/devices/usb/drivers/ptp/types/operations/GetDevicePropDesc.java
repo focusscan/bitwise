@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import bitwise.devices.usb.drivers.ptp.types.deviceproperties.DevicePropCode;
 import bitwise.devices.usb.drivers.ptp.types.responses.DeviceProperty;
 
-public class GetDevicePropDesc extends Operation {
+public class GetDevicePropDesc extends Operation<DeviceProperty> {
 	private final DevicePropCode devicePropCode;
 	
 	public GetDevicePropDesc(DevicePropCode in_devicePropCode) {

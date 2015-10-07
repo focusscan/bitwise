@@ -2,6 +2,7 @@ package bitwise.apps.focusscan3d;
 
 import javafx.application.Platform;
 import javafx.stage.Stage;
+
 import bitwise.apps.App;
 import bitwise.apps.events.AppLaunchedEvent;
 import bitwise.apps.focusscan3d.gui.camera.CameraView;
@@ -70,6 +71,11 @@ public class FocusScan3D extends App {
 			ExposureIndexChanged event = (ExposureIndexChanged) in_event;
 			if (event.getDriver() == driver)
 				handleExposureIndexChangedEvent(event);
+		}
+		else if (in_event instanceof StorageDevicesChanged) {
+			StorageDevicesChanged event = (StorageDevicesChanged) in_event;
+			if (event.getDriver() == driver)
+				handleStorageDevicesChangedEvent(event);
 		}
 	}
 	
@@ -164,18 +170,29 @@ public class FocusScan3D extends App {
 		}
 	}
 	
+	private void handleStorageDevicesChangedEvent(StorageDevicesChanged event) {
+		if (null != cameraView) {
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					System.out.println(String.format("handleStorageDevicesChangedEvent %d devices", event.getStorageDevices().size()));
+					cameraView.getStorageValues().clear();
+					cameraView.getStorageValues().addAll(event.getStorageDevices());
+					if (0 < event.getStorageDevices().size())
+						cameraView.getStorageValue().set(event.getStorageDevices().get(0));
+				}
+			});
+		}
+	}
+	
 	private UsbGetDriverRequest<?, FullCamera> cameraRequest = null;
 	private FullCamera driver = null;
-	
-	public FullCamera getDriver() {
-		return driver;
-	}
 	
 	private void handleLaunched() {
 		showDeviceSelect();
 	}
 	
-	private void handleCameraSelected() {
+	private void handleCameraSelected() throws InterruptedException {
 		driver = cameraRequest.getDriverAsKind();
 		if (null == driver) {
 			cameraRequest = null;
@@ -184,7 +201,6 @@ public class FocusScan3D extends App {
 		else {
 			hideDeviceSelect();
 			showCameraView();
-			driver.fetchAllCameraProperties();
 		}
 	}
 	
@@ -239,6 +255,12 @@ public class FocusScan3D extends App {
 				public void run() {
 					cameraStage = new Stage();
 					cameraView = CameraView.showNewWindow(cameraStage, app);
+					
+					Supervisor.getUSB().enqueueRequest(driver.fetchAllCameraProperties());
+					cameraView.getImageFormatValues().clear();
+					cameraView.getImageFormatValues().addAll(driver.getImageFormats());
+					if (0 < driver.getImageFormats().size())
+						cameraView.getImageFormatValue().set(driver.getImageFormats().get(0));
 				}
 			});
 		}

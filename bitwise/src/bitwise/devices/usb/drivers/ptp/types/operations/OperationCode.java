@@ -9,6 +9,8 @@ public class OperationCode extends Code {
 	public static final OperationCode getDeviceInfo = new OperationCode((short) 0x1001);
 	public static final OperationCode openSession = new OperationCode((short) 0x1002);
 	public static final OperationCode closeSession = new OperationCode((short) 0x1003);
+	public static final OperationCode getStorageIDs = new OperationCode((short) 0x1004);
+	public static final OperationCode getStorageInfo = new OperationCode((short) 0x1005);
 	public static final OperationCode getDevicePropDesc = new OperationCode((short) 0x1014);
 	public static final OperationCode setDevicePropValue = new OperationCode((short) 0x1016);
 	

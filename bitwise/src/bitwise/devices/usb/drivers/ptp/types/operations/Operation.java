@@ -8,9 +8,8 @@ import bitwise.devices.usb.drivers.ptp.types.TransactionID;
 import bitwise.devices.usb.drivers.ptp.types.prim.Int32;
 import bitwise.devices.usb.drivers.ptp.types.prim.PtpType;
 import bitwise.devices.usb.drivers.ptp.types.prim.UInt16;
-import bitwise.devices.usb.drivers.ptp.types.responses.Response;
 
-public abstract class Operation {
+public abstract class Operation<R> {
 	private final String operationName;
 	private final OperationCode code;
 	private TransactionID transactionID = null;
@@ -83,7 +82,7 @@ public abstract class Operation {
 		}
 	}
 	
-	public Response getResponseData() {
+	public R getResponseData() {
 		return null;
 	}
 	

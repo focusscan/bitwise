@@ -16,7 +16,7 @@
 				<items>
 					<Region styleClass="spacer" />
 					<VBox alignment="bottom_center">
-						<Label text="Flash Mode " />
+						<Label text="Flash Mode" />
 						<ComboBox fx:id="cbFlashMode" promptText="--">
 							<items />
 	
@@ -25,7 +25,7 @@
 					
 					<Region styleClass="spacer" />
 					<VBox alignment="bottom_center">
-						<Label text="Exposure Mode " />
+						<Label text="Exposure Mode" />
 						<ComboBox fx:id="cbExposureMode" promptText="--">
 							<items />
 	
@@ -34,7 +34,7 @@
 					
 					<Region styleClass="spacer" />
 					<VBox alignment="bottom_center">
-						<Label text="Focus Mode " />
+						<Label text="Focus Mode" />
 						<ComboBox fx:id="cbFocusMode" promptText="--">
 							<items />
 	
@@ -46,7 +46,27 @@
 				<items>
 					<Region styleClass="spacer" />
 					<VBox alignment="bottom_center">
-						<Label text="Aperture " />
+						<Label text="Image Format" />
+						<ComboBox fx:id="cbImageFormat" promptText="--">
+							<items />
+	
+						</ComboBox>
+					</VBox>
+					<Region styleClass="spacer" />
+					<VBox alignment="bottom_center">
+						<Label text="Storage" />
+						<ComboBox fx:id="cbStorage" promptText="--">
+							<items />
+	
+						</ComboBox>
+					</VBox>
+				</items>
+			</ToolBar>
+			<ToolBar>
+				<items>
+					<Region styleClass="spacer" />
+					<VBox alignment="bottom_center">
+						<Label text="Aperture" />
 						<ComboBox fx:id="cbAperture" promptText="--">
 							<items />
 	
@@ -55,7 +75,7 @@
 	
 					<Region styleClass="spacer" />
 					<VBox alignment="bottom_center">
-						<Label text="Exposure " />
+						<Label text="Exposure" />
 						<ComboBox fx:id="cbExposure" promptText="--">
 							<items />
 	
@@ -64,7 +84,7 @@
 	
 					<Region styleClass="spacer" />
 					<VBox alignment="bottom_center">
-						<Label text="ISO " />
+						<Label text="ISO" />
 						<ComboBox fx:id="cbIso" promptText="--">
 							<items />
 	
@@ -73,7 +93,7 @@
 	
 					<Region styleClass="spacer" />
 					<VBox alignment="bottom_center">
-						<Label text="Focal Length " />
+						<Label text="Focal Length" />
 						<Label fx:id="lblFocalLength" text="--" />
 					</VBox>
 				</items>

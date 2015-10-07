@@ -9,6 +9,8 @@ import bitwise.devices.kinds.fullcamera.ExposureTime;
 import bitwise.devices.kinds.fullcamera.FNumber;
 import bitwise.devices.kinds.fullcamera.FlashMode;
 import bitwise.devices.kinds.fullcamera.FocusMode;
+import bitwise.devices.kinds.fullcamera.ImageFormat;
+import bitwise.devices.kinds.fullcamera.StorageDevice;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
@@ -52,6 +54,10 @@ public class CameraView extends BorderPane {
 	@FXML private ComboBox<ExposureMode> cbExposureMode;
 	@FXML private ComboBox<FlashMode> cbFlashMode;
 	@FXML private ComboBox<FocusMode> cbFocusMode;
+	
+	@FXML private ComboBox<ImageFormat> cbImageFormat;
+	@FXML private ComboBox<StorageDevice> cbStorage;
+	
 	@FXML private ComboBox<FNumber> cbAperture;
 	@FXML private ComboBox<ExposureTime> cbExposure;
 	@FXML private ComboBox<ExposureIndex> cbIso;
@@ -130,6 +136,22 @@ public class CameraView extends BorderPane {
 	
 	public ObjectProperty<FocusMode> getFocusModeValue() {
 		return cbFocusMode.valueProperty();
+	}
+	
+	public ObservableList<ImageFormat> getImageFormatValues() {
+		return cbImageFormat.itemsProperty().get();
+	}
+	
+	public ObjectProperty<ImageFormat> getImageFormatValue() {
+		return cbImageFormat.valueProperty();
+	}
+	
+	public ObservableList<StorageDevice> getStorageValues() {
+		return cbStorage.itemsProperty().get();
+	}
+	
+	public ObjectProperty<StorageDevice> getStorageValue() {
+		return cbStorage.valueProperty();
 	}
 	
 	public ObservableList<FNumber> getApertureValues() {

@@ -2,6 +2,8 @@ package bitwise.devices.usb.drivers.ptp;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.usb.UsbDisconnectedException;
 import javax.usb.UsbException;
@@ -18,6 +20,7 @@ import bitwise.devices.kinds.fullcamera.ExposureTime;
 import bitwise.devices.kinds.fullcamera.FNumber;
 import bitwise.devices.kinds.fullcamera.FlashMode;
 import bitwise.devices.kinds.fullcamera.FocusMode;
+import bitwise.devices.kinds.fullcamera.StorageDevice;
 import bitwise.devices.usb.UsbContext;
 import bitwise.devices.usb.UsbRequest;
 import bitwise.devices.usb.drivers.UsbDriver;
@@ -32,12 +35,17 @@ import bitwise.devices.usb.drivers.ptp.types.deviceproperties.PtpFlashMode;
 import bitwise.devices.usb.drivers.ptp.types.deviceproperties.PtpFocusMode;
 import bitwise.devices.usb.drivers.ptp.types.events.DevicePropChanged;
 import bitwise.devices.usb.drivers.ptp.types.events.Event;
+import bitwise.devices.usb.drivers.ptp.types.events.StoreAdded;
+import bitwise.devices.usb.drivers.ptp.types.events.StoreRemoved;
 import bitwise.devices.usb.drivers.ptp.types.operations.CloseSession;
 import bitwise.devices.usb.drivers.ptp.types.operations.GetDeviceInfo;
 import bitwise.devices.usb.drivers.ptp.types.operations.GetDevicePropDesc;
+import bitwise.devices.usb.drivers.ptp.types.operations.GetStorageIDs;
+import bitwise.devices.usb.drivers.ptp.types.operations.GetStorageInfo;
 import bitwise.devices.usb.drivers.ptp.types.operations.OpenSession;
 import bitwise.devices.usb.drivers.ptp.types.operations.Operation;
 import bitwise.devices.usb.drivers.ptp.types.operations.SetDevicePropValue;
+import bitwise.devices.usb.drivers.ptp.types.prim.Arr;
 import bitwise.devices.usb.drivers.ptp.types.prim.Int32;
 import bitwise.devices.usb.drivers.ptp.types.prim.PtpType;
 import bitwise.devices.usb.drivers.ptp.types.prim.UInt16;
@@ -46,6 +54,7 @@ import bitwise.devices.usb.drivers.ptp.types.prim.UInt8;
 import bitwise.devices.usb.drivers.ptp.types.responses.DeviceInfo;
 import bitwise.devices.usb.drivers.ptp.types.responses.DeviceProperty;
 import bitwise.devices.usb.drivers.ptp.types.responses.DeviceProperty.PropertyDescribingEnum;
+import bitwise.devices.usb.drivers.ptp.types.responses.StorageInfo;
 import javafx.concurrent.Task;
 
 public abstract class PtpCamera extends UsbDriver {
@@ -72,7 +81,7 @@ public abstract class PtpCamera extends UsbDriver {
 		interruptEPNum = in_interruptEPNum;
 	}
 	
-	public DeviceInfo getDeviceInfo() {
+	protected DeviceInfo getDeviceInfo() {
 		return deviceInfo;
 	}
 	
@@ -141,8 +150,6 @@ public abstract class PtpCamera extends UsbDriver {
 			GetDeviceInfo getDeviceInfo = new GetDeviceInfo();
 			runOperation(getDeviceInfo);
 			deviceInfo = getDeviceInfo.getResponseData();
-			
-			updateExposureMode();
 		} catch (UsbNotActiveException | UsbNotOpenException | UsbDisconnectedException | UsbException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -216,10 +223,15 @@ public abstract class PtpCamera extends UsbDriver {
 			read += irp.getActualLength();
 		} while (read < length);
 		
+		System.out.print(String.format("Read "));
+		for (byte b : incoming)
+			System.out.print(String.format("%02x", b));
+		System.out.println("");
+		
 		return DecodableContainer.decoder.decode(ByteBuffer.wrap(incoming));
 	}
 	
-	protected synchronized void sendPtpPipe(Operation operation) throws InterruptedException, UsbNotActiveException, UsbNotOpenException, UsbDisconnectedException, UsbException {
+	protected synchronized void sendPtpPipe(Operation<?> operation) throws InterruptedException, UsbNotActiveException, UsbNotOpenException, UsbDisconnectedException, UsbException {
 		// Send the command
 		{
 			ByteArrayOutputStream args = new ByteArrayOutputStream();
@@ -234,6 +246,11 @@ public abstract class PtpCamera extends UsbDriver {
 			javax.usb.UsbIrp outIrp = dataOutPipe.asyncSubmit(outgoing);
 			while (!outIrp.isComplete())
 				Thread.sleep(20);
+			
+			System.out.print(String.format("Wrote "));
+			for (byte b : outgoing)
+				System.out.print(String.format("%02x", b));
+			System.out.println("");
 		}
 		// Send the data (if there is any)
 		if (null != operation.getOutData()) {
@@ -248,10 +265,15 @@ public abstract class PtpCamera extends UsbDriver {
 			javax.usb.UsbIrp outIrp = dataOutPipe.asyncSubmit(outgoing);
 			while (!outIrp.isComplete())
 				Thread.sleep(20);
+			
+			System.out.print(String.format("Wrote "));
+			for (byte b : outgoing)
+				System.out.print(String.format("%02x", b));
+			System.out.println("");
 		}
 	}
 	
-	protected synchronized void runOperation(Operation operation) throws UsbNotActiveException, UsbNotOpenException, UsbDisconnectedException, InterruptedException, UsbException {
+	protected synchronized void runOperation(Operation<?> operation) throws UsbNotActiveException, UsbNotOpenException, UsbDisconnectedException, InterruptedException, UsbException {
 		if (null == operation.getTransactionID())
 			operation.setTransactionID(newTransactionID());
 		sendPtpPipe(operation);
@@ -262,13 +284,17 @@ public abstract class PtpCamera extends UsbDriver {
 			if (null == resp)
 				continue;
 			loopRuns++;
+			ByteBuffer payload = resp.getPayload();
 			if (resp instanceof ResponseContainer) {
-				operation.setResponseArguments(resp.getPayload());
+				operation.setResponseCode(((ResponseContainer) resp).getCode());
+				operation.setResponseArguments(payload);
 			}
 			else if (resp instanceof DataContainer) {
-				operation.setResponseData(resp.getPayload());
+				if (payload.remaining() > 0)
+					operation.setResponseData(payload);
 			}
 		}
+		System.out.println(String.format("Command %s response %s", operation.getCode(), operation.getResponseCode()));
 	}
 	
 	protected boolean handleEvent(Event preEvent) {
@@ -306,6 +332,53 @@ public abstract class PtpCamera extends UsbDriver {
 				updateExposureIndex();
 				return true;
 			}
+		}
+		if (preEvent instanceof StoreAdded || preEvent instanceof StoreRemoved) {
+			updateStorageDevices();
+		}
+		return false;
+	}
+	
+	public UsbRequest fetchAllCameraProperties() {
+		return new PtpFetchAllPropertiesRequest(this);
+	}
+	
+	protected void cmd_fetchAllCameraProperties() {
+		updateStorageDevices();
+		updateBatteryLevel();
+		updateExposureIndex();
+		updateExposureMode();
+		updateExposureTime();
+		updateFlashMode();
+		updateFNumber();
+		updateFocalLength();
+		updateFocusMode();
+	}
+	
+	// Storage IDs
+	protected abstract void storageDevicesChanged(List<StorageDevice> in);
+	
+	protected boolean updateStorageDevices() {
+		try {
+			GetStorageIDs getStorageIDs = new GetStorageIDs();
+			runOperation(getStorageIDs);
+			Arr<UInt32> rawStorageIDs = getStorageIDs.getResponseData();
+			if (null != rawStorageIDs) {
+				ArrayList<StorageDevice> storageDevices = new ArrayList<>(rawStorageIDs.getValue().size());
+				for (UInt32 storageID : rawStorageIDs.getValue()) {
+					GetStorageInfo getStorageInfo = new GetStorageInfo(storageID);
+					runOperation(getStorageInfo);
+					StorageInfo info = getStorageInfo.getResponseData();
+					if (null != info)
+						storageDevices.add(new StorageDevice(info.getVolumeLabel().getValue(), storageID.getValue()));
+				}
+				storageDevicesChanged(storageDevices);
+				return true;
+			}
+		} catch (UsbNotActiveException | UsbNotOpenException | UsbDisconnectedException | InterruptedException
+				| UsbException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return false;
 	}
