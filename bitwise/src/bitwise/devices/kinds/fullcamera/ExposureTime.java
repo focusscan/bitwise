@@ -3,12 +3,10 @@ package bitwise.devices.kinds.fullcamera;
 public class ExposureTime {
 	private final String name;
 	private final int value;
-	private final boolean setByUser;
 	
-	public ExposureTime(String in_name, int in_value, boolean in_setByUser) {
+	public ExposureTime(String in_name, int in_value) {
 		name = in_name;
 		value = in_value;
-		setByUser = in_setByUser;
 		assert(null != name);
 	}
 	
@@ -18,10 +16,6 @@ public class ExposureTime {
 	
 	public int getValue() {
 		return value;
-	}
-	
-	public boolean isSetByUser() {
-		return setByUser;
 	}
 	
 	@Override

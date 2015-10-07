@@ -5,75 +5,80 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.Region?>
 
 <fx:root type="javafx.scene.layout.BorderPane" xmlns:fx="http://javafx.com/fxml"
-	prefWidth="1200" prefHeight="650">
+	prefWidth="900" prefHeight="650">
 	<top>
-		<ToolBar>
-			<items>
-				<Region styleClass="spacer" />
-				<HBox alignment="center_left">
-					<Label text="Focus Mode " />
-					<ComboBox fx:id="cbFocusMode" promptText="--">
-						<items />
-
-					</ComboBox>
-				</HBox>
-
-				<Region styleClass="spacer" />
-				<HBox alignment="center_left">
-					<Label text="Flash Mode " />
-					<ComboBox fx:id="cbFlashMode" promptText="--">
-						<items />
-
-					</ComboBox>
-				</HBox>
-
-				<Region styleClass="spacer" />
-				<HBox alignment="center_left">
-					<Label text="Exposure Mode " />
-					<ComboBox fx:id="cbExposureMode" promptText="--">
-						<items />
-
-					</ComboBox>
-				</HBox>
-
-				<Region styleClass="spacer" />
-				<HBox alignment="center_left">
-					<Label text="Aperture " />
-					<ComboBox fx:id="cbAperture" promptText="--">
-						<items />
-
-					</ComboBox>
-				</HBox>
-
-				<Region styleClass="spacer" />
-				<HBox alignment="center_left">
-					<Label text="Exposure " />
-					<ComboBox fx:id="cbExposure" promptText="--">
-						<items />
-
-					</ComboBox>
-				</HBox>
-
-				<Region styleClass="spacer" />
-				<HBox alignment="center_left">
-					<Label text="ISO " />
-					<ComboBox fx:id="cbIso" promptText="--">
-						<items />
-
-					</ComboBox>
-				</HBox>
-
-				<Region styleClass="spacer" />
-				<HBox alignment="center_left">
-					<Label text="Focal Length " />
-					<Label fx:id="lblFocalLength" text="--" />
-				</HBox>
-			</items>
-		</ToolBar>
+		<VBox>
+			<ToolBar>
+				<items>
+					<Region styleClass="spacer" />
+					<VBox alignment="bottom_center">
+						<Label text="Flash Mode " />
+						<ComboBox fx:id="cbFlashMode" promptText="--">
+							<items />
+	
+						</ComboBox>
+					</VBox>
+					
+					<Region styleClass="spacer" />
+					<VBox alignment="bottom_center">
+						<Label text="Exposure Mode " />
+						<ComboBox fx:id="cbExposureMode" promptText="--">
+							<items />
+	
+						</ComboBox>
+					</VBox>
+					
+					<Region styleClass="spacer" />
+					<VBox alignment="bottom_center">
+						<Label text="Focus Mode " />
+						<ComboBox fx:id="cbFocusMode" promptText="--">
+							<items />
+	
+						</ComboBox>
+					</VBox>
+				</items>
+			</ToolBar>
+			<ToolBar>
+				<items>
+					<Region styleClass="spacer" />
+					<VBox alignment="bottom_center">
+						<Label text="Aperture " />
+						<ComboBox fx:id="cbAperture" promptText="--">
+							<items />
+	
+						</ComboBox>
+					</VBox>
+	
+					<Region styleClass="spacer" />
+					<VBox alignment="bottom_center">
+						<Label text="Exposure " />
+						<ComboBox fx:id="cbExposure" promptText="--">
+							<items />
+	
+						</ComboBox>
+					</VBox>
+	
+					<Region styleClass="spacer" />
+					<VBox alignment="bottom_center">
+						<Label text="ISO " />
+						<ComboBox fx:id="cbIso" promptText="--">
+							<items />
+	
+						</ComboBox>
+					</VBox>
+	
+					<Region styleClass="spacer" />
+					<VBox alignment="bottom_center">
+						<Label text="Focal Length " />
+						<Label fx:id="lblFocalLength" text="--" />
+					</VBox>
+				</items>
+			</ToolBar>
+		</VBox>
 	</top>
 	<center>
 		<ImageView />

@@ -248,26 +248,32 @@ public class FocusScan3D extends App {
 	}
 	
 	public void fx_setExposureMode(ExposureMode in) {
-		Supervisor.getUSB().enqueueRequest(driver.setExposureMode(in));
+		if (!in.equals(driver.getExposureMode()))
+			Supervisor.getUSB().enqueueRequest(driver.setExposureMode(in));
 	}
 	
 	public void fx_setFlashMode(FlashMode in) {
-		Supervisor.getUSB().enqueueRequest(driver.setFlashMode(in));
+		if (!in.equals(driver.getFlashMode()))
+			Supervisor.getUSB().enqueueRequest(driver.setFlashMode(in));
 	}
 	
 	public void fx_setFocusMode(FocusMode in) {
-		Supervisor.getUSB().enqueueRequest(driver.setFocusMode(in));
+		if (!in.equals(driver.getFocusMode()))
+			Supervisor.getUSB().enqueueRequest(driver.setFocusMode(in));
 	}
 	
 	public void fx_setAperture(FNumber in) {
-		Supervisor.getUSB().enqueueRequest(driver.setFNumber(in));
+		if (!in.equals(driver.getFNumber()))
+			Supervisor.getUSB().enqueueRequest(driver.setFNumber(in));
 	}
 	
 	public void fx_setExposureTime(ExposureTime in) {
-		Supervisor.getUSB().enqueueRequest(driver.setExposureTime(in));
+		if (!in.equals(driver.getExposureTime()))
+			Supervisor.getUSB().enqueueRequest(driver.setExposureTime(in));
 	}
 	
 	public void fx_setExposureIndex(ExposureIndex in) {
-		Supervisor.getUSB().enqueueRequest(driver.setExposureIndex(in));
+		if (!in.equals(driver.getExposureIndex()))
+			Supervisor.getUSB().enqueueRequest(driver.setExposureIndex(in));
 	}
 }

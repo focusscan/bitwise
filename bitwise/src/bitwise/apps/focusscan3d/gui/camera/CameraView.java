@@ -49,13 +49,13 @@ public class CameraView extends BorderPane {
 		return null;
 	}
 	
-	@FXML private Label lblFocalLength;
 	@FXML private ComboBox<ExposureMode> cbExposureMode;
 	@FXML private ComboBox<FlashMode> cbFlashMode;
 	@FXML private ComboBox<FocusMode> cbFocusMode;
 	@FXML private ComboBox<FNumber> cbAperture;
 	@FXML private ComboBox<ExposureTime> cbExposure;
 	@FXML private ComboBox<ExposureIndex> cbIso;
+	@FXML private Label lblFocalLength;
 	
 	private final FocusScan3D app;
 	
@@ -69,43 +69,37 @@ public class CameraView extends BorderPane {
 		cbExposureMode.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ExposureMode>() {
 			@Override
 			public void changed(ObservableValue<? extends ExposureMode> obs, ExposureMode oldV, ExposureMode newV) {
-				if (newV.isSetByUser())
-					app.fx_setExposureMode(newV);
+				app.fx_setExposureMode(newV);
 			}
 		});
 		cbFlashMode.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<FlashMode>() {
 			@Override
 			public void changed(ObservableValue<? extends FlashMode> obs, FlashMode oldV, FlashMode newV) {
-				if (newV.isSetByUser())
-					app.fx_setFlashMode(newV);
+				app.fx_setFlashMode(newV);
 			}
 		});
 		cbFocusMode.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<FocusMode>() {
 			@Override
 			public void changed(ObservableValue<? extends FocusMode> obs, FocusMode oldV, FocusMode newV) {
-				if (newV.isSetByUser())
-					app.fx_setFocusMode(newV);
+				app.fx_setFocusMode(newV);
 			}
 		});
 		cbAperture.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<FNumber>() {
 			@Override
 			public void changed(ObservableValue<? extends FNumber> obs, FNumber oldV, FNumber newV) {
-				if (newV.isSetByUser())
-					app.fx_setAperture(newV);
+				app.fx_setAperture(newV);
 			}
 		});
 		cbExposure.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ExposureTime>() {
 			@Override
 			public void changed(ObservableValue<? extends ExposureTime> obs, ExposureTime oldV, ExposureTime newV) {
-				if (newV.isSetByUser())
-					app.fx_setExposureTime(newV);
+				app.fx_setExposureTime(newV);
 			}
 		});
 		cbIso.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ExposureIndex>() {
 			@Override
 			public void changed(ObservableValue<? extends ExposureIndex> obs, ExposureIndex oldV, ExposureIndex newV) {
-				if (newV.isSetByUser())
-					app.fx_setExposureIndex(newV);
+				app.fx_setExposureIndex(newV);
 			}
 		});
 	}

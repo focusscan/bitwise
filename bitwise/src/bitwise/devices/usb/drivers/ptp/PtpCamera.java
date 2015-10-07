@@ -320,6 +320,7 @@ public abstract class PtpCamera extends UsbDriver {
 	
 	protected boolean cmd_setExposureMode(ExposureMode in) throws UsbNotActiveException, UsbNotOpenException, UsbDisconnectedException, InterruptedException, UsbException {
 		runOperation(new SetDevicePropValue<>(DevicePropCode.exposureProgramMode, new ExposureProgramMode(in.getValue())));
+		updateExposureMode();
 		return true;
 	}
 	
@@ -361,6 +362,7 @@ public abstract class PtpCamera extends UsbDriver {
 	
 	protected boolean cmd_setFNumber(FNumber in) throws UsbNotActiveException, UsbNotOpenException, UsbDisconnectedException, InterruptedException, UsbException {
 		runOperation(new SetDevicePropValue<>(DevicePropCode.fNumber, new UInt16(in.getValue())));
+		updateFNumber();
 		return true;
 	}
 	
@@ -462,6 +464,7 @@ public abstract class PtpCamera extends UsbDriver {
 	
 	protected boolean cmd_setFocusMode(FocusMode in) throws UsbNotActiveException, UsbNotOpenException, UsbDisconnectedException, InterruptedException, UsbException {
 		runOperation(new SetDevicePropValue<>(DevicePropCode.focusMode, new PtpFocusMode(in.getValue())));
+		updateFocusMode();
 		return true;
 	}
 	
@@ -503,6 +506,7 @@ public abstract class PtpCamera extends UsbDriver {
 	
 	protected boolean cmd_setFlashMode(FlashMode in) throws UsbNotActiveException, UsbNotOpenException, UsbDisconnectedException, InterruptedException, UsbException {
 		runOperation(new SetDevicePropValue<>(DevicePropCode.flashMode, new PtpFlashMode(in.getValue())));
+		updateFlashMode();
 		return true;
 	}
 	
@@ -544,6 +548,7 @@ public abstract class PtpCamera extends UsbDriver {
 	
 	protected boolean cmd_setExposureTime(ExposureTime in) throws UsbNotActiveException, UsbNotOpenException, UsbDisconnectedException, InterruptedException, UsbException {
 		runOperation(new SetDevicePropValue<>(DevicePropCode.exposureTime, new UInt32(in.getValue())));
+		updateExposureTime();
 		return true;
 	}
 	
@@ -585,6 +590,7 @@ public abstract class PtpCamera extends UsbDriver {
 	
 	protected boolean cmd_setExposureIndex(ExposureIndex in) throws UsbNotActiveException, UsbNotOpenException, UsbDisconnectedException, InterruptedException, UsbException {
 		runOperation(new SetDevicePropValue<UInt16>(DevicePropCode.exposureIndex, new UInt16(in.getValue())));
+		updateExposureIndex();
 		return true;
 	}
 	

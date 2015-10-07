@@ -3,12 +3,10 @@ package bitwise.devices.kinds.fullcamera;
 public class ExposureIndex {
 	private final String name;
 	private final short value;
-	private final boolean setByUser;
 	
-	public ExposureIndex(String in_name, short in_value, boolean in_setByUser) {
+	public ExposureIndex(String in_name, short in_value) {
 		name = in_name;
 		value = in_value;
-		setByUser = in_setByUser;
 		assert(null != name);
 	}
 	
@@ -18,10 +16,6 @@ public class ExposureIndex {
 	
 	public short getValue() {
 		return value;
-	}
-	
-	public boolean isSetByUser() {
-		return setByUser;
 	}
 	
 	@Override

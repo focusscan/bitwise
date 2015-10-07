@@ -68,16 +68,54 @@ public abstract class NikonBase extends PtpCamera implements FullCamera {
 		return prop_exposureModeValid;
 	}
 	
-	private ExposureMode decode_exposureMode(short in, boolean user) {
-		return new ExposureMode(String.format("%04x", in), in, user);
+	private ExposureMode decode_exposureMode(short in) {
+		String name = null;
+		switch (in) {
+			case (short) 0x0001:
+				name = "[M]anual";
+				break;
+			case (short) 0x0002:
+				name = "[P]ortrait";
+				break;
+			case (short) 0x0003:
+				name = "[A]perture Priority";
+				break;
+			case (short) 0x0004:
+				name = "[S]hutter Priority";
+				break;
+			case (short) 0x8010:
+				name = "AUTO";
+				break;
+			case (short) 0x8011:
+				name = "Portrait";
+				break;
+			case (short) 0x8012:
+				name = "Landscape";
+				break;
+			case (short) 0x8013:
+				name = "Close up";
+				break;
+			case (short) 0x8014:
+				name = "Sports";
+				break;
+			case (short) 0x8016:
+				name = "Flash prohib";
+				break;
+			case (short) 0x8017:
+				name = "Child";
+				break;
+			default:
+				name = String.format("[code %04x]", in);
+		}
+		return new ExposureMode(name, in);
 	}
 	
 	@Override
 	public synchronized void exposureModeChanged(short in, short[] in2) {
-		prop_exposureMode = decode_exposureMode(in, false);
+		prop_exposureMode = decode_exposureMode(in);
 		prop_exposureModeValid = new ArrayList<>(in2.length);
 		for (short v : in2)
-			prop_exposureModeValid.add(decode_exposureMode(v, v != in));
+			prop_exposureModeValid.add(decode_exposureMode(v));
 		bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new ExposureModeChanged(this, prop_exposureMode, prop_exposureModeValid));
 	}
 	
@@ -96,10 +134,10 @@ public abstract class NikonBase extends PtpCamera implements FullCamera {
 	
 	@Override
 	protected void fNumberChanged(short in, short[] in2) {
-		prop_fNumber = new FNumber(in, false);
+		prop_fNumber = new FNumber(in);
 		prop_fNumberValid = new ArrayList<>(in2.length);
 		for (short v : in2)
-			prop_fNumberValid.add(new FNumber(v, v != in));
+			prop_fNumberValid.add(new FNumber(v));
 		bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new FNumberChanged(this, prop_fNumber, prop_fNumberValid));
 	}
 	
@@ -128,16 +166,36 @@ public abstract class NikonBase extends PtpCamera implements FullCamera {
 		return prop_focusModeValid;
 	}
 	
-	private FocusMode decode_focusMode(short in, boolean user) {
-		return new FocusMode(String.format("%04x", in), in, user);
+	private FocusMode decode_focusMode(short in) {
+		String name = null;
+		switch (in) {
+			case (short) 0x0001:
+				name = "[M]anual";
+				break;
+			case (short) 0x8010:
+				name = "[S]ingle AF";
+				break;
+			case (short) 0x8011:
+				name = "[C]ontinuous AF";
+				break;
+			case (short) 0x8012:
+				name = "[A]F auto switching";
+				break;
+			case (short) 0x8013:
+				name = "[F] Constant AF";
+				break;
+			default:
+				name = String.format("[code %04x]", in);
+		}
+		return new FocusMode(name, in);
 	}
 	
 	@Override
 	public synchronized void focusModeChanged(short in, short[] in2) {
-		prop_focusMode = decode_focusMode(in, false);
+		prop_focusMode = decode_focusMode(in);
 		prop_focusModeValid = new ArrayList<>(in2.length);
 		for (short v : in2)
-			prop_focusModeValid.add(decode_focusMode(v, v != in));
+			prop_focusModeValid.add(decode_focusMode(v));
 		bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new FocusModeChanged(this, prop_focusMode, prop_focusModeValid));
 	}
 	
@@ -154,16 +212,39 @@ public abstract class NikonBase extends PtpCamera implements FullCamera {
 		return prop_flashModeValid;
 	}
 	
-	private FlashMode decode_flashMode(short in, boolean user) {
-		return new FlashMode(String.format("%04x", in), in, user);
+	private FlashMode decode_flashMode(short in) {
+		String name = null;
+		switch (in) {
+			case (short) 0x0002:
+				name = "No flash";
+				break;
+			case (short) 0x0004:
+				name = "Red-eye reduction";
+				break;
+			case (short) 0x8010:
+				name = "Normal sync";
+				break;
+			case (short) 0x8011:
+				name = "Slow sync";
+				break;
+			case (short) 0x8012:
+				name = "Rear sync";
+				break;
+			case (short) 0x8013:
+				name = "Red-eye reduction (slow sync)";
+				break;
+			default:
+				name = String.format("[code %04x]", in);
+		}
+		return new FlashMode(name, in);
 	}
 	
 	@Override
 	public synchronized void flashModeChanged(short in, short[] in2) {
-		prop_flashMode = decode_flashMode(in, false);
+		prop_flashMode = decode_flashMode(in);
 		prop_flashModeValid = new ArrayList<>(in2.length);
 		for (short v : in2)
-			prop_flashModeValid.add(decode_flashMode(v, v != in));
+			prop_flashModeValid.add(decode_flashMode(v));
 		bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new FlashModeChanged(this, prop_flashMode, prop_flashModeValid));
 	}
 	
@@ -180,18 +261,17 @@ public abstract class NikonBase extends PtpCamera implements FullCamera {
 		return prop_exposureTimeValid;
 	}
 	
-	private ExposureTime decode_exposureTime(int in, boolean user) {
-		int whole = in / 10000;
-		int part  = in % 10000;
-		return new ExposureTime(String.format("%s.%ss", whole, part), in, user);
+	private ExposureTime decode_exposureTime(int in) {
+		float time = ((float)in) / 10000;
+		return new ExposureTime(String.format("%fs", time), in);
 	}
 	
 	@Override
 	public synchronized void exposureTimeChanged(int in, int[] in2) {
-		prop_exposureTime = decode_exposureTime(in, false);
+		prop_exposureTime = decode_exposureTime(in);
 		prop_exposureTimeValid = new ArrayList<>(in2.length);
 		for (int v : in2)
-			prop_exposureTimeValid.add(decode_exposureTime(v, v != in));
+			prop_exposureTimeValid.add(decode_exposureTime(v));
 		bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new ExposureTimeChanged(this, prop_exposureTime, prop_exposureTimeValid));
 	}
 	
@@ -208,16 +288,16 @@ public abstract class NikonBase extends PtpCamera implements FullCamera {
 		return prop_exposureIndexValid;
 	}
 	
-	private ExposureIndex decode_exposureIndex(short in, boolean user) {
-		return new ExposureIndex(String.format("%s", in), in, user);
+	private ExposureIndex decode_exposureIndex(short in) {
+		return new ExposureIndex(String.format("%s", in), in);
 	}
 	
 	@Override
 	public synchronized void exposureIndexChanged(short in, short in2[]) {
-		prop_exposureIndex = decode_exposureIndex(in, false);
+		prop_exposureIndex = decode_exposureIndex(in);
 		prop_exposureIndexValid = new ArrayList<>(in2.length);
 		for (short v : in2)
-			prop_exposureIndexValid.add(decode_exposureIndex(v, v != in));
+			prop_exposureIndexValid.add(decode_exposureIndex(v));
 		bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new ExposureIndexChanged(this, prop_exposureIndex, prop_exposureIndexValid));
 	}
 }
