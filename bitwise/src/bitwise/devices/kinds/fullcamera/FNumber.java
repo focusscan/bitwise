@@ -2,13 +2,19 @@ package bitwise.devices.kinds.fullcamera;
 
 public class FNumber {
 	private final short value;
+	private final boolean setByUser;
 	
-	public FNumber(short in_value) {
+	public FNumber(short in_value, boolean in_setByUser) {
 		value = in_value;
+		setByUser = in_setByUser;
 	}
 	
 	public short getValue() {
 		return value;
+	}
+	
+	public boolean isSetByUser() {
+		return setByUser;
 	}
 	
 	@Override

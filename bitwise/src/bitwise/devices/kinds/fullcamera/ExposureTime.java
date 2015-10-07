@@ -1,11 +1,11 @@
 package bitwise.devices.kinds.fullcamera;
 
-public class FocusMode {
+public class ExposureTime {
 	private final String name;
-	private final short value;
+	private final int value;
 	private final boolean setByUser;
 	
-	public FocusMode(String in_name, short in_value, boolean in_setByUser) {
+	public ExposureTime(String in_name, int in_value, boolean in_setByUser) {
 		name = in_name;
 		value = in_value;
 		setByUser = in_setByUser;
@@ -16,7 +16,7 @@ public class FocusMode {
 		return name;
 	}
 	
-	public short getValue() {
+	public int getValue() {
 		return value;
 	}
 	
@@ -28,15 +28,15 @@ public class FocusMode {
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
-		if (!(o instanceof FocusMode))
+		if (!(o instanceof ExposureTime))
 			return false;
-		FocusMode that = (FocusMode) o;
+		ExposureTime that = (ExposureTime) o;
 		return this.value == that.value;
 	}
 	
 	@Override
 	public int hashCode() {
-		return Short.hashCode(value);
+		return Integer.hashCode(value);
 	}
 	
 	@Override

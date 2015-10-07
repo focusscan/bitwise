@@ -2,7 +2,6 @@ package bitwise.devices.usb.drivers.ptp.types.deviceproperties;
 
 import java.nio.ByteBuffer;
 
-import bitwise.devices.kinds.fullcamera.FlashMode;
 import bitwise.devices.usb.drivers.ptp.types.prim.UInt16;
 
 public class PtpFlashMode extends UInt16 {
@@ -19,21 +18,5 @@ public class PtpFlashMode extends UInt16 {
 	
 	public PtpFlashMode(ByteBuffer in) {
 		super(in);
-	}
-	
-	public FlashMode getFlashMode() {
-		if (this.equals(PtpFlashMode.automatic))
-			return FlashMode.Automatic;
-		if (this.equals(PtpFlashMode.off))
-			return FlashMode.Off;
-		if (this.equals(PtpFlashMode.fill))
-			return FlashMode.Fill;
-		if (this.equals(PtpFlashMode.redEyeAutomatic))
-			return FlashMode.RedEyeAutomatic;
-		if (this.equals(PtpFlashMode.redEyeFill))
-			return FlashMode.RedEyeFill;
-		if (this.equals(PtpFlashMode.externalSync))
-			return FlashMode.ExternalSync;
-		return FlashMode.Unknown;
 	}
 }

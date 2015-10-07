@@ -2,7 +2,6 @@ package bitwise.devices.usb.drivers.ptp.types.deviceproperties;
 
 import java.nio.ByteBuffer;
 
-import bitwise.devices.kinds.fullcamera.FocusMode;
 import bitwise.devices.usb.drivers.ptp.types.prim.UInt16;
 
 public class PtpFocusMode extends UInt16 {
@@ -16,15 +15,5 @@ public class PtpFocusMode extends UInt16 {
 	
 	public PtpFocusMode(ByteBuffer in) {
 		super(in);
-	}
-	
-	public FocusMode getFocusMode() {
-		if (this.equals(PtpFocusMode.manual))
-			return FocusMode.Manual;
-		if (this.equals(PtpFocusMode.automatic))
-			return FocusMode.Automatic;
-		if (this.equals(PtpFocusMode.automaticMacro))
-			return FocusMode.AutomaticMacro;
-		return FocusMode.Unknown;
 	}
 }
