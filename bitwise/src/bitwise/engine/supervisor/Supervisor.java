@@ -7,6 +7,7 @@ import javax.usb.UsbException;
 import bitwise.apps.AppService;
 import bitwise.apps.focusscan3d.FocusScan3DFactory;
 import bitwise.devices.usb.UsbService;
+import bitwise.devices.usb.drivers.canon.eos7d.CanonEOS7DFactory;
 import bitwise.devices.usb.drivers.nikon.d7200.NikonD7200Factory;
 import bitwise.devices.usb.drivers.nikon.d810.NikonD810Factory;
 import bitwise.engine.carousel.Carousel;
@@ -44,6 +45,7 @@ public final class Supervisor {
 		// Install standard drivers
 		getUSB().installUsbDriverFactory(NikonD810Factory.getInstance());
 		getUSB().installUsbDriverFactory(NikonD7200Factory.getInstance());
+		getUSB().installUsbDriverFactory(CanonEOS7DFactory.getInstance());
 		// Install standard apps
 		getApps().installAppFactory(FocusScan3DFactory.getInstance());
 		// Start everything
