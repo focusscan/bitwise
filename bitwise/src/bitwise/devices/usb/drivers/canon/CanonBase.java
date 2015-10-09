@@ -3,6 +3,11 @@ package bitwise.devices.usb.drivers.canon;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.usb.UsbDisconnectedException;
+import javax.usb.UsbException;
+import javax.usb.UsbNotActiveException;
+import javax.usb.UsbNotOpenException;
+
 import bitwise.apps.App;
 import bitwise.devices.kinds.fullcamera.ExposureIndex;
 import bitwise.devices.kinds.fullcamera.ExposureMode;
@@ -15,10 +20,17 @@ import bitwise.devices.kinds.fullcamera.ImageFormat;
 import bitwise.devices.kinds.fullcamera.StorageDevice;
 import bitwise.devices.kinds.fullcamera.events.*;
 import bitwise.devices.usb.UsbContext;
+import bitwise.devices.usb.drivers.canon.operations.GetDeviceInfoEx;
+import bitwise.devices.usb.drivers.canon.operations.GetDevicePropValue;
+import bitwise.devices.usb.drivers.canon.operations.GetEvent;
+import bitwise.devices.usb.drivers.canon.operations.SetDevicePropValueEx;
+import bitwise.devices.usb.drivers.canon.operations.SetEventMode;
+import bitwise.devices.usb.drivers.canon.operations.SetRemoteMode;
 import bitwise.devices.usb.drivers.ptp.PtpCamera;
 import bitwise.devices.usb.drivers.ptp.types.ObjectFormatCode;
 import bitwise.devices.usb.drivers.ptp.types.events.Event;
 import bitwise.devices.usb.drivers.ptp.types.prim.Arr;
+import bitwise.devices.usb.drivers.ptp.types.prim.PtpType;
 
 public abstract class CanonBase extends PtpCamera implements FullCamera {
 	private static final byte interfaceAddr = (byte)0x00;
@@ -56,6 +68,27 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 	protected void storageDevicesChanged(List<StorageDevice> in) {
 		storageDevices = in;
 		bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new StorageDevicesChanged(this, storageDevices));
+	}
+	
+	@Override
+	protected void cmd_fetchAllCameraProperties() {
+		SetRemoteMode setRemoteMode = new SetRemoteMode();
+		SetEventMode setEventMode = new SetEventMode();
+		GetEvent getEvent = new GetEvent();
+		GetDevicePropValue getDevicePropValue = new GetDevicePropValue();
+		GetDeviceInfoEx getDeviceInfoEx = new GetDeviceInfoEx();
+		SetDevicePropValueEx setDevicePropValueEx = new SetDevicePropValueEx();
+		try {
+			runOperation(setRemoteMode);
+			runOperation(setEventMode);
+			runOperation(getEvent);
+			runOperation(setDevicePropValueEx);
+			
+		} catch (UsbNotActiveException | UsbNotOpenException | UsbDisconnectedException | InterruptedException
+				| UsbException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	private ImageFormat decode_imageFormat(short in) {
@@ -150,11 +183,12 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 	
 	@Override
 	public List<ImageFormat> getImageFormats() {
-		Arr<ObjectFormatCode> formats = getDeviceInfo().getCaptureFormats();
+/*		Arr<ObjectFormatCode> formats = getDeviceInfo().getCaptureFormats();
 		ArrayList<ImageFormat> ret = new ArrayList<>(formats.getValue().size());
 		for (ObjectFormatCode code : getDeviceInfo().getImageFormats().getValue())
 			ret.add(decode_imageFormat(code.getValue()));
-		return ret;
+		return ret;*/
+		return new ArrayList<ImageFormat>();
 	}
 	
 	

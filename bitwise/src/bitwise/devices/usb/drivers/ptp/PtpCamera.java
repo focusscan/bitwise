@@ -252,8 +252,11 @@ public abstract class PtpCamera extends UsbDriver {
 				System.out.print(String.format("%02x", b));
 			System.out.println("");
 		}
+
+			System.out.println(operation.getOutData());
 		// Send the data (if there is any)
 		if (null != operation.getOutData()) {
+
 			ByteArrayOutputStream data = new ByteArrayOutputStream();
 			operation.getOutData().serialize(data);
 			
