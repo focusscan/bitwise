@@ -1,143 +1,114 @@
 package bitwise.engine.supervisor;
 
-import java.util.concurrent.TimeUnit;
+import bitwise.MainCertificate;
+import bitwise.appservice.AppService;
+import bitwise.appservice.AppServiceHandle;
+import bitwise.appservice.AppServiceRequest;
+import bitwise.appservice.app.AppFactory;
+import bitwise.appservice.requests.AddAppFactory;
+import bitwise.appservice.requests.AddAppFactoryRequester;
+import bitwise.engine.service.Request;
+import bitwise.engine.service.Service;
+import bitwise.log.Log;
+import bitwise.usbservice.UsbService;
+import bitwise.usbservice.UsbServiceHandle;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
-import javax.usb.UsbException;
-
-import bitwise.apps.AppService;
-import bitwise.apps.focusscan3d.FocusScan3DFactory;
-import bitwise.devices.usb.UsbService;
-import bitwise.devices.usb.drivers.nikon.d7200.NikonD7200Factory;
-import bitwise.devices.usb.drivers.nikon.d810.NikonD810Factory;
-import bitwise.engine.carousel.Carousel;
-import bitwise.engine.eventbus.EventBus;
-import bitwise.engine.supervisor.events.BitwiseStartedEvent;
-import bitwise.engine.supervisor.events.BitwiseTerminatedEvent;
-import bitwise.engine.supervisor.events.ServiceTerminatedEvent;
-
-public final class Supervisor {
-	private static Supervisor INSTANCE = new Supervisor();
-	
-	public static synchronized Supervisor getInstance() {
-		return INSTANCE;
+public final class Supervisor extends Service<SupervisorRequest, SupervisorHandle> implements AddAppFactoryRequester {
+	private static Supervisor instance = null;
+	public static Supervisor getInstance() {
+		if (null == instance) {
+			instance = new Supervisor();
+			Log.log(instance, "Instance created");
+		}
+		return instance;
 	}
 	
-	private final EventBus eventBus = new EventBus();
-	private final Carousel carousel;
-	private final UsbService usb;
-	private final AppService apps;
+	private final SupervisorHandle handle;
+	private final SupervisorCertificate cert = new SupervisorCertificate();
+	private final ObservableList<Service<?, ?>> services = FXCollections.observableArrayList();
+	private final AppService appService;
+	private final UsbService usbService;
+	private boolean initialized = false;
 	
 	protected Supervisor() {
-		carousel = new Carousel();
-		UsbService temp_usb = null;
-		try {
-			temp_usb = new UsbService();
-		} catch (SecurityException | UsbException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		super();
+		handle = new SupervisorHandle(this);
+		appService = new AppService(cert);
+		usbService = new UsbService(cert);
+	}
+	
+	public synchronized void initialize(MainCertificate mainCert) {
+		if (null == mainCert)
+			throw new IllegalArgumentException("MainCertificate");
+		if (!initialized) {
+			Log.log(this, "Initializing");
+			addService(appService);
+			addService(usbService);
+			initialized = true;
+			this.startService(cert);
+			Log.log(this, "Initialized");
 		}
-		usb = temp_usb;
-		apps = new AppService();
 	}
 	
-	public static synchronized boolean startBitwise() {
-		// Install standard drivers
-		getUSB().installUsbDriverFactory(NikonD810Factory.getInstance());
-		getUSB().installUsbDriverFactory(NikonD7200Factory.getInstance());
-		// Install standard apps
-		getApps().installAppFactory(FocusScan3DFactory.getInstance());
-		// Start everything
-		if (!carouselServiceIsRunning() && !startCarouselService())
-			return false;
-		if (!usbServiceIsRunning() && !startUSBService())
-			return false;
-		if (!appsServiceIsRunning() && !startAppsService())
-			return false;
-		getEventBus().publishEventToBus(new BitwiseStartedEvent());
-		return true;
+	public void addAppFactory(AppFactory<?, ?, ?> factory) throws InterruptedException {
+		AppServiceHandle appService = getAppServiceHandle();
+		AppServiceRequest request = appService.addAppFactory(this, factory);
+		appService.enqueueRequest(request);
 	}
 	
-	public static synchronized boolean shutdownBitwise() throws InterruptedException {
-		if (appsServiceIsRunning())
-			stopAppsService();
-		if (carouselServiceIsRunning())
-			stopCarouselService();
-		if (usbServiceIsRunning())
-			stopUSBService();
-		getEventBus().publishEventToBus(new BitwiseTerminatedEvent());
-		return true;
+	public AppServiceHandle getAppServiceHandle() {
+		return appService.getServiceHandle();
 	}
 	
-	public static EventBus getEventBus() {
-		return INSTANCE.eventBus;
+	public UsbServiceHandle getUsbServiceHandle() {
+		return usbService.getServiceHandle();
 	}
 	
-	public static Carousel getCarousel() {
-		return INSTANCE.carousel;
+	public void addService(Service<?, ?> service) {
+		services.add(service);
+		Log.log(this, "Starting service %s", service);
+		service.startService(cert);
 	}
 	
-	public static synchronized boolean carouselServiceIsRunning() {
-		return getCarousel().isRunning();
-	}
-	
-	public static synchronized boolean startCarouselService() {
-		return getCarousel().start();
-	}
-	
-	public static synchronized boolean stopCarouselService() throws InterruptedException {
-		if (getCarousel().shutdown()) {
-			if (getCarousel().awaitTermination(5,  TimeUnit.SECONDS)) {
-				getEventBus().publishEventToBus(new ServiceTerminatedEvent(getCarousel()));
-				return true;
-			}
-			return false;
+	public void stopAllServices(MainCertificate mainCert) throws InterruptedException {
+		if (null == mainCert)
+			throw new IllegalArgumentException("MainCertificate");
+		Log.log(this, "Stopping all services");
+		for (Service<?, ?> service : services) {
+			Log.log(this, "Stopping service %s", service);
+			service.stopService(cert);
 		}
-		return true;
+		this.stopService(cert);
+		Log.log(this, "All services stopped");
 	}
 	
-	public static UsbService getUSB() {
-		return INSTANCE.usb;
+	@Override
+	public SupervisorHandle getServiceHandle() {
+		return handle;
 	}
-	
-	public static synchronized boolean usbServiceIsRunning() {
-		return getUSB().isRunning();
+
+	@Override
+	protected boolean onStartService() {
+		// TODO Auto-generated method stub
+		return false;
 	}
-	
-	public static synchronized boolean startUSBService() {
-		return getUSB().start();
+
+	@Override
+	protected void onStopService() {
+		// TODO Auto-generated method stub
+		
 	}
-	
-	public static synchronized boolean stopUSBService() throws InterruptedException {
-		if (getUSB().shutdown()) {
-			if (getUSB().awaitTermination(5,  TimeUnit.SECONDS)) {
-				getEventBus().publishEventToBus(new ServiceTerminatedEvent(getUSB()));
-				return true;
-			}
-			return false;
-		}
-		return true;
+
+	@Override
+	protected void onRequestComplete(Request in) {
+		// TODO Auto-generated method stub
+		
 	}
-	
-	public static AppService getApps() {
-		return INSTANCE.apps;
-	}
-	
-	public static synchronized boolean appsServiceIsRunning() {
-		return getApps().isRunning();
-	}
-	
-	public static synchronized boolean startAppsService() {
-		return getApps().start();
-	}
-	
-	public static synchronized boolean stopAppsService() throws InterruptedException {
-		if (getApps().shutdown()) {
-			if (getApps().awaitTermination(5,  TimeUnit.SECONDS)) {
-				getEventBus().publishEventToBus(new ServiceTerminatedEvent(getApps()));
-				return true;
-			}
-			return false;
-		}
-		return true;
+
+	@Override
+	public void notifyRequestComplete(AddAppFactory<?, ?, ?> in) {
+		Log.log(this, "Added app factory %s", in.getAppFactory());
 	}
 }
