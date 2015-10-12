@@ -17,6 +17,7 @@ import bitwise.engine.service.Service;
 import bitwise.engine.supervisor.Supervisor;
 import bitwise.engine.supervisor.SupervisorCertificate;
 import bitwise.log.Log;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -33,9 +34,19 @@ public final class UsbService extends Service<UsbServiceRequest, UsbServiceHandl
 		serviceHandle = new UsbServiceHandle(this);
 	}
 	
+	public ObservableList<UsbDevice> getDeviceList() {
+		return tree.getDeviceList();
+	}
+	
 	public void addDriverFactory(UsbDriverFactory<?, ?, ?> factory) {
-		factories.add(factory);
-		Log.log(this, "Added factory %s", factory);
+		UsbService thing = this;
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				factories.add(factory);
+				Log.log(thing, "Added factory %s", factory);
+			}
+		});
 	}
 	
 	public <R extends DriverRequest, H extends DriverHandle<R, ?>, A extends Driver<UsbDevice, R, H>> H startDriver(Requester requester, UsbDriverFactory<R, H, A> factory, UsbDevice device) {

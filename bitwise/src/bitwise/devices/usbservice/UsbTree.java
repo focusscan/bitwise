@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import javax.usb.UsbDisconnectedException;
 import javax.usb.UsbException;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -13,6 +14,10 @@ public final class UsbTree {
 	
 	protected UsbTree() {
 		
+	}
+	
+	public ObservableList<UsbDevice> getDeviceList() {
+		return devices;
 	}
 	
 	public synchronized void clearTree() {
@@ -28,15 +33,20 @@ public final class UsbTree {
 			if (device.getXDevice().equals(in))
 				return device;
 		}
-		UsbDevice newDevice = null;
 		try {
-			newDevice = new UsbDevice(in);
-			devices.add(newDevice);
+			final UsbDevice newDevice = new UsbDevice(in);
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					devices.add(newDevice);
+				}
+			});
+			return newDevice;
 		} catch (UnsupportedEncodingException | UsbDisconnectedException | UsbException e) {
 			// If these things happen, we simply
 			// don't want to add the device.
 		}
-		return newDevice;
+		return null;
 	}
 	
 	public synchronized UsbDevice removeDetachedDevice(javax.usb.UsbDevice in) {
@@ -50,8 +60,15 @@ public final class UsbTree {
 				break deviceSearch;
 			}
 		}
-		if (null != foundIt)
-			devices.remove(foundIt);
+		if (null != foundIt) {
+			final UsbDevice toRemove = foundIt;
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					devices.remove(toRemove);
+				}
+			});
+		}
 		return foundIt;
 	}
 }

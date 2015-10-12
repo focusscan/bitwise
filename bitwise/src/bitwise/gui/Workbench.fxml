@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import bitwise.gui.menubar.WorkbenchMenuBar?>
+
+<fx:root type="javafx.scene.layout.BorderPane" xmlns:fx="http://javafx.com/fxml">
+	<top>
+		<WorkbenchMenuBar />
+	</top>
+	<center>
+		<SplitPane orientation="HORIZONTAL">
+			<items>
+				<Accordion minWidth="200" maxWidth="400">
+					<panes>
+						<TitledPane text="Project">
+							<content>
+								<!-- TODO -->
+							</content>
+						</TitledPane>
+						<TitledPane text="Tasks">
+							<content>
+								<ListView fx:id="taskList">
+									<items>
+									</items>
+								</ListView>
+							</content>
+						</TitledPane>
+						<TitledPane text="Devices">
+							<content>
+								<ListView fx:id="deviceList">
+									<items>
+									</items>
+								</ListView>
+							</content>
+						</TitledPane>
+					</panes>
+				</Accordion>
+				<BorderPane>
+					<center>
+						<TabPane>
+							<tabs />
+		
+						</TabPane>
+					</center>
+				</BorderPane>
+			</items>
+		</SplitPane>
+	</center>
+</fx:root>

@@ -6,10 +6,15 @@ import bitwise.apps.AppHandle;
 import bitwise.apps.AppRequest;
 import bitwise.appservice.requests.*;
 import bitwise.engine.service.ServiceHandle;
+import javafx.collections.ObservableList;
 
 public final class AppServiceHandle extends ServiceHandle<AppServiceRequest, AppService> {
 	protected AppServiceHandle(AppService in_service) {
 		super(in_service);
+	}
+	
+	public ObservableList<AppFactory<?, ?, ?>> getAppFactoryList() {
+		return getService().getAppFactoryList();
 	}
 	
 	public <R extends AppRequest, H extends AppHandle<R, ?>, A extends App<R, H>> AddAppFactory<R, H, A> addAppFactory(AddAppFactoryRequester requester, AppFactory<R, H, A> factory) {

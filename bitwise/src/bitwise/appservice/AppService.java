@@ -10,6 +10,7 @@ import bitwise.engine.service.Service;
 import bitwise.engine.supervisor.Supervisor;
 import bitwise.engine.supervisor.SupervisorCertificate;
 import bitwise.log.Log;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -25,9 +26,19 @@ public final class AppService extends Service<AppServiceRequest, AppServiceHandl
 		serviceHandle = new AppServiceHandle(this);
 	}
 	
+	public ObservableList<AppFactory<?, ?, ?>> getAppFactoryList() {
+		return factories;
+	}
+	
 	public void addAppFactory(AppFactory<?, ?, ?> factory) {
-		factories.add(factory);
-		Log.log(this, "Added factory %s", factory);
+		AppService thing = this;
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				factories.add(factory);
+				Log.log(thing, "Added factory %s", factory);
+			}
+		});
 	}
 	
 	public <R extends AppRequest, H extends AppHandle<R, ?>, A extends App<R, H>> H startApp(Requester requester, AppFactory<R, H, A> factory) {

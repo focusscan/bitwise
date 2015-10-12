@@ -16,6 +16,7 @@ import bitwise.devices.usbservice.requests.AddUsbDriverFactoryRequester;
 import bitwise.engine.service.Request;
 import bitwise.engine.service.Service;
 import bitwise.log.Log;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -41,6 +42,10 @@ public final class Supervisor extends Service<SupervisorRequest, SupervisorHandl
 		handle = new SupervisorHandle(this);
 		appService = new AppService(cert);
 		usbService = new UsbService(cert);
+	}
+	
+	public ObservableList<Service<?, ?>> getServicesList() {
+		return services;
 	}
 	
 	public synchronized void initialize(MainCertificate mainCert) {
@@ -77,9 +82,15 @@ public final class Supervisor extends Service<SupervisorRequest, SupervisorHandl
 	}
 	
 	public void addService(Service<?, ?> service) {
-		services.add(service);
-		Log.log(this, "Starting service %s", service);
-		service.startService(cert);
+		Supervisor thing = this;
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				services.add(service);
+				Log.log(thing, "Starting service %s", service);
+				service.startService(cert);
+			}
+		});
 	}
 	
 	public void stopService(Service<?, ?> service) throws InterruptedException {

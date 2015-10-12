@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+
+<fx:root type="javafx.scene.control.Menu" xmlns:fx="http://javafx.com/fxml" text="File">
+	<items>
+		<MenuItem text="New" disable="true" />
+		<MenuItem text="Open" disable="true" />
+		<MenuItem text="Save" disable="true" />
+		<MenuItem text="Save As" disable="true" />
+		<SeparatorMenuItem />
+		<MenuItem fx:id="menuExit" onAction="#handleExit" text="Exit" />
+	</items>
+</fx:root>

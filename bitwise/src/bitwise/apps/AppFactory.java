@@ -14,5 +14,7 @@ public abstract class AppFactory<R extends AppRequest, H extends AppHandle<R, ?>
 		return doMakeApp();
 	}
 	
+	public abstract String getAppName();
+	
 	public abstract A doMakeApp();
 }

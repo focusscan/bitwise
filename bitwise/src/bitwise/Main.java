@@ -3,6 +3,7 @@ package bitwise;
 import bitwise.apps.focusscan.FocusScanFactory;
 import bitwise.devices.nikon.d810.NikonD810Factory;
 import bitwise.engine.supervisor.Supervisor;
+import bitwise.gui.Workbench;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -24,7 +25,6 @@ public class Main extends Application {
 			
 			System.out.println("Starting GUI...");
 			launch(args);
-			// Thread.sleep(5000);
 			System.out.println("GUI exited");
 			
 			System.out.println("Stopping all services...");
@@ -42,6 +42,7 @@ public class Main extends Application {
 	}
 	
 	@Override
-	public void start(Stage stage) throws Exception {
+	public void start(Stage primaryStage) throws Exception {
+		Workbench.showNewWindow(primaryStage);
 	}
 }

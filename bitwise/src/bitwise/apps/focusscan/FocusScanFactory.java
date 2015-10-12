@@ -18,6 +18,11 @@ public final class FocusScanFactory extends AppFactory<FocusScanRequest, FocusSc
 	}
 	
 	@Override
+	public String getAppName() {
+		return "Focus Scan";
+	}
+	
+	@Override
 	public FocusScan doMakeApp() {
 		return new FocusScan();
 	}

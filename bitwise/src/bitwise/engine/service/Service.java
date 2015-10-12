@@ -9,6 +9,7 @@ import bitwise.engine.config.Configuration;
 import bitwise.engine.supervisor.Supervisor;
 import bitwise.engine.supervisor.SupervisorCertificate;
 import bitwise.log.Log;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -65,7 +66,12 @@ public abstract class Service<R extends Request, H extends ServiceHandle<R, ?>> 
 	
 	protected final void addServiceTask(ServiceTask serviceTask) {
 		Log.log(this, "Adding task %s", serviceTask);
-		serviceTasks.add(serviceTask);
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				serviceTasks.add(serviceTask);
+			}
+		});
 		serviceTask.startTask(cert);
 	}
 	
@@ -79,21 +85,39 @@ public abstract class Service<R extends Request, H extends ServiceHandle<R, ?>> 
 	public final void generalNotifyChildApp(AppServiceCertificate appCert, App<?, ?> in) {
 		if (null == cert)
 			throw new IllegalArgumentException("AppServiceCertificate");
-		Log.log(this, "Adding child service %s", in);
-		childServices.add(in);
+		Service<?, ?> thing = this;
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				childServices.add(in);
+				Log.log(thing, "Added child service %s", in);
+			}
+		});
 	}
 	
 	@Override
 	public final void generalNotifyChildDriver(UsbServiceCertificate usbCert, Driver<?, ?, ?> in) {
 		if (null == cert)
 			throw new IllegalArgumentException("UsbServiceCertificate");
-		Log.log(this, "Adding child driver %s", in);
-		childDrivers.add(in);
+		Service<?, ?> thing = this;
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				childDrivers.add(in);
+				Log.log(thing, "Added child driver %s", in);
+			}
+		});
 	}
 	
 	public final void generalNotifyRequestEnqueued(Request in) {
-		Log.log(this, "(Inbound) request enqueued %s", in);
-		outRequests.add(in);
+		Service<?, ?> thing = this;
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				outRequests.add(in);
+				Log.log(thing, "(Inbound) request enqueued %s", in);
+			}
+		});
 	}
 	
 	protected abstract void onRequestComplete(Request in);
@@ -101,8 +125,14 @@ public abstract class Service<R extends Request, H extends ServiceHandle<R, ?>> 
 	@Override
 	public final void generalNotifyRequestComplete(Request in) throws InterruptedException {
 		Log.log(this, "(Outbound) request complete notification %s", in);
-		if (!Configuration.getInstance().rememberDoneRequests())
-			outRequests.remove(in);
+		if (!Configuration.getInstance().rememberDoneRequests()) {
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					outRequests.remove(in);
+				}
+			});
+		}
 		onRequestComplete(in);
 		requestHandler.enqueueEpilogue(in);
 	}
@@ -110,8 +140,14 @@ public abstract class Service<R extends Request, H extends ServiceHandle<R, ?>> 
 	@Override
 	public void generalNotifyRequestFailure(Request in) {
 		Log.log(this, "(Outbound) request failure notification %s", in);
-		if (!Configuration.getInstance().rememberDoneRequests())
-			outRequests.remove(in);
+		if (!Configuration.getInstance().rememberDoneRequests()) {
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					outRequests.remove(in);
+				}
+			});
+		}
 		onRequestComplete(in);
 	}
 }
