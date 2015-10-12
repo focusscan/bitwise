@@ -5,6 +5,8 @@ import java.util.List;
 import bitwise.devices.DriverRequest;
 
 public interface CameraHandle<R extends DriverRequest> {
+	public void setCameraEventListener(CameraListener in);
+	
 	public int getBatteryRemaining();
 	
 	public List<StorageDevice> getStorageDevices();

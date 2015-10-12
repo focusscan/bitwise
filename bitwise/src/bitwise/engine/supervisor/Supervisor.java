@@ -7,15 +7,19 @@ import bitwise.appservice.AppServiceHandle;
 import bitwise.appservice.AppServiceRequest;
 import bitwise.appservice.requests.AddAppFactory;
 import bitwise.appservice.requests.AddAppFactoryRequester;
+import bitwise.devices.usbservice.UsbDriverFactory;
 import bitwise.devices.usbservice.UsbService;
 import bitwise.devices.usbservice.UsbServiceHandle;
+import bitwise.devices.usbservice.UsbServiceRequest;
+import bitwise.devices.usbservice.requests.AddUsbDriverFactory;
+import bitwise.devices.usbservice.requests.AddUsbDriverFactoryRequester;
 import bitwise.engine.service.Request;
 import bitwise.engine.service.Service;
 import bitwise.log.Log;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-public final class Supervisor extends Service<SupervisorRequest, SupervisorHandle> implements AddAppFactoryRequester {
+public final class Supervisor extends Service<SupervisorRequest, SupervisorHandle> implements AddAppFactoryRequester, AddUsbDriverFactoryRequester {
 	private static Supervisor instance = null;
 	public static Supervisor getInstance() {
 		if (null == instance) {
@@ -56,6 +60,12 @@ public final class Supervisor extends Service<SupervisorRequest, SupervisorHandl
 		AppServiceHandle appService = getAppServiceHandle();
 		AppServiceRequest request = appService.addAppFactory(this, factory);
 		appService.enqueueRequest(request);
+	}
+	
+	public void addUsbDriverFactory(UsbDriverFactory<?, ?, ?> factory) throws InterruptedException {
+		UsbServiceHandle usbService = getUsbServiceHandle();
+		UsbServiceRequest request = usbService.addUsbDriverFactory(this, factory);
+		usbService.enqueueRequest(request);
 	}
 	
 	public AppServiceHandle getAppServiceHandle() {
@@ -114,5 +124,10 @@ public final class Supervisor extends Service<SupervisorRequest, SupervisorHandl
 	@Override
 	public void notifyRequestComplete(AddAppFactory<?, ?, ?> in) {
 		Log.log(this, "Added app factory %s", in.getAppFactory());
+	}
+
+	@Override
+	public void notifyRequestComplete(AddUsbDriverFactory<?, ?, ?> in) {
+		Log.log(this, "Added driver factory %s", in.getDriverFactory());
 	}
 }

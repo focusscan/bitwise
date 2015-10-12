@@ -1,6 +1,7 @@
 package bitwise;
 
 import bitwise.apps.focusscan.FocusScanFactory;
+import bitwise.devices.nikon.d810.NikonD810Factory;
 import bitwise.engine.supervisor.Supervisor;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -17,6 +18,7 @@ public class Main extends Application {
 			
 			// Install the FocusScan app
 			Supervisor.getInstance().addAppFactory(FocusScanFactory.getInstance());
+			Supervisor.getInstance().addUsbDriverFactory(NikonD810Factory.getInstance());
 			
 			System.out.println("Supervisor initialized");
 			

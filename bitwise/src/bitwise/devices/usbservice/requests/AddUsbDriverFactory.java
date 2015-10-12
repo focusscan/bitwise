@@ -10,15 +10,15 @@ import bitwise.devices.usbservice.UsbServiceRequest;
 import bitwise.engine.service.RequestContext;
 import bitwise.engine.service.requests.BaseRequest;
 
-public final class AddDriverFactory<R extends DriverRequest, H extends DriverHandle<R, ?>, A extends Driver<UsbDevice, R, H>> extends BaseRequest<UsbService, AddDriverFactoryRequester> implements UsbServiceRequest {
+public final class AddUsbDriverFactory<R extends DriverRequest, H extends DriverHandle<R, ?>, A extends Driver<UsbDevice, R, H>> extends BaseRequest<UsbService, AddUsbDriverFactoryRequester> implements UsbServiceRequest {
 	private final UsbDriverFactory<R, H, A> factory;
 	
-	public AddDriverFactory(UsbService in_service, AddDriverFactoryRequester in_requester, UsbDriverFactory<R, H, A> in_factory) {
+	public AddUsbDriverFactory(UsbService in_service, AddUsbDriverFactoryRequester in_requester, UsbDriverFactory<R, H, A> in_factory) {
 		super(in_service, in_requester);
 		factory = in_factory;
 	}
 	
-	public UsbDriverFactory<R, H, A> getAppFactory() {
+	public UsbDriverFactory<R, H, A> getDriverFactory() {
 		return factory;
 	}
 

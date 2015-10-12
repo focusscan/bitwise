@@ -10,6 +10,8 @@ public abstract class UsbDriverFactory<R extends DriverRequest, H extends Driver
 		super(new UsbDriverFactoryID());
 	}
 	
+	public abstract boolean isCompatibleWith(UsbDevice device);
+	
 	public final A makeDriver(UsbServiceCertificate cert, UsbDevice device) {
 		if (null == cert)
 			throw new IllegalArgumentException("UsbServiceCertificate");
