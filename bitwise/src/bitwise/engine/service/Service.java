@@ -49,6 +49,10 @@ public abstract class Service<R extends Request, H extends ServiceHandle<R, ?>> 
 	public final void stopService(SupervisorCertificate supervisorCert) throws InterruptedException {
 		if (null == supervisorCert)
 			throw new IllegalArgumentException("SupervisorCertificate");
+		stopService();
+	}
+	
+	private final void stopService() throws InterruptedException {
 		synchronized(requestHandler) {
 			if (requestHandler.serviceIsRunning()) {
 				Log.log(this, "Stopping request handler");
@@ -62,6 +66,23 @@ public abstract class Service<R extends Request, H extends ServiceHandle<R, ?>> 
 				Log.log(this, "Service stopped");
 			}
 		}
+	}
+	
+	protected final void stopServiceFromWithin() {
+		Thread stopThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					stopService();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+		stopThread.setName(String.format("stopServiceFromWithin %s", this));
+		stopThread.setDaemon(true);
+		stopThread.start();
 	}
 	
 	protected final void addServiceTask(ServiceTask serviceTask) {

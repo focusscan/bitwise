@@ -13,11 +13,7 @@ public abstract class ServiceHandle<R extends Request, S extends Service<R, ?>> 
 		return service;
 	}
 	
-	public final void enqueueRequest(R in) throws InterruptedException {
-		/*
-		if (null == ctx)
-			throw new IllegalArgumentException("RequestContext");
-		*/
+	public final void enqueueRequest(R in) {
 		if (!(in instanceof BaseRequest<?, ?>))
 			throw new IllegalArgumentException("Request");
 		service.getRequestHandler().enqueueRequest(in);

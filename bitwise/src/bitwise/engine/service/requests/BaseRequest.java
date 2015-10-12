@@ -95,7 +95,7 @@ public abstract class BaseRequest<S extends Service<?, ?>, R extends Requester> 
 				requestState.notifyServingInterrupt(e);
 				getRequester().generalNotifyRequestFailure(this);
 			} catch (Exception e) {
-				Log.log(this, "Serving exception: %s\n%s", e, e.getStackTrace());
+				Log.logServingException(this, e);
 				requestState.notifyServingException(e);
 				getRequester().generalNotifyRequestFailure(this);
 			}
@@ -121,7 +121,7 @@ public abstract class BaseRequest<S extends Service<?, ?>, R extends Requester> 
 				Log.log(this, "Epilogue interrupted");
 				requestState.notifyEpilogueInterrupt(e);
 			} catch (Exception e) {
-				Log.log(this, "Epilogue exception: %s\n%s", e, e.getStackTrace());
+				Log.logEpilogueException(this, e);
 				requestState.notifyEpilogueException(e);
 			}
 		}

@@ -1,10 +1,7 @@
 package bitwise.devices.usbservice;
 
-import java.util.List;
-
 import javax.usb.UsbException;
 import javax.usb.UsbHostManager;
-import javax.usb.UsbHub;
 import javax.usb.event.UsbServicesEvent;
 import javax.usb.event.UsbServicesListener;
 
@@ -17,39 +14,43 @@ import bitwise.engine.service.Service;
 import bitwise.engine.supervisor.Supervisor;
 import bitwise.engine.supervisor.SupervisorCertificate;
 import bitwise.log.Log;
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 
 public final class UsbService extends Service<UsbServiceRequest, UsbServiceHandle> implements UsbServicesListener {
 	private final UsbServiceCertificate cert = new UsbServiceCertificate();
 	private final UsbServiceHandle serviceHandle;
-	private final UsbTree tree = new UsbTree();
-	private final ObservableList<UsbDriverFactory<?, ?, ?>> factories = FXCollections.observableArrayList();
+	private final UsbTree tree;
 	
 	public UsbService(SupervisorCertificate supervisorCert) {
 		super();
 		if (null == supervisorCert)
 			throw new IllegalArgumentException("SupervisorCertificate");
+		tree = new UsbTree(this);
 		serviceHandle = new UsbServiceHandle(this);
+	}
+	
+	public ObservableList<UsbDriverFactory<?, ?, ?>> getDriverFactoryList() {
+		return tree.getDriverFactoryList();
 	}
 	
 	public ObservableList<UsbDevice> getDeviceList() {
 		return tree.getDeviceList();
 	}
 	
-	public void addDriverFactory(UsbDriverFactory<?, ?, ?> factory) {
-		UsbService thing = this;
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				factories.add(factory);
-				Log.log(thing, "Added factory %s", factory);
-			}
-		});
+	public ObservableList<UsbReady<?, ?, ?>> getReadyList() {
+		return tree.getReadyList();
 	}
 	
-	public <R extends DriverRequest, H extends DriverHandle<R, ?>, A extends Driver<UsbDevice, R, H>> H startDriver(Requester requester, UsbDriverFactory<R, H, A> factory, UsbDevice device) {
+	public FilteredList<UsbReady<?, ?, ?>> getReadyByHandleType(Class<?> in_class) {
+		return tree.getReadyByHandleType(in_class);
+	}
+	
+	public void addDriverFactory(UsbDriverFactory<?, ?, ?> factory) {
+		tree.addDriverFactory(factory);
+	}
+	
+	public <R extends DriverRequest, H extends DriverHandle<R, ?>, A extends Driver<UsbDevice, R, H>> H startDriver(Requester requester, UsbDevice device, UsbDriverFactory<R, H, A> factory) {
 		Log.log(this, "Starting driver from factory %s", factory);
 		A driver = factory.makeDriver(cert, device);
 		requester.generalNotifyChildDriver(cert, driver);
@@ -58,11 +59,20 @@ public final class UsbService extends Service<UsbServiceRequest, UsbServiceHandl
 		return driver.getServiceHandle();
 	}
 	
+	protected void deviceDriverSet(UsbDevice in) {
+		tree.deviceDriverSet(in);
+	}
+	
+	protected void deviceDriverUnset(UsbDevice in) {
+		tree.deviceDriverUnset(in);
+	}
+	
 	@Override
 	public UsbServiceHandle getServiceHandle() {
 		return serviceHandle;
 	}
 	
+	/*
 	@SuppressWarnings("unchecked")
 	private void enumerateDevices(UsbHub hub) {
 		for (javax.usb.UsbDevice device : (List<javax.usb.UsbDevice>) hub.getAttachedUsbDevices()) {
@@ -71,13 +81,14 @@ public final class UsbService extends Service<UsbServiceRequest, UsbServiceHandl
 			tree.addAttachedDevice(device);
 		}
 	}
+	*/
 	
 	@Override
 	protected boolean onStartService() {
 		try {
 			tree.clearTree();
 			UsbHostManager.getUsbServices().addUsbServicesListener(this);
-			enumerateDevices(UsbHostManager.getUsbServices().getRootUsbHub());
+			// enumerateDevices(UsbHostManager.getUsbServices().getRootUsbHub());
 			return true;
 		} catch (SecurityException | UsbException e) {
 			// TODO Auto-generated catch block

@@ -10,6 +10,10 @@ public abstract class UsbDriverFactory<R extends DriverRequest, H extends Driver
 		super(new UsbDriverFactoryID());
 	}
 	
+	public abstract Class<H> getHandleClass();
+	public abstract Class<A> getDriverClass();
+	public abstract String getDriverName();
+	
 	public abstract boolean isCompatibleWith(UsbDevice device);
 	
 	public final A makeDriver(UsbServiceCertificate cert, UsbDevice device) {

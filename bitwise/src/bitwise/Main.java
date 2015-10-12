@@ -8,37 +8,36 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 
 public class Main extends Application {
+	private static MainCertificate cert;
+	public static MainCertificate getCert() {
+		if (null == cert)
+			cert = new MainCertificate();
+		return cert;
+	}
 	
 	public static void main(String[] args) {
-		final MainCertificate cert = new MainCertificate();
+		System.out.println("Bitwise starting");
+		System.out.println("Initializing supervisor...");
+		Supervisor.getInstance().initialize(getCert());
 		
+		// Install the FocusScan app
+		Supervisor.getInstance().addAppFactory(getCert(), FocusScanFactory.getInstance());
+		Supervisor.getInstance().addUsbDriverFactory(getCert(), NikonD810Factory.getInstance());
+		
+		System.out.println("Supervisor initialized");
+		
+		System.out.println("Starting GUI...");
+		launch(args);
+		System.out.println("GUI exited");
+		
+		System.out.println("Stopping all services...");
 		try {
-			System.out.println("Bitwise starting");
-			System.out.println("Initializing supervisor...");
-			Supervisor.getInstance().initialize(cert);
-			
-			// Install the FocusScan app
-			Supervisor.getInstance().addAppFactory(FocusScanFactory.getInstance());
-			Supervisor.getInstance().addUsbDriverFactory(NikonD810Factory.getInstance());
-			
-			System.out.println("Supervisor initialized");
-			
-			System.out.println("Starting GUI...");
-			launch(args);
-			System.out.println("GUI exited");
-			
-			System.out.println("Stopping all services...");
-			try {
-				Supervisor.getInstance().stopAllServices(cert);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			System.out.println("Bitwise exiting");
+			Supervisor.getInstance().stopAllServices(cert);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		System.out.println("Bitwise exiting");
 	}
 	
 	@Override

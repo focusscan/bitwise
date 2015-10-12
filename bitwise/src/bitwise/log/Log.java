@@ -34,4 +34,14 @@ public final class Log {
 	public static void log(Supervisor thing, String format, Object... args) {
 		log("Super", thing, format, args);
 	}
+	
+	public static void logServingException(BaseRequest<?, ?> thing, Exception e) {
+		log(thing, "Serving exception: %s", e);
+		e.printStackTrace();
+	}
+	
+	public static void logEpilogueException(BaseRequest<?, ?> thing, Exception e) {
+		log(thing, "Epilogue exception: %s", e);
+		e.printStackTrace();
+	}
 }

@@ -41,6 +41,7 @@ public class Workbench extends BorderPane {
 	@FXML private ListView<UsbDevice> deviceList;
 	
 	public Workbench() throws IOException {
+		super();
 		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("Workbench.fxml"));
 		fxmlLoader.setRoot(this);
 		fxmlLoader.setController(this);

@@ -14,14 +14,11 @@ public class NikonBase extends UsbPtpCamera<NikonCameraRequest, NikonHandle> {
 
 	@Override
 	protected boolean onStartPtpDriver() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
 	protected void onStopPtpDriver() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

@@ -15,7 +15,7 @@
 	<center>
 		<SplitPane orientation="HORIZONTAL">
 			<items>
-				<Accordion minWidth="200" maxWidth="400">
+				<Accordion minWidth="375" maxWidth="500">
 					<panes>
 						<TitledPane text="Project">
 							<content>

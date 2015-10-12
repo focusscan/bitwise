@@ -1,11 +1,24 @@
 package bitwise.apps.focusscan;
 
 import bitwise.apps.App;
+import bitwise.apps.focusscan.gui.DeviceSelect;
+import bitwise.devices.camera.CameraHandle;
+import bitwise.devices.usbservice.UsbReady;
+import bitwise.devices.usbservice.UsbServiceHandle;
+import bitwise.devices.usbservice.requests.StartUsbDriver;
+import bitwise.devices.usbservice.requests.StartUsbDriverRequester;
 import bitwise.engine.service.Request;
+import bitwise.engine.supervisor.Supervisor;
 import bitwise.log.Log;
+import javafx.application.Platform;
+import javafx.event.EventHandler;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
-public final class FocusScan extends App<FocusScanRequest, FocusScanHandle> {
+public final class FocusScan extends App<FocusScanRequest, FocusScanHandle> implements StartUsbDriverRequester {
 	private final FocusScanHandle handle = new FocusScanHandle(this);
+	private Stage stage = null;
+	private CameraHandle<?> cameraHandle = null;
 	
 	protected FocusScan() {
 		super();
@@ -19,6 +32,21 @@ public final class FocusScan extends App<FocusScanRequest, FocusScanHandle> {
 	@Override
 	protected boolean onStartService() {
 		Log.log(this, "Focus Scan starting");
+		final FocusScan thing = this;
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				stage = new Stage();
+				stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+					@Override
+					public void handle(WindowEvent event) {
+						Log.log(thing, "Stage closed");
+						stopServiceFromWithin();
+					}
+				});
+				DeviceSelect.showDeviceSelect(thing, stage);
+			}
+		});
 		return true;
 	}
 
@@ -30,5 +58,19 @@ public final class FocusScan extends App<FocusScanRequest, FocusScanHandle> {
 	@Override
 	protected void onRequestComplete(Request in) {
 		Log.log(this, "Focus Scan request complete");
+	}
+	
+	public CameraHandle<?> getCameraHandle() {
+		return cameraHandle;
+	}
+	
+	public void selectDevice(UsbReady<?, ?, ?> ready) {
+		UsbServiceHandle usbService = Supervisor.getInstance().getUsbServiceHandle();
+		usbService.enqueueRequest(usbService.startUsbDriver(this, ready));
+	}
+
+	@Override
+	public void notifyRequestComplete(StartUsbDriver<?, ?, ?> in) {
+		cameraHandle = (CameraHandle<?>) in.getHandle();
 	}
 }

@@ -7,6 +7,8 @@ import bitwise.appservice.AppServiceHandle;
 import bitwise.appservice.AppServiceRequest;
 import bitwise.appservice.requests.AddAppFactory;
 import bitwise.appservice.requests.AddAppFactoryRequester;
+import bitwise.appservice.requests.StartApp;
+import bitwise.appservice.requests.StartAppRequester;
 import bitwise.devices.usbservice.UsbDriverFactory;
 import bitwise.devices.usbservice.UsbService;
 import bitwise.devices.usbservice.UsbServiceHandle;
@@ -15,12 +17,13 @@ import bitwise.devices.usbservice.requests.AddUsbDriverFactory;
 import bitwise.devices.usbservice.requests.AddUsbDriverFactoryRequester;
 import bitwise.engine.service.Request;
 import bitwise.engine.service.Service;
+import bitwise.engine.service.ServiceCertificate;
 import bitwise.log.Log;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-public final class Supervisor extends Service<SupervisorRequest, SupervisorHandle> implements AddAppFactoryRequester, AddUsbDriverFactoryRequester {
+public final class Supervisor extends Service<SupervisorRequest, SupervisorHandle> implements AddAppFactoryRequester, StartAppRequester, AddUsbDriverFactoryRequester {
 	private static Supervisor instance = null;
 	public static Supervisor getInstance() {
 		if (null == instance) {
@@ -61,13 +64,19 @@ public final class Supervisor extends Service<SupervisorRequest, SupervisorHandl
 		}
 	}
 	
-	public void addAppFactory(AppFactory<?, ?, ?> factory) throws InterruptedException {
+	public void addAppFactory(MainCertificate mainCert, AppFactory<?, ?, ?> factory) {
 		AppServiceHandle appService = getAppServiceHandle();
 		AppServiceRequest request = appService.addAppFactory(this, factory);
 		appService.enqueueRequest(request);
 	}
 	
-	public void addUsbDriverFactory(UsbDriverFactory<?, ?, ?> factory) throws InterruptedException {
+	public void startApp(MainCertificate mainCert, AppFactory<?, ?, ?> factory) {
+		AppServiceHandle appService = getAppServiceHandle();
+		AppServiceRequest request = appService.startApp(this, factory);
+		appService.enqueueRequest(request);
+	}
+	
+	public void addUsbDriverFactory(MainCertificate mainCert, UsbDriverFactory<?, ?, ?> factory) {
 		UsbServiceHandle usbService = getUsbServiceHandle();
 		UsbServiceRequest request = usbService.addUsbDriverFactory(this, factory);
 		usbService.enqueueRequest(request);
@@ -89,6 +98,17 @@ public final class Supervisor extends Service<SupervisorRequest, SupervisorHandl
 				services.add(service);
 				Log.log(thing, "Starting service %s", service);
 				service.startService(cert);
+			}
+		});
+	}
+	
+	public void notifyServiceStopped(ServiceCertificate serviceCert, Service<?, ?> service) {
+		if (null == serviceCert)
+			throw new IllegalArgumentException("ServiceCertificate");
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				services.remove(service);
 			}
 		});
 	}
@@ -135,6 +155,11 @@ public final class Supervisor extends Service<SupervisorRequest, SupervisorHandl
 	@Override
 	public void notifyRequestComplete(AddAppFactory<?, ?, ?> in) {
 		Log.log(this, "Added app factory %s", in.getAppFactory());
+	}
+
+	@Override
+	public void notifyRequestComplete(StartApp<?, ?, ?> in) {
+		Log.log(this, "App started %s", in.getAppFactory());
 	}
 
 	@Override

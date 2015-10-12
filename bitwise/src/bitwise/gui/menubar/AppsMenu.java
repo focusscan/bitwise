@@ -2,6 +2,7 @@ package bitwise.gui.menubar;
 
 import java.io.IOException;
 
+import bitwise.Main;
 import bitwise.apps.AppFactory;
 import bitwise.engine.supervisor.Supervisor;
 import javafx.event.ActionEvent;
@@ -26,6 +27,14 @@ public class AppsMenu extends Menu {
 		appItem.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
+				Thread startAppThread = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						Supervisor.getInstance().startApp(Main.getCert(), factory);
+					}
+				});
+				startAppThread.setName(String.format("Start app thread: %s", factory));
+				startAppThread.start();
 			}
 		});
 		getItems().add(appItem);

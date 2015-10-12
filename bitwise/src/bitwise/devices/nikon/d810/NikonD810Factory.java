@@ -21,14 +21,29 @@ public final class NikonD810Factory extends UsbDriverFactory<NikonCameraRequest,
 	}
 	
 	@Override
-	public NikonD810 doMakeDriver(UsbDevice device) {
-		return new NikonD810(device);
+	public String getDriverName() {
+		return "Bitwise Nikon D810";
 	}
-
+	
+	@Override
+	public Class<NikonHandle> getHandleClass() {
+		return NikonHandle.class;
+	}
+	
+	@Override
+	public Class<NikonD810> getDriverClass() {
+		return NikonD810.class;
+	}
+	
 	@Override
 	public boolean isCompatibleWith(UsbDevice device) {
 		final short vendorID  = 0x04b0;
 		final short productID = 0x0436;
 		return (device.getVendorID() == vendorID && device.getProductID() == productID);
+	}
+	
+	@Override
+	public NikonD810 doMakeDriver(UsbDevice device) {
+		return new NikonD810(device);
 	}
 }

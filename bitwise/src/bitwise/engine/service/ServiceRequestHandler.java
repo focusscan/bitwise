@@ -1,28 +1,31 @@
 package bitwise.engine.service;
 
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import bitwise.engine.config.Configuration;
 import bitwise.engine.service.requests.RequestStatus;
+import bitwise.engine.supervisor.Supervisor;
 import bitwise.log.Log;
 
 public final class ServiceRequestHandler<R extends Request> {
 	private final Service<R, ?> service;
 	private final ServiceCertificate cert;
-	private final ArrayBlockingQueue<Request> incomingRequests;
+	private final LinkedBlockingQueue<Request> incomingRequests;
 	private Runnable requestTask = null;
 	private Thread requestThread = null;
 	
 	protected ServiceRequestHandler(Service<R, ?> in_service, ServiceCertificate in_cert) {
 		service = in_service;
 		cert = in_cert;
-		incomingRequests = new ArrayBlockingQueue<>(Configuration.getInstance().getIncomingRequestQueueSize());
+		incomingRequests = new LinkedBlockingQueue<>(Configuration.getInstance().getIncomingRequestQueueSize());
 		requestTask = new Runnable() {
 			@Override
 			public void run() {
 				try {
-					if (!service.onStartService())
+					if (!service.onStartService()) {
+						Log.log(service, "Start aborted");
 						return;
+					}
 					Log.log(service, "ServiceRequestHandler started");
 					while (!Thread.interrupted()) {
 						Request request = incomingRequests.take();
@@ -39,20 +42,21 @@ public final class ServiceRequestHandler<R extends Request> {
 					System.out.println("ServiceRequestHandler exception:");
 					e.printStackTrace();
 				}
+				Supervisor.getInstance().notifyServiceStopped(cert, service);
 				service.onStopService();
 				Log.log(service, "ServiceRequestHandler finished");
 			}
 		};
 	}
 	
-	protected void enqueueRequest(R in) throws InterruptedException {
+	protected void enqueueRequest(R in) {
 		if (in.tryEnqueueServeRequest(cert))
-			incomingRequests.put(in);
+			incomingRequests.add(in);
 	}
 	
-	protected void enqueueEpilogue(Request in) throws InterruptedException {
+	protected void enqueueEpilogue(Request in) {
 		if (in.tryEnqueueEpilogueRequest(cert))
-			incomingRequests.put(in);
+			incomingRequests.add(in);
 	}
 	
 	public synchronized boolean serviceIsRunning() {
