@@ -18,11 +18,13 @@ public class Main extends Application {
 			// Install the FocusScan app
 			Supervisor.getInstance().addAppFactory(FocusScanFactory.getInstance());
 			
-			// System.out.println("Starting GUI...");
-	        // launch(args);
+			System.out.println("Supervisor initialized");
 			
-			Thread.sleep(5000);
-	        
+			System.out.println("Starting GUI...");
+			launch(args);
+			// Thread.sleep(5000);
+			System.out.println("GUI exited");
+			
 			System.out.println("Stopping all services...");
 			try {
 				Supervisor.getInstance().stopAllServices(cert);
@@ -35,10 +37,9 @@ public class Main extends Application {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    }
+	}
 	
 	@Override
 	public void start(Stage stage) throws Exception {
-		
 	}
 }

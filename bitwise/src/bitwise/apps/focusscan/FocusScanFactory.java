@@ -1,6 +1,6 @@
 package bitwise.apps.focusscan;
 
-import bitwise.appservice.app.AppFactory;
+import bitwise.apps.AppFactory;
 import bitwise.log.Log;
 
 public final class FocusScanFactory extends AppFactory<FocusScanRequest, FocusScanHandle, FocusScan> {

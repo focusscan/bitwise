@@ -4,20 +4,26 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import bitwise.engine.config.Configuration;
 import bitwise.engine.service.requests.RequestStatus;
+import bitwise.log.Log;
 
 public final class ServiceRequestHandler<R extends Request> {
+	private final Service<R, ?> service;
 	private final ServiceCertificate cert;
 	private final ArrayBlockingQueue<Request> incomingRequests;
 	private Runnable requestTask = null;
 	private Thread requestThread = null;
 	
-	protected ServiceRequestHandler(ServiceCertificate in_cert) {
+	protected ServiceRequestHandler(Service<R, ?> in_service, ServiceCertificate in_cert) {
+		service = in_service;
 		cert = in_cert;
 		incomingRequests = new ArrayBlockingQueue<>(Configuration.getInstance().getIncomingRequestQueueSize());
 		requestTask = new Runnable() {
 			@Override
 			public void run() {
 				try {
+					if (!service.onStartService())
+						return;
+					Log.log(service, "ServiceRequestHandler started");
 					while (!Thread.interrupted()) {
 						Request request = incomingRequests.take();
 						RequestContext ctx = new RequestContext();
@@ -33,6 +39,8 @@ public final class ServiceRequestHandler<R extends Request> {
 					System.out.println("ServiceRequestHandler exception:");
 					e.printStackTrace();
 				}
+				service.onStopService();
+				Log.log(service, "ServiceRequestHandler finished");
 			}
 		};
 	}

@@ -1,9 +1,9 @@
 package bitwise.appservice;
 
-import bitwise.appservice.app.App;
-import bitwise.appservice.app.AppFactory;
-import bitwise.appservice.app.AppHandle;
-import bitwise.appservice.app.AppRequest;
+import bitwise.apps.App;
+import bitwise.apps.AppFactory;
+import bitwise.apps.AppHandle;
+import bitwise.apps.AppRequest;
 import bitwise.engine.service.Request;
 import bitwise.engine.service.Requester;
 import bitwise.engine.service.Service;
@@ -26,14 +26,14 @@ public final class AppService extends Service<AppServiceRequest, AppServiceHandl
 	}
 	
 	public void addAppFactory(AppFactory<?, ?, ?> factory) {
-		Log.log(this, "Adding factory %s", factory);
 		factories.add(factory);
+		Log.log(this, "Added factory %s", factory);
 	}
 	
 	public <R extends AppRequest, H extends AppHandle<R, ?>, A extends App<R, H>> H startApp(Requester requester, AppFactory<R, H, A> factory) {
 		Log.log(this, "Starting app from factory %s", factory);
 		A app = factory.makeApp(cert);
-		requester.generalNotifyChildService(cert, app);
+		requester.generalNotifyChildApp(cert, app);
 		Supervisor.getInstance().addService(app);
 		Log.log(this, "Started app %s", app);
 		return app.getServiceHandle();

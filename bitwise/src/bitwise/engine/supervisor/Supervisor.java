@@ -1,17 +1,17 @@
 package bitwise.engine.supervisor;
 
 import bitwise.MainCertificate;
+import bitwise.apps.AppFactory;
 import bitwise.appservice.AppService;
 import bitwise.appservice.AppServiceHandle;
 import bitwise.appservice.AppServiceRequest;
-import bitwise.appservice.app.AppFactory;
 import bitwise.appservice.requests.AddAppFactory;
 import bitwise.appservice.requests.AddAppFactoryRequester;
+import bitwise.devices.usbservice.UsbService;
+import bitwise.devices.usbservice.UsbServiceHandle;
 import bitwise.engine.service.Request;
 import bitwise.engine.service.Service;
 import bitwise.log.Log;
-import bitwise.usbservice.UsbService;
-import bitwise.usbservice.UsbServiceHandle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -70,6 +70,10 @@ public final class Supervisor extends Service<SupervisorRequest, SupervisorHandl
 		services.add(service);
 		Log.log(this, "Starting service %s", service);
 		service.startService(cert);
+	}
+	
+	public void stopService(Service<?, ?> service) throws InterruptedException {
+		service.stopService(cert);
 	}
 	
 	public void stopAllServices(MainCertificate mainCert) throws InterruptedException {

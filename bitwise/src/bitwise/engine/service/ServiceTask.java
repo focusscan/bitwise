@@ -22,7 +22,7 @@ public abstract class ServiceTask extends Thing<ServiceTaskID> implements Runnab
 		}
 	}
 	
-	private boolean cancelled = false;
+	private volatile boolean cancelled = false;
 	
 	public final void cancel() {
 		cancelled = true;

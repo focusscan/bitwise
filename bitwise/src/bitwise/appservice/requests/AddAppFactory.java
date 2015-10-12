@@ -1,11 +1,11 @@
 package bitwise.appservice.requests;
 
+import bitwise.apps.App;
+import bitwise.apps.AppFactory;
+import bitwise.apps.AppHandle;
+import bitwise.apps.AppRequest;
 import bitwise.appservice.AppService;
 import bitwise.appservice.AppServiceRequest;
-import bitwise.appservice.app.App;
-import bitwise.appservice.app.AppFactory;
-import bitwise.appservice.app.AppHandle;
-import bitwise.appservice.app.AppRequest;
 import bitwise.engine.service.RequestContext;
 import bitwise.engine.service.requests.BaseRequest;
 

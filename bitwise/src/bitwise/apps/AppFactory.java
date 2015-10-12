@@ -1,4 +1,4 @@
-package bitwise.appservice.app;
+package bitwise.apps;
 
 import bitwise.appservice.AppServiceCertificate;
 import bitwise.engine.Thing;

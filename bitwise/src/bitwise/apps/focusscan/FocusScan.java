@@ -1,6 +1,6 @@
 package bitwise.apps.focusscan;
 
-import bitwise.appservice.app.App;
+import bitwise.apps.App;
 import bitwise.engine.service.Request;
 import bitwise.log.Log;
 

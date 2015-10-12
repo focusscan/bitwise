@@ -1,9 +1,9 @@
 package bitwise.appservice;
 
-import bitwise.appservice.app.App;
-import bitwise.appservice.app.AppFactory;
-import bitwise.appservice.app.AppHandle;
-import bitwise.appservice.app.AppRequest;
+import bitwise.apps.App;
+import bitwise.apps.AppFactory;
+import bitwise.apps.AppHandle;
+import bitwise.apps.AppRequest;
 import bitwise.appservice.requests.*;
 import bitwise.engine.service.ServiceHandle;
 

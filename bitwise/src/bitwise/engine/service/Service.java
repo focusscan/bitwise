@@ -1,8 +1,12 @@
 package bitwise.engine.service;
 
+import bitwise.apps.App;
 import bitwise.appservice.AppServiceCertificate;
+import bitwise.devices.Driver;
+import bitwise.devices.usbservice.UsbServiceCertificate;
 import bitwise.engine.Thing;
 import bitwise.engine.config.Configuration;
+import bitwise.engine.supervisor.Supervisor;
 import bitwise.engine.supervisor.SupervisorCertificate;
 import bitwise.log.Log;
 import javafx.collections.FXCollections;
@@ -13,11 +17,12 @@ public abstract class Service<R extends Request, H extends ServiceHandle<R, ?>> 
 	private ServiceRequestHandler<R> requestHandler;
 	private ObservableList<ServiceTask> serviceTasks = FXCollections.observableArrayList();
 	private ObservableList<Request> outRequests = FXCollections.observableArrayList();
-	private ObservableList<Service<?, ?>> childServices = FXCollections.observableArrayList();
+	private ObservableList<App<?, ?>> childServices = FXCollections.observableArrayList();
+	private ObservableList<Driver<?, ?, ?>> childDrivers = FXCollections.observableArrayList();
 	
 	protected Service() {
 		super(new ServiceID());
-		requestHandler = new ServiceRequestHandler<>(cert);
+		requestHandler = new ServiceRequestHandler<>(this, cert);
 	}
 	
 	protected final ServiceRequestHandler<R> getRequestHandler() {
@@ -33,10 +38,7 @@ public abstract class Service<R extends Request, H extends ServiceHandle<R, ?>> 
 			throw new IllegalArgumentException("SupervisorCertificate");
 		synchronized(requestHandler) {
 			if (!requestHandler.serviceIsRunning()) {
-				if (!onStartService())
-					return;
 				requestHandler.startRequestHandler(cert);
-				Log.log(this, "Service started");
 			}
 		}
 	}
@@ -50,10 +52,12 @@ public abstract class Service<R extends Request, H extends ServiceHandle<R, ?>> 
 			if (requestHandler.serviceIsRunning()) {
 				Log.log(this, "Stopping request handler");
 				requestHandler.stopRequestHandler(cert);
-				onStopService();
 				Log.log(this, "Stopping service tasks");
 				for (ServiceTask serviceTask : serviceTasks)
 					serviceTask.stopTask(cert);
+				Log.log(this,  "Stopping drivers");
+				for (Driver<?, ?, ?> driver : childDrivers)
+					Supervisor.getInstance().stopService(driver);
 				Log.log(this, "Service stopped");
 			}
 		}
@@ -72,11 +76,19 @@ public abstract class Service<R extends Request, H extends ServiceHandle<R, ?>> 
 	}
 	
 	@Override
-	public final void generalNotifyChildService(AppServiceCertificate appCert, Service<?, ?> in) {
+	public final void generalNotifyChildApp(AppServiceCertificate appCert, App<?, ?> in) {
 		if (null == cert)
 			throw new IllegalArgumentException("AppServiceCertificate");
 		Log.log(this, "Adding child service %s", in);
 		childServices.add(in);
+	}
+	
+	@Override
+	public final void generalNotifyChildDriver(UsbServiceCertificate usbCert, Driver<?, ?, ?> in) {
+		if (null == cert)
+			throw new IllegalArgumentException("UsbServiceCertificate");
+		Log.log(this, "Adding child driver %s", in);
+		childDrivers.add(in);
 	}
 	
 	public final void generalNotifyRequestEnqueued(Request in) {
