@@ -142,6 +142,7 @@ public final class UsbTree {
 		}
 		if (null != foundIt) {
 			final UsbDevice toRemove = foundIt;
+			toRemove.deviceDetached();
 			Platform.runLater(new Runnable() {
 				@Override
 				public void run() {
