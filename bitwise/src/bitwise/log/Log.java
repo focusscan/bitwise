@@ -15,32 +15,37 @@ public final class Log {
 		System.out.println(String.format("[%8s] %24s - %s", kind, thing, String.format(format, args)));
 	}
 	
-	public static void log(Thing<?> thing, String format, Object... args) {
+	public synchronized static void log(Thing<?> thing, String format, Object... args) {
 		log("Thing", thing, format, args);
 	}
 	
-	public static void log(BaseService<?> thing, String format, Object... args) {
+	public synchronized static void log(BaseService<?> thing, String format, Object... args) {
 		log("Service", thing, format, args);
 	}
 	
-	public static void log(BaseServiceTask thing, String format, Object... args) {
+	public synchronized static void log(BaseServiceTask<?> thing, String format, Object... args) {
 		log("Task", thing, format, args);
 	}
 	
-	public static void log(BaseRequest<?, ?> thing, String format, Object... args) {
+	public synchronized static void log(BaseRequest<?, ?> thing, String format, Object... args) {
 		log("Request", thing, format, args);
 	}
 	
-	public static void log(Supervisor thing, String format, Object... args) {
+	public synchronized static void log(Supervisor thing, String format, Object... args) {
 		log("Super", thing, format, args);
 	}
 	
-	public static void logServingException(BaseRequest<?, ?> thing, Exception e) {
+	public synchronized static void logException(BaseService<?> thing, Exception e) {
+		log(thing, "Exception: %s", e);
+		e.printStackTrace();
+	}
+	
+	public synchronized static void logServingException(BaseRequest<?, ?> thing, Exception e) {
 		log(thing, "Serving exception: %s", e);
 		e.printStackTrace();
 	}
 	
-	public static void logEpilogueException(BaseRequest<?, ?> thing, Exception e) {
+	public synchronized static void logEpilogueException(BaseRequest<?, ?> thing, Exception e) {
 		log(thing, "Epilogue exception: %s", e);
 		e.printStackTrace();
 	}

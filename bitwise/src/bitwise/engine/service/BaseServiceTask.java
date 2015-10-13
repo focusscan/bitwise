@@ -3,13 +3,17 @@ package bitwise.engine.service;
 import bitwise.engine.Thing;
 import bitwise.log.Log;
 
-public abstract class BaseServiceTask extends Thing<ServiceTaskID> implements Runnable {
-	private final BaseService<?> service;
+public abstract class BaseServiceTask<S extends BaseService<?>> extends Thing<ServiceTaskID> implements Runnable {
+	private final S service;
 	private Thread thread = null;
 	
-	public BaseServiceTask(BaseService<?> in_service) {
+	public BaseServiceTask(S in_service) {
 		super(new ServiceTaskID());
 		service = in_service;
+	}
+	
+	protected final S getService() {
+		return service;
 	}
 	
 	protected final void startTask(ServiceCertificate cert) {

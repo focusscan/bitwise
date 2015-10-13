@@ -16,7 +16,7 @@ import javafx.collections.ObservableList;
 public abstract class BaseService<H extends BaseServiceHandle<?, ?>> extends Thing<ServiceID> implements BaseRequester {
 	private final ServiceCertificate cert = new ServiceCertificate();
 	private ServiceRequestHandler requestHandler;
-	private ObservableList<BaseServiceTask> serviceTasks = FXCollections.observableArrayList();
+	private ObservableList<BaseServiceTask<?>> serviceTasks = FXCollections.observableArrayList();
 	private ObservableList<BaseRequest<?, ?>> outRequests = FXCollections.observableArrayList();
 	private ObservableList<BaseApp<?>> childServices = FXCollections.observableArrayList();
 	private ObservableList<BaseDriver<?, ?>> childDrivers = FXCollections.observableArrayList();
@@ -58,7 +58,7 @@ public abstract class BaseService<H extends BaseServiceHandle<?, ?>> extends Thi
 				Log.log(this, "Stopping request handler");
 				requestHandler.stopRequestHandler(cert);
 				Log.log(this, "Stopping service tasks");
-				for (BaseServiceTask serviceTask : serviceTasks)
+				for (BaseServiceTask<?> serviceTask : serviceTasks)
 					serviceTask.stopTask(cert);
 				Log.log(this,  "Stopping drivers");
 				for (BaseDriver<?, ?> driver : childDrivers)
@@ -85,7 +85,7 @@ public abstract class BaseService<H extends BaseServiceHandle<?, ?>> extends Thi
 		stopThread.start();
 	}
 	
-	protected final void addServiceTask(BaseServiceTask serviceTask) {
+	protected final void addServiceTask(BaseServiceTask<?> serviceTask) {
 		Log.log(this, "Adding task %s", serviceTask);
 		Platform.runLater(new Runnable() {
 			@Override
@@ -96,7 +96,7 @@ public abstract class BaseService<H extends BaseServiceHandle<?, ?>> extends Thi
 		serviceTask.startTask(cert);
 	}
 	
-	protected final void notifyServiceTaskDone(BaseServiceTask serviceTask) {
+	protected final void notifyServiceTaskDone(BaseServiceTask<?> serviceTask) {
 		Log.log(this, "Task %s done", serviceTask);
 		if (!Configuration.getInstance().rememberDoneServiceTasks())
 			serviceTasks.remove(serviceTask);

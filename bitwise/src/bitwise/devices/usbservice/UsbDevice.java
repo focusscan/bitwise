@@ -21,7 +21,7 @@ public final class UsbDevice extends Device {
 		product = xDevice.getProductString();
 	}
 	
-	protected javax.usb.UsbDevice getXDevice() {
+	public javax.usb.UsbDevice getXDevice() {
 		return xDevice;
 	}
 	
