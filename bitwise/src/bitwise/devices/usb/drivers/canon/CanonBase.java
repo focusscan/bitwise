@@ -45,6 +45,8 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 	private List<FNumber> prop_fNumberValid = null;
 	private FocusMode prop_focusMode = null;
 	private List<FocusMode> prop_focusModeValid = null;
+	private ImageFormat prop_imageFormat = null;
+	private List<ImageFormat> prop_imageFormatValid = new ArrayList<ImageFormat>();
 	
 	private FlashMode prop_flashMode = null;
 	private List<FlashMode> prop_flashModeValid = null;
@@ -110,125 +112,35 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 	protected void cmd_fetchAllCameraProperties() {
 			CanonEventResponse evtData = parseCameraEvent();
 //			prop_batteryLevel = evtData.getBatteryLevel();
-			short[] exivals = new short[1];
-			exivals[0] = (short)evtData.getExposureIndex().getValue();
-			exposureIndexChanged((short)evtData.getExposureIndex().getValue(), exivals);
-			
-			short[] exvals = new short[1];
-			exvals[0] = (short)evtData.getExposureMode().getValue();
-			exposureModeChanged((short)evtData.getExposureMode().getValue(), exvals);
-			
-			int[] extvals = new int[1];
-			extvals[0] = evtData.getExposureTime().getValue();
-			exposureTimeChanged(evtData.getExposureTime().getValue(), extvals);
-			
-			short[] fnvals = new short[1];
-			fnvals[0] = (short)evtData.getFNumber().getValue();
-			fNumberChanged((short)evtData.getFNumber().getValue(), fnvals);
-			
-			short[] focus = new short[1];
-			focus[0] = (short)evtData.getFocusMode().getValue();
-			focusModeChanged((short)evtData.getFocusMode().getValue(), focus);
+			exposureIndexChanged(evtData.getExposureIndex(), evtData.getValidExposureIndices());
+			exposureModeChanged(evtData.getExposureMode(), evtData.getValidExposureModes());
+			exposureTimeChanged(evtData.getExposureTime(), evtData.getValidExposureTimes());
+			fNumberChanged(evtData.getFNumber(), evtData.getValidFNumbers());
+			focusModeChanged(evtData.getFocusMode(), evtData.getValidFocusModes());
+			imageFormatChanged(evtData.getImageFormat(), evtData.getValidImageFormats());
 	}
 	
 	private ImageFormat decode_imageFormat(short in) {
 		String name = null;
-		switch (in) {
-			case (short) 0x3000:
-				name = "Nikon RAW";
-				break;
-			case (short) 0x3001:
-				name = "Association";
-				break;
-			case (short) 0x3002:
-				name = "Script";
-				break;
-			case (short) 0x3003:
-				name = "Executable";
-				break;
-			case (short) 0x3004:
-				name = "Text";
-				break;
-			case (short) 0x3005:
-				name = "HTML";
-				break;
-			case (short) 0x3006:
-				name = "DPOF";
-				break;
-			case (short) 0x3007:
-				name = "AIFF";
-				break;
-			case (short) 0x3008:
-				name = "WAV";
-				break;
-			case (short) 0x3009:
-				name = "MP3";
-				break;
-			case (short) 0x300a:
-				name = "AVI";
-				break;
-			case (short) 0x300b:
-				name = "MPEG";
-				break;
-			case (short) 0x300c:
-				name = "ASF";
-				break;
-			case (short) 0x3801:
-				name = "EXIF/JPEG";
-				break;
-			case (short) 0x3802:
-				name = "TIFF/EP";
-				break;
-			case (short) 0x3803:
-				name = "FlashPix";
-				break;
-			case (short) 0x3804:
-				name = "Windows BMP";
-				break;
-			case (short) 0x3805:
-				name = "Canon CIFF";
-				break;
-			case (short) 0x3807:
-				name = "GIF";
-				break;
-			case (short) 0x3808:
-				name = "JFIF";
-				break;
-			case (short) 0x3809:
-				name = "PCD";
-				break;
-			case (short) 0x380a:
-				name = "Quickdraw PICT";
-				break;
-			case (short) 0x380b:
-				name = "PNG";
-				break;
-			case (short) 0x380d:
-				name = "TIFF";
-				break;
-			case (short) 0x380e:
-				name = "TIFF/IT";
-				break;
-			case (short) 0x380f:
-				name = "JP2";
-				break;
-			case (short) 0x3810:
-				name = "JPX";
-				break;
-			default:
-				name = String.format("[code %04x]", in);
+		if (CanonDevicePropTables.ImageFormat.containsKey(in)) {
+			name = CanonDevicePropTables.ImageFormat.get(in);
+		}
+		else {
+			name = String.format("[code %04x]", in);
 		}
 		return new ImageFormat(name, in);
 	}
 	
+	public synchronized void imageFormatChanged(short in, short[] in2) {
+		prop_imageFormat = decode_imageFormat(in);
+		prop_imageFormatValid = new ArrayList<>(in2.length);
+		for (short v : in2)
+			prop_imageFormatValid.add(decode_imageFormat(v));
+	}
+	
 	@Override
 	public List<ImageFormat> getImageFormats() {
-/*		Arr<ObjectFormatCode> formats = getDeviceInfo().getCaptureFormats();
-		ArrayList<ImageFormat> ret = new ArrayList<>(formats.getValue().size());
-		for (ObjectFormatCode code : getDeviceInfo().getImageFormats().getValue())
-			ret.add(decode_imageFormat(code.getValue()));
-		return ret;*/
-		return new ArrayList<ImageFormat>();
+		return prop_imageFormatValid;
 	}
 	
 	@Override
@@ -243,30 +155,11 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 	
 	private ExposureMode decode_exposureMode(short in) {
 		String name = null;
-		switch (in) {
-			case (short) 0x0000:
-				name = "Program";
-				break;
-			case (short) 0x0001:
-				name = "Tv";
-				break;
-			case (short) 0x0002:
-				name = "Av";
-				break;
-			case (short) 0x0003:
-				name = "Manual";
-				break;
-			case (short) 0x0004:
-				name = "Bulb";
-				break;
-			case (short) 0x0009:
-				name = "Auto";
-				break;
-			case (short) 0x0013:
-				name = "Creative Auto";
-				break;
-			default:
-				name = String.format("[code %04x]", in);
+		if (CanonDevicePropTables.ExposureMode.containsKey(in)) {
+			name = CanonDevicePropTables.ExposureMode.get(in);
+		}
+		else {
+			name = String.format("[code %04x]", in);
 		}
 		return new ExposureMode(name, in);
 	}
@@ -278,6 +171,17 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 		for (short v : in2)
 			prop_exposureModeValid.add(decode_exposureMode(v));
 		bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new ExposureModeChanged(this, prop_exposureMode, prop_exposureModeValid));
+	}
+	
+	private FNumber decode_fNumber(short in) {
+		String name = null;
+		if (CanonDevicePropTables.Aperture.containsKey(in)) {
+			name = "f/" + CanonDevicePropTables.Aperture.get(in);
+		}
+		else {
+			name = String.format("[code %04x]", in);
+		}
+		return new FNumber(name, in);
 	}
 	
 	@Override
@@ -292,10 +196,10 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 	
 	@Override
 	protected void fNumberChanged(short in, short[] in2) {
-		prop_fNumber = new FNumber(in);
+		prop_fNumber = decode_fNumber(in);
 		prop_fNumberValid = new ArrayList<>(in2.length);
 		for (short v : in2)
-			prop_fNumberValid.add(new FNumber(v));
+			prop_fNumberValid.add(decode_fNumber(in));
 		bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new FNumberChanged(this, prop_fNumber, prop_fNumberValid));
 	}
 	
@@ -323,18 +227,11 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 	
 	private FocusMode decode_focusMode(short in) {
 		String name = null;
-		switch (in) {
-			case (short) 0x0000:
-				name = "One Shot";
-				break;
-			case (short) 0x0001:
-				name = "AI Focus";
-				break;
-			case (short) 0x0002:
-				name = "AI Servo";
-				break;
-			default:
-				name = String.format("[code %04x]", in);
+		if (CanonDevicePropTables.FocusMode.containsKey(in)) {
+			name = CanonDevicePropTables.FocusMode.get(in);
+		}
+		else {
+			name = String.format("[code %04x]", in);
 		}
 		return new FocusMode(name, in);
 	}
@@ -359,30 +256,7 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 	}
 	
 	private FlashMode decode_flashMode(short in) {
-		String name = null;
-		switch (in) {
-			case (short) 0x0002:
-				name = "No flash";
-				break;
-			case (short) 0x0004:
-				name = "Red-eye reduction";
-				break;
-			case (short) 0x8010:
-				name = "Normal sync";
-				break;
-			case (short) 0x8011:
-				name = "Slow sync";
-				break;
-			case (short) 0x8012:
-				name = "Rear sync";
-				break;
-			case (short) 0x8013:
-				name = "Red-eye reduction (slow sync)";
-				break;
-			default:
-				name = String.format("[code %04x]", in);
-		}
-		return new FlashMode(name, in);
+		return new FlashMode("N/A", (short)0xffff);
 	}
 	
 	@Override
@@ -406,176 +280,12 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 	
 	private ExposureTime decode_exposureTime(int in) {
 		String name = null;
-		switch (in) {
-		case 0:
-			name = "30s";
-			break;
-		case 1:
-			name = "25s";
-			break;
-		case 2:
-			name = "20s";
-			break;
-		case 3:
-			name = "15s";
-			break;
-		case 4:
-			name = "13s";
-			break;
-		case 5:
-			name = "10s";
-			break;
-		case 6:
-			name = "8s";
-			break;
-		case 7:
-			name = "6s";
-			break;
-		case 8:
-			name = "5s";
-			break;
-		case 9:
-			name = "4s";
-			break;
-		case 10:
-			name = "3.2s";
-			break;
-		case 11:
-			name = "2.5s";
-			break;
-		case 12:
-			name = "2s";
-			break;
-		case 13:
-			name = "1.6s";
-			break;
-		case 14:
-			name = "1.3s";
-			break;
-		case 15:
-			name = "1s";
-			break;
-		case 16:
-			name = "0.8s";
-			break;
-		case 17:
-			name = "0.6s";
-			break;
-		case 18:
-			name = "0.5s";
-			break;
-		case 19:
-			name = "0.4s";
-			break;
-		case 20:
-			name = "0.3s";
-			break;
-		case 21:
-			name = "1/4s";
-			break;
-		case 22:
-			name = "1/5s";
-			break;
-		case 23:
-			name = "1/6s";
-			break;
-		case 24:
-			name = "1/8s";
-			break;
-		case 25:
-			name = "1/10s";
-			break;
-		case 26:
-			name = "1/13s";
-			break;
-		case 27:
-			name = "1/15s";
-			break;
-		case 28:
-			name = "1/20s";
-			break;
-		case 29:
-			name = "1/25s";
-			break;
-		case 30:
-			name = "1/30s";
-			break;
-		case 31:
-			name = "1/40s";
-			break;
-		case 32:
-			name = "1/50s";
-			break;
-		case 33:
-			name = "1/60s";
-			break;
-		case 34:
-			name = "1/80s";
-			break;
-		case 35:
-			name = "1/100s";
-			break;
-		case 36:
-			name = "1/125s";
-			break;
-		case 37:
-			name = "1/160s";
-			break;
-		case 38:
-			name = "1/200s";
-			break;
-		case 39:
-			name = "1/250s";
-			break;
-		case 40:
-			name = "1/320s";
-			break;
-		case 41:
-			name = "1/400s";
-			break;
-		case 42:
-			name = "1/500s";
-			break;
-		case 43:
-			name = "1/640s";
-			break;
-		case 44:
-			name = "1/800s";
-			break;
-		case 45:
-			name = "1/1000s";
-			break;
-		case 46:
-			name = "1/1250s";
-			break;
-		case 47:
-			name = "1/1600s";
-			break;
-		case 48:
-			name = "1/2000s";
-			break;
-		case 49:
-			name = "1/2500s";
-			break;
-		case 50:
-			name = "1/3200s";
-			break;
-		case 51:
-			name = "1/4000s";
-			break;
-		case 52:
-			name = "1/5000s";
-			break;
-		case 53:
-			name = "1/6400s";
-			break;
-		case 0x63:
-			name = "1/8000s";
-			break;
-			
-		default:
+		if (CanonDevicePropTables.ShutterSpeed.containsKey(in)) {
+			name = CanonDevicePropTables.ShutterSpeed.get(in);
+		}
+		else {
 			name = String.format("[code %04x]", in);
-	}
+		}
 		return new ExposureTime(name, in);
 	}
 	
@@ -600,36 +310,10 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 	
 	private ExposureIndex decode_exposureIndex(short in) {
 		String name = null;
-		switch (in) {
-			case (short) 0x0:
-				name = "Auto";
-				break;
-			case (short) 0x40:
-				name = "100";
-				break;
-			case (short) 0x50:
-				name = "200";
-				break;
-			case (short) 0x58:
-				name = "400";
-				break;
-			case (short) 0x60:
-				name = "800";
-				break;
-			case (short) 0x68:
-				name = "1600";
-				break;
-			case (short) 0x70:
-				name = "3200";
-				break;
-			case (short) 0x78:
-				name = "6400";
-				break;
-			case (short) 0x80:
-				name = "12800";
-				break;
-			default:
-				name = String.format("[code %04x]", in);
+		if (CanonDevicePropTables.ISO.containsKey(in)) {
+			name = CanonDevicePropTables.ISO.get(in);
+		} else {
+			name = String.format("[code %04x]", in);
 		}
 		return new ExposureIndex(name, in);
 	}

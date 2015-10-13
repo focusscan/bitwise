@@ -2,9 +2,17 @@ package bitwise.devices.kinds.fullcamera;
 
 public class FNumber {
 	private final short value;
+	private final String name;
 	
 	public FNumber(short in_value) {
 		value = in_value;
+		name = "";
+	}
+	
+	public FNumber(String in_name, short in_value) {
+		name = in_name;
+		value = in_value;
+		assert(null != name);
 	}
 	
 	public short getValue() {
@@ -28,8 +36,12 @@ public class FNumber {
 	
 	@Override
 	public String toString() {
-		int whole = value / 100;
-		int part  = value % 100;
-		return String.format("f/%s.%s", whole, part);
+		if (name.isEmpty()) {
+			int whole = value / 100;
+			int part  = value % 100;
+			return String.format("f/%s.%s", whole, part);
+		} else {
+			return name;
+		}
 	}
 }
