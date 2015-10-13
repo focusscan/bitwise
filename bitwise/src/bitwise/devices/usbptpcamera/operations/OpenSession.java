@@ -1,6 +1,6 @@
 package bitwise.devices.usbptpcamera.operations;
 
-public class OpenSession extends Operation {
+public class OpenSession extends Operation<Void> {
 	public static final int argSessionID = 0;
 	
 	public OpenSession(int in_sessionID) {

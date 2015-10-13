@@ -12,6 +12,7 @@ import bitwise.devices.BaseDriver;
 import bitwise.devices.usbptpcamera.events.Event;
 import bitwise.devices.usbptpcamera.events.EventDecoder;
 import bitwise.devices.usbptpcamera.operations.CloseSession;
+import bitwise.devices.usbptpcamera.operations.DeviceInfo;
 import bitwise.devices.usbptpcamera.operations.GetDeviceInfo;
 import bitwise.devices.usbptpcamera.operations.OpenSession;
 import bitwise.devices.usbptpcamera.operations.Operation;
@@ -124,14 +125,15 @@ public abstract class BaseUsbPtpCamera<H extends BaseUsbPtpCameraHandle<?>> exte
 		Log.log(this, "PTP event %04x", in.getEventCode());
 	}
 	
-	private volatile Operation currentOperation = null;
-	private int nextTransactionID = 1;
+	private volatile Operation<?> currentOperation = null;
 	
-	protected final Operation getCurrentOperation() {
+	protected final Operation<?> getCurrentOperation() {
 		return currentOperation;
 	}
 	
-	protected synchronized void runOperation(Operation operation) throws InterruptedException {
+	private int nextTransactionID = 1;
+	
+	protected synchronized void runOperation(Operation<?> operation) throws InterruptedException {
 		currentOperation = operation;
 		try {
 			int length = 0;
@@ -200,6 +202,51 @@ public abstract class BaseUsbPtpCamera<H extends BaseUsbPtpCameraHandle<?>> exte
 	}
 	
 	protected void getDeviceInfo() throws InterruptedException {
-		runOperation(new GetDeviceInfo());
+		GetDeviceInfo request = new GetDeviceInfo();
+		runOperation(request);
+		DeviceInfo info = request.getDecodedData();
+		if (null != info) {
+			synchronized(Log.class) {
+				Log.log(this, "Device info:");
+				Log.log(this, "Versions: %04x %08x %04x %s", info.standardVersion, info.vendorExtensionID, info.vendorExtensionVersion, info.vendorExtensionDesc);
+				Log.log(this, "Functional mode %04x", info.functionalMode);
+				{
+					StringBuilder operationsSupported = new StringBuilder();
+					operationsSupported.append("Operations supported:");
+					for (short operation : info.operationsSupported)
+						operationsSupported.append(String.format(" %04x", operation));
+					Log.log(this, operationsSupported.toString());
+				}
+				{
+					StringBuilder eventsSupported = new StringBuilder();
+					eventsSupported.append("Events supported:");
+					for (short event : info.eventsSupported)
+						eventsSupported.append(String.format(" %04x", event));
+					Log.log(this, eventsSupported.toString());
+				}
+				{
+					StringBuilder devicePropertiesSupported = new StringBuilder();
+					devicePropertiesSupported.append("Device properties supported:");
+					for (short deviceProperty : info.devicePropertiesSupported)
+						devicePropertiesSupported.append(String.format(" %04x", deviceProperty));
+					Log.log(this, devicePropertiesSupported.toString());
+				}
+				{
+					StringBuilder captureFormatsSupported = new StringBuilder();
+					captureFormatsSupported.append("Capture formats supported:");
+					for (short captureFormat : info.captureFormats)
+						captureFormatsSupported.append(String.format(" %04x", captureFormat));
+					Log.log(this, captureFormatsSupported.toString());
+				}
+				{
+					StringBuilder imageFormatsSupported = new StringBuilder();
+					imageFormatsSupported.append("Image formats supported:");
+					for (short imageFormat : info.captureFormats)
+						imageFormatsSupported.append(String.format(" %04x", imageFormat));
+					Log.log(this, imageFormatsSupported.toString());
+				}
+				Log.log(this, "%s %s %s %s", info.manufacturer, info.model, info.deviceVersion, info.serialNumber);
+			}
+		}
 	}
 }

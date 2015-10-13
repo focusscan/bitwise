@@ -6,7 +6,7 @@ import bitwise.devices.usbptpcamera.events.Event;
 import bitwise.devices.usbptpcamera.responses.ResponseCode;
 import bitwise.devices.usbptpcamera.responses.ResponseData;
 
-public abstract class Operation {
+public abstract class Operation<T> {
 	private final short operationCode;
 	private final int[] arguments;
 	private ResponseCode responseCode = null;
@@ -65,6 +65,10 @@ public abstract class Operation {
 	
 	public void recvInterruptData(Event event) {
 		
+	}
+	
+	public T getDecodedData() {
+		return null;
 	}
 	
 	public abstract boolean hasTransactionID();

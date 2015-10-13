@@ -1,6 +1,7 @@
 package bitwise.devices.usbptpcamera;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 public final class UsbPtpBuffer {
 	private boolean measureMode;
@@ -111,5 +112,50 @@ public final class UsbPtpBuffer {
 		long v7 = 0xff & (long) getByte();
 		return v0 | (v1 << 8) | (v2 << 16) | (v3 << 24)
 				| (v4 << 32) | (v5 << 40) | (v6 << 48) | (v7 << 52);
+	}
+	
+	public String getString() {
+		int length = 0xff & (int) getByte();
+		if (0 == length)
+			return "";
+		byte[] str = new byte[(length - 1) * 2];
+		for (int i = 0; i < str.length; i++)
+			str[i] = getByte();
+		String ret = new String(str, StandardCharsets.UTF_16LE);
+		// Consume the null character
+		getShort();
+		return ret;
+	}
+	
+	public byte[] getByteArray() {
+		int length = getInt();
+		byte[] ret = new byte[length];
+		for (int i = 0; i < ret.length; i++)
+			ret[i] = getByte();
+		return ret;
+	}
+	
+	public short[] getShortArray() {
+		int length = getInt();
+		short[] ret = new short[length];
+		for (int i = 0; i < ret.length; i++)
+			ret[i] = getShort();
+		return ret;
+	}
+	
+	public int[] getIntArray() {
+		int length = getInt();
+		int [] ret = new int[length];
+		for (int i = 0; i < ret.length; i++)
+			ret[i] = getInt();
+		return ret;
+	}
+	
+	public long[] getLongArray() {
+		int length = getInt();
+		long [] ret = new long[length];
+		for (int i = 0; i < ret.length; i++)
+			ret[i] = getLong();
+		return ret;
 	}
 }

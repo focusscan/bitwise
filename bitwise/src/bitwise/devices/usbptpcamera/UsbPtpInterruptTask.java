@@ -18,7 +18,7 @@ public class UsbPtpInterruptTask extends BaseServiceTask<BaseUsbPtpCamera<?>> {
 	protected void taskMain() throws InterruptedException {
 		while (!isCancelled()) {
 			Event event = events.take();
-			Operation currentOperation = getService().getCurrentOperation();
+			Operation<?> currentOperation = getService().getCurrentOperation();
 			if (null != currentOperation)
 				currentOperation.recvInterruptData(event);
 			getService().handlePtpEvent(event);
