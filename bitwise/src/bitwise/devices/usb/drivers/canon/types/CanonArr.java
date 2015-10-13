@@ -5,7 +5,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import bitwise.devices.usb.drivers.ptp.types.prim.Decoder;
-import bitwise.devices.usb.drivers.ptp.types.prim.IntegralType;
 import bitwise.devices.usb.drivers.ptp.types.prim.PtpType;
 import bitwise.devices.usb.drivers.ptp.types.prim.UInt16;
 import bitwise.devices.usb.drivers.ptp.types.prim.UInt32;

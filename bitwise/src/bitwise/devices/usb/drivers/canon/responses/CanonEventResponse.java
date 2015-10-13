@@ -3,6 +3,7 @@ package bitwise.devices.usb.drivers.canon.responses;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
+import bitwise.devices.usb.drivers.canon.deviceproperties.CanonDevicePropCode;
 import bitwise.devices.usb.drivers.canon.types.CanonArr;
 import bitwise.devices.usb.drivers.ptp.types.prim.Decoder;
 import bitwise.devices.usb.drivers.ptp.types.prim.UInt32;
@@ -11,14 +12,6 @@ import bitwise.devices.usb.drivers.ptp.types.responses.Response;
 public class CanonEventResponse implements Response {
 	private static final int CurrentValue = 0xc189;
 	private static final int ValidRange = 0xc18a;
-	
-	private static final int BatteryLevel = 0xd111;
-	private static final int ExposureIndex = 0xd103;
-	private static final int ExposureMode = 0xd105;
-	private static final int ExposureTime = 0xd102;
-	private static final int FNumber = 0xd101;
-	private static final int FocusMode = 0xd108;
-	private static final int ImageFormat = 0xd120;
 
 	public static final Decoder<CanonEventResponse> decoder = new Decoder<CanonEventResponse>() {
 		@Override
@@ -55,52 +48,43 @@ public class CanonEventResponse implements Response {
 		
 		if (data.size() == 1) return;		// Signals end of data block
 
-		int property = data.get(1).getValue();		
-		System.out.println("Parsing property value: " + Integer.toHexString(property));
-		
+		int property = data.get(1).getValue();			
 		int recordType = data.get(0).getValue();
 		
-		switch (property) {
-			case BatteryLevel:
-				if (recordType == CurrentValue)
-					batteryLevel = data.get(2);
-				break;
-			case ExposureIndex:
-				if (recordType == CurrentValue)
-					exposureIndex = data.get(2);
-				else if (recordType == ValidRange)
-					validExposureIndices = toArray(data, 4);
-				break;
-			case ExposureMode:
-				if (recordType == CurrentValue)
-					exposureMode = data.get(2);
-				else if (recordType == ValidRange)
-					if (null != exposureMode) {
-						validExposureModes = new short[1];
-						validExposureModes[0] = (short)exposureMode.getValue();
-					}
-				break;
-			case ExposureTime:
-				if (recordType == CurrentValue)
-					exposureTime = data.get(2);
-				break;
-			case FNumber:
-				if (recordType == CurrentValue)
-					fNumber = data.get(2);
-				else if (recordType == ValidRange)
-					validFNumbers = toArray(data, 3);
-				break;
-			case FocusMode:
-				if (recordType == CurrentValue)
-					focusMode = data.get(2);
-				else if (recordType == ValidRange)
-					validFocusModes = toArray(data, 4);
-				break;
-			case ImageFormat:	
-				if (recordType == CurrentValue) {
-					imageFormat = convertImageFormat(data, 2);
+		if (property == CanonDevicePropCode.BatteryLevel.asInt32().getValue()) {
+			if (recordType == CurrentValue)
+				batteryLevel = data.get(2);
+		} else if (property == CanonDevicePropCode.ExposureIndex.asInt32().getValue()) {
+			if (recordType == CurrentValue)
+				exposureIndex = data.get(2);
+			else if (recordType == ValidRange)
+				validExposureIndices = toArray(data, 4);
+		} else if (property == CanonDevicePropCode.ExposureMode.asInt32().getValue()) {
+			if (recordType == CurrentValue)
+				exposureMode = data.get(2);
+			else if (recordType == ValidRange) {
+				if (null != exposureMode) {
+					validExposureModes = new short[1];
+					validExposureModes[0] = (short)exposureMode.getValue();
 				}
-				break;
+			}
+		} else if (property == CanonDevicePropCode.ExposureTime.asInt32().getValue()) {
+			if (recordType == CurrentValue)
+				exposureTime = data.get(2);
+		} else if (property == CanonDevicePropCode.FNumber.asInt32().getValue()) {
+			if (recordType == CurrentValue)
+				fNumber = data.get(2);
+			else if (recordType == ValidRange)
+				validFNumbers = toArray(data, 4);
+		} else if (property == CanonDevicePropCode.FocusMode.asInt32().getValue()) {
+			if (recordType == CurrentValue)
+				focusMode = data.get(2);
+			else if (recordType == ValidRange)
+				validFocusModes = toArray(data, 4);
+		} else if (property == CanonDevicePropCode.ImageFormat.asInt32().getValue()) {
+			if (recordType == CurrentValue) {
+				imageFormat = convertImageFormat(data, 2);
+			}
 		}
 	}
 	
@@ -108,8 +92,16 @@ public class CanonEventResponse implements Response {
 		return (short)batteryLevel.getValue();
 	}
 	
+	public Boolean batteryLevelChanged() {
+		return (batteryLevel != null);
+	}
+	
 	public short getExposureIndex() {
 		return (short)exposureIndex.getValue();
+	}
+	
+	public Boolean exposureIndexChanged() {
+		return (exposureIndex != null);
 	}
 	
 	public short[] getValidExposureIndices() {
@@ -120,12 +112,20 @@ public class CanonEventResponse implements Response {
 		return (short)exposureMode.getValue();
 	}
 	
+	public Boolean exposureModeChanged() {
+		return (exposureMode != null);
+	}
+	
 	public short[] getValidExposureModes() {
 		return validExposureModes;
 	}
 	
 	public int getExposureTime() {
 		return exposureTime.getValue();
+	}
+	
+	public Boolean exposureTimeChanged() {
+		return (exposureTime != null);
 	}
 	
 	public int[] getValidExposureTimes() {
@@ -138,6 +138,10 @@ public class CanonEventResponse implements Response {
 		return (short)fNumber.getValue();
 	}
 	
+	public Boolean fNumberChanged() {
+		return (fNumber != null);
+	}
+	
 	public short[] getValidFNumbers() {
 		return validFNumbers;
 	}
@@ -146,12 +150,20 @@ public class CanonEventResponse implements Response {
 		return (short)focusMode.getValue();
 	}
 	
+	public Boolean focusModeChanged() {
+		return (focusMode != null);
+	}
+	
 	public short[] getValidFocusModes() {
 		return validFocusModes;
 	}
 	
 	public short getImageFormat() {
 		return (short)imageFormat.getValue();
+	}
+	
+	public Boolean imageFormatChanged() {
+		return (imageFormat != null);
 	}
 	
 	public short[] getValidImageFormats() {

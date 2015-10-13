@@ -20,7 +20,9 @@ import bitwise.devices.kinds.fullcamera.ImageFormat;
 import bitwise.devices.kinds.fullcamera.StorageDevice;
 import bitwise.devices.kinds.fullcamera.events.*;
 import bitwise.devices.usb.UsbContext;
+import bitwise.devices.usb.drivers.canon.deviceproperties.CanonDevicePropCode;
 import bitwise.devices.usb.drivers.canon.operations.GetEvent;
+import bitwise.devices.usb.drivers.canon.operations.SetDevicePropValueEx;
 import bitwise.devices.usb.drivers.canon.operations.SetEventMode;
 import bitwise.devices.usb.drivers.canon.operations.SetRemoteMode;
 import bitwise.devices.usb.drivers.canon.responses.CanonEventResponse;
@@ -110,14 +112,12 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 	
 	@Override
 	protected void cmd_fetchAllCameraProperties() {
-			CanonEventResponse evtData = parseCameraEvent();
-//			prop_batteryLevel = evtData.getBatteryLevel();
-			exposureIndexChanged(evtData.getExposureIndex(), evtData.getValidExposureIndices());
-			exposureModeChanged(evtData.getExposureMode(), evtData.getValidExposureModes());
-			exposureTimeChanged(evtData.getExposureTime(), evtData.getValidExposureTimes());
-			fNumberChanged(evtData.getFNumber(), evtData.getValidFNumbers());
-			focusModeChanged(evtData.getFocusMode(), evtData.getValidFocusModes());
-			imageFormatChanged(evtData.getImageFormat(), evtData.getValidImageFormats());
+		CanonEventResponse evtData = parseCameraEvent();
+		updateExposureIndex(evtData);
+		updateExposureMode(evtData);
+		updateFNumber(evtData);
+		updateFocusMode(evtData);
+//		updateImageFormat(evtData);
 	}
 	
 	private ImageFormat decode_imageFormat(short in) {
@@ -133,15 +133,27 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 	
 	public synchronized void imageFormatChanged(short in, short[] in2) {
 		prop_imageFormat = decode_imageFormat(in);
-		prop_imageFormatValid = new ArrayList<>(in2.length);
-		for (short v : in2)
-			prop_imageFormatValid.add(decode_imageFormat(v));
+		
+		if (null != in2) {
+			prop_imageFormatValid = new ArrayList<>(in2.length);
+			for (short v : in2)
+				prop_imageFormatValid.add(decode_imageFormat(v));
+		}
 	}
 	
 	@Override
 	public List<ImageFormat> getImageFormats() {
 		return prop_imageFormatValid;
 	}
+	
+/*	protected void updateImageFormats(CanonEventResponse evtData)
+	{
+		if (evtData.imageFormatChanged()) {
+			exposureIndexChanged(evtData.getImageFormat(), evtData.getValidImageFormats());
+		} else {
+			bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new ImageFormatChanged(this, prop_imageFormat, prop_imageFormatValid));
+		}
+	}*/
 	
 	@Override
 	public ExposureMode getExposureMode() {
@@ -167,10 +179,22 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 	@Override
 	public synchronized void exposureModeChanged(short in, short[] in2) {
 		prop_exposureMode = decode_exposureMode(in);
-		prop_exposureModeValid = new ArrayList<>(in2.length);
-		for (short v : in2)
-			prop_exposureModeValid.add(decode_exposureMode(v));
+		
+		if (null != in2) {
+			prop_exposureModeValid = new ArrayList<>(in2.length);
+			for (short v : in2)
+				prop_exposureModeValid.add(decode_exposureMode(v));
+		}
 		bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new ExposureModeChanged(this, prop_exposureMode, prop_exposureModeValid));
+	}
+	
+	protected void updateExposureMode(CanonEventResponse evtData)
+	{
+		if (evtData.exposureModeChanged()) {
+			exposureModeChanged(evtData.getExposureMode(), evtData.getValidExposureModes());
+		} else {
+			bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new ExposureModeChanged(this, prop_exposureMode, prop_exposureModeValid));
+		}
 	}
 	
 	private FNumber decode_fNumber(short in) {
@@ -197,10 +221,29 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 	@Override
 	protected void fNumberChanged(short in, short[] in2) {
 		prop_fNumber = decode_fNumber(in);
-		prop_fNumberValid = new ArrayList<>(in2.length);
-		for (short v : in2)
-			prop_fNumberValid.add(decode_fNumber(in));
+		
+		if (null != in2) {
+			prop_fNumberValid = new ArrayList<>(in2.length);
+			for (short v : in2)
+				prop_fNumberValid.add(decode_fNumber(v));
+		}
 		bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new FNumberChanged(this, prop_fNumber, prop_fNumberValid));
+	}
+	
+	@Override
+	protected boolean cmd_setFNumber(FNumber in) throws UsbNotActiveException, UsbNotOpenException, UsbDisconnectedException, InterruptedException, UsbException {
+		runOperation(new SetDevicePropValueEx(CanonDevicePropCode.FNumber, new UInt32(in.getValue())));
+		cmd_fetchAllCameraProperties();
+		return true;
+	}
+	
+	protected void updateFNumber(CanonEventResponse evtData)
+	{
+		if (evtData.fNumberChanged()) {
+			fNumberChanged(evtData.getFNumber(), evtData.getValidFNumbers());
+		} else {
+			bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new FNumberChanged(this, prop_fNumber, prop_fNumberValid));
+		}
 	}
 	
 	@Override
@@ -239,10 +282,29 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 	@Override
 	public synchronized void focusModeChanged(short in, short[] in2) {
 		prop_focusMode = decode_focusMode(in);
-		prop_focusModeValid = new ArrayList<>(in2.length);
-		for (short v : in2)
-			prop_focusModeValid.add(decode_focusMode(v));
+		
+		if (null != in2) {
+			prop_focusModeValid = new ArrayList<>(in2.length);
+			for (short v : in2)
+				prop_focusModeValid.add(decode_focusMode(v));
+		}
 		bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new FocusModeChanged(this, prop_focusMode, prop_focusModeValid));
+	}
+	
+	@Override
+	protected boolean cmd_setFocusMode(FocusMode in) throws UsbNotActiveException, UsbNotOpenException, UsbDisconnectedException, InterruptedException, UsbException {
+		runOperation(new SetDevicePropValueEx(CanonDevicePropCode.FocusMode, new UInt32(in.getValue())));
+		cmd_fetchAllCameraProperties();
+		return true;
+	}
+	
+	protected void updateFocusMode(CanonEventResponse evtData)
+	{
+		if (evtData.focusModeChanged()) {
+			focusModeChanged(evtData.getFocusMode(), evtData.getValidFocusModes());
+		} else {
+			bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new FocusModeChanged(this, prop_focusMode, prop_focusModeValid));
+		}
 	}
 	
 	@Override
@@ -262,9 +324,12 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 	@Override
 	public synchronized void flashModeChanged(short in, short[] in2) {
 		prop_flashMode = decode_flashMode(in);
-		prop_flashModeValid = new ArrayList<>(in2.length);
-		for (short v : in2)
-			prop_flashModeValid.add(decode_flashMode(v));
+		
+		if (null != in2) {
+			prop_flashModeValid = new ArrayList<>(in2.length);
+			for (short v : in2)
+				prop_flashModeValid.add(decode_flashMode(v));
+		}
 		bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new FlashModeChanged(this, prop_flashMode, prop_flashModeValid));
 	}
 	
@@ -292,10 +357,22 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 	@Override
 	public synchronized void exposureTimeChanged(int in, int[] in2) {
 		prop_exposureTime = decode_exposureTime(in);
-		prop_exposureTimeValid = new ArrayList<>(in2.length);
-		for (int v : in2)
-			prop_exposureTimeValid.add(decode_exposureTime(v));
+		
+		if (null != in2) {
+			prop_exposureTimeValid = new ArrayList<>(in2.length);
+			for (int v : in2)
+				prop_exposureTimeValid.add(decode_exposureTime(v));
+		}
 		bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new ExposureTimeChanged(this, prop_exposureTime, prop_exposureTimeValid));
+	}
+	
+	protected void updateExposureTime(CanonEventResponse evtData)
+	{
+		if (evtData.exposureTimeChanged()) {
+			exposureTimeChanged(evtData.getExposureTime(), evtData.getValidExposureTimes());
+		} else {
+			bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new ExposureTimeChanged(this, prop_exposureTime, prop_exposureTimeValid));
+		}
 	}
 	
 	@Override
@@ -321,9 +398,28 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 	@Override
 	public synchronized void exposureIndexChanged(short in, short in2[]) {
 		prop_exposureIndex = decode_exposureIndex(in);
-		prop_exposureIndexValid = new ArrayList<>(in2.length);
-		for (short v : in2)
-			prop_exposureIndexValid.add(decode_exposureIndex(v));
+		
+		if (null != in2) {
+			prop_exposureIndexValid = new ArrayList<>(in2.length);
+			for (short v : in2)
+				prop_exposureIndexValid.add(decode_exposureIndex(v));
+		}
 		bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new ExposureIndexChanged(this, prop_exposureIndex, prop_exposureIndexValid));
+	}
+	
+	@Override
+	protected boolean cmd_setExposureIndex(ExposureIndex in) throws UsbNotActiveException, UsbNotOpenException, UsbDisconnectedException, InterruptedException, UsbException {
+		runOperation(new SetDevicePropValueEx(CanonDevicePropCode.ExposureIndex, new UInt32(in.getValue())));
+		cmd_fetchAllCameraProperties();
+		return true;
+	}
+	
+	protected void updateExposureIndex(CanonEventResponse evtData)
+	{
+		if (evtData.exposureIndexChanged()) {
+			exposureIndexChanged(evtData.getExposureIndex(), evtData.getValidExposureIndices());
+		} else {
+			bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new ExposureIndexChanged(this, prop_exposureIndex, prop_exposureIndexValid));
+		}
 	}
 }

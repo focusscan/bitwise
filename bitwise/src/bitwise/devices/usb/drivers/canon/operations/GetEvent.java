@@ -4,7 +4,6 @@ import java.nio.ByteBuffer;
 
 import bitwise.devices.usb.drivers.canon.responses.CanonEventResponse;
 import bitwise.devices.usb.drivers.ptp.types.operations.Operation;
-import bitwise.devices.usb.drivers.ptp.types.responses.DeviceInfo;
 
 public class GetEvent extends Operation<CanonEventResponse> {
 	
