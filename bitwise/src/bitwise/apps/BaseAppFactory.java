@@ -3,8 +3,8 @@ package bitwise.apps;
 import bitwise.appservice.AppServiceCertificate;
 import bitwise.engine.Thing;
 
-public abstract class AppFactory<R extends AppRequest, H extends AppHandle<R, ?>, A extends App<R, H>> extends Thing<AppFactoryID> {
-	protected AppFactory() {
+public abstract class BaseAppFactory<H extends BaseAppHandle<?,?>, A extends BaseApp<H>> extends Thing<AppFactoryID> {
+	protected BaseAppFactory() {
 		super(new AppFactoryID());
 	}
 	

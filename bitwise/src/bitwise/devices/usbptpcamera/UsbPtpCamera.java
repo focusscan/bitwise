@@ -1,10 +1,10 @@
 package bitwise.devices.usbptpcamera;
 
-import bitwise.devices.Driver;
+import bitwise.devices.BaseDriver;
 import bitwise.devices.usbservice.UsbDevice;
-import bitwise.engine.service.Request;
+import bitwise.engine.service.BaseRequest;
 
-public abstract class UsbPtpCamera<R extends UsbPtpCameraRequest, H extends UsbPtpCameraHandle<R, ?>> extends Driver<UsbDevice, R, H> {
+public abstract class UsbPtpCamera<H extends UsbPtpCameraHandle<? extends UsbPtpCameraRequest<?, ?>, ?>> extends BaseDriver<UsbDevice, H> {
 	protected UsbPtpCamera(UsbDevice in_device) {
 		super(in_device);
 	}
@@ -24,8 +24,6 @@ public abstract class UsbPtpCamera<R extends UsbPtpCameraRequest, H extends UsbP
 	}
 
 	@Override
-	protected void onRequestComplete(Request in) {
-		// TODO Auto-generated method stub
-		
+	protected void onRequestComplete(BaseRequest<?, ?> in) {
 	}
 }

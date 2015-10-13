@@ -1,12 +1,11 @@
 package bitwise.appservice;
 
-import bitwise.apps.App;
-import bitwise.apps.AppFactory;
-import bitwise.apps.AppHandle;
-import bitwise.apps.AppRequest;
-import bitwise.engine.service.Request;
-import bitwise.engine.service.Requester;
-import bitwise.engine.service.Service;
+import bitwise.apps.BaseApp;
+import bitwise.apps.BaseAppFactory;
+import bitwise.apps.BaseAppHandle;
+import bitwise.engine.service.BaseRequest;
+import bitwise.engine.service.BaseRequester;
+import bitwise.engine.service.BaseService;
 import bitwise.engine.supervisor.Supervisor;
 import bitwise.engine.supervisor.SupervisorCertificate;
 import bitwise.log.Log;
@@ -14,10 +13,10 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-public final class AppService extends Service<AppServiceRequest, AppServiceHandle> {
+public final class AppService extends BaseService<AppServiceHandle> {
 	private final AppServiceCertificate cert = new AppServiceCertificate();
 	private final AppServiceHandle serviceHandle;
-	private final ObservableList<AppFactory<?, ?, ?>> factories = FXCollections.observableArrayList();
+	private final ObservableList<BaseAppFactory<?, ?>> factories = FXCollections.observableArrayList();
 	
 	public AppService(SupervisorCertificate supervisorCert) {
 		super();
@@ -26,11 +25,11 @@ public final class AppService extends Service<AppServiceRequest, AppServiceHandl
 		serviceHandle = new AppServiceHandle(this);
 	}
 	
-	public ObservableList<AppFactory<?, ?, ?>> getAppFactoryList() {
+	public ObservableList<BaseAppFactory<?, ?>> getAppFactoryList() {
 		return factories;
 	}
 	
-	public void addAppFactory(AppFactory<?, ?, ?> factory) {
+	public void addAppFactory(BaseAppFactory<?, ?> factory) {
 		AppService thing = this;
 		Platform.runLater(new Runnable() {
 			@Override
@@ -41,7 +40,7 @@ public final class AppService extends Service<AppServiceRequest, AppServiceHandl
 		});
 	}
 	
-	public <R extends AppRequest, H extends AppHandle<R, ?>, A extends App<R, H>> H startApp(Requester requester, AppFactory<R, H, A> factory) {
+	public <H extends BaseAppHandle<?, ?>, A extends BaseApp<H>> H startApp(BaseRequester requester, BaseAppFactory<H, A> factory) {
 		Log.log(this, "Starting app from factory %s", factory);
 		A app = factory.makeApp(cert);
 		requester.generalNotifyChildApp(cert, app);
@@ -65,6 +64,6 @@ public final class AppService extends Service<AppServiceRequest, AppServiceHandl
 	}
 
 	@Override
-	protected void onRequestComplete(Request in) {
+	protected void onRequestComplete(BaseRequest<?, ?> in) {
 	}
 }

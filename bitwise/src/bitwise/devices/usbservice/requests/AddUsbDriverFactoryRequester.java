@@ -1,7 +1,7 @@
 package bitwise.devices.usbservice.requests;
 
-import bitwise.engine.service.Requester;
+import bitwise.engine.service.BaseRequester;
 
-public interface AddUsbDriverFactoryRequester extends Requester {
-	public void notifyRequestComplete(AddUsbDriverFactory<?, ?, ?> in);
+public interface AddUsbDriverFactoryRequester extends BaseRequester {
+	public void notifyRequestComplete(AddUsbDriverFactory<?, ?> in);
 }

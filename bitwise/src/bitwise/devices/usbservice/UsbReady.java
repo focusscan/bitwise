@@ -1,14 +1,13 @@
 package bitwise.devices.usbservice;
 
-import bitwise.devices.Driver;
-import bitwise.devices.DriverHandle;
-import bitwise.devices.DriverRequest;
+import bitwise.devices.BaseDriver;
+import bitwise.devices.BaseDriverHandle;
 
-public final class UsbReady<R extends DriverRequest, H extends DriverHandle<R, ?>, D extends Driver<UsbDevice, R, H>> {
+public final class UsbReady<H extends BaseDriverHandle<?, ?>, D extends BaseDriver<UsbDevice, H>> {
 	private final UsbDevice device;
-	private final UsbDriverFactory<R, H, D> factory;
+	private final UsbDriverFactory<H, D> factory;
 	
-	protected UsbReady(UsbDevice in_device, UsbDriverFactory<R, H, D> in_factory) {
+	protected UsbReady(UsbDevice in_device, UsbDriverFactory<H, D> in_factory) {
 		device = in_device;
 		factory = in_factory;
 	}
@@ -17,7 +16,7 @@ public final class UsbReady<R extends DriverRequest, H extends DriverHandle<R, ?
 		return device;
 	}
 	
-	public UsbDriverFactory<R, H, D> getFactory() {
+	public UsbDriverFactory<H, D> getFactory() {
 		return factory;
 	}
 	

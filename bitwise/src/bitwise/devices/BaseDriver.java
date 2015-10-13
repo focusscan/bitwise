@@ -1,16 +1,16 @@
 package bitwise.devices;
 
-import bitwise.engine.service.Service;
+import bitwise.engine.service.BaseService;
 
-public abstract class Driver<D extends Device, R extends DriverRequest, H extends DriverHandle<R, ?>> extends Service<R, H> {
-	private final D device;
+public abstract class BaseDriver<V extends Device, H extends BaseDriverHandle<?, ?>> extends BaseService<H> {
+	private final V device;
 	
-	protected Driver(D in_device) {
+	protected BaseDriver(V in_device) {
 		super();
 		device = in_device;
 	}
 	
-	protected D getDevice() {
+	protected V getDevice() {
 		return device;
 	}
 	

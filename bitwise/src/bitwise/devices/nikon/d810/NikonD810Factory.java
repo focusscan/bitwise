@@ -1,12 +1,11 @@
 package bitwise.devices.nikon.d810;
 
-import bitwise.devices.nikon.NikonCameraRequest;
 import bitwise.devices.nikon.NikonHandle;
 import bitwise.devices.usbservice.UsbDevice;
 import bitwise.devices.usbservice.UsbDriverFactory;
 import bitwise.log.Log;
 
-public final class NikonD810Factory extends UsbDriverFactory<NikonCameraRequest, NikonHandle, NikonD810> {
+public final class NikonD810Factory extends UsbDriverFactory<NikonHandle, NikonD810> {
 	private static NikonD810Factory instance = null;
 	public static NikonD810Factory getInstance() {
 		if (null == instance) {

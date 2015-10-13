@@ -3,7 +3,7 @@ package bitwise.gui.menubar;
 import java.io.IOException;
 
 import bitwise.Main;
-import bitwise.apps.AppFactory;
+import bitwise.apps.BaseAppFactory;
 import bitwise.engine.supervisor.Supervisor;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -18,11 +18,11 @@ public class AppsMenu extends Menu {
 		fxmlLoader.setController(this);
 		fxmlLoader.load();
 		
-		for (AppFactory<?, ?, ?> factory : Supervisor.getInstance().getAppServiceHandle().getAppFactoryList())
+		for (BaseAppFactory<?, ?> factory : Supervisor.getInstance().getAppServiceHandle().getAppFactoryList())
 			addAppFactory(factory);
 	}
 	
-	private void addAppFactory(AppFactory<?, ?, ?> factory) {
+	private void addAppFactory(BaseAppFactory<?, ?> factory) {
 		MenuItem appItem = new MenuItem(factory.getAppName());
 		appItem.setOnAction(new EventHandler<ActionEvent>() {
 			@Override

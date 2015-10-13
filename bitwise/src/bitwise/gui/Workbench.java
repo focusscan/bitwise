@@ -3,7 +3,7 @@ package bitwise.gui;
 import java.io.IOException;
 
 import bitwise.devices.usbservice.UsbDevice;
-import bitwise.engine.service.Service;
+import bitwise.engine.service.BaseService;
 import bitwise.engine.supervisor.Supervisor;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -37,7 +37,7 @@ public class Workbench extends BorderPane {
 		}
 	}
 	
-	@FXML private ListView<Service<?, ?>> taskList;
+	@FXML private ListView<BaseService<?>> taskList;
 	@FXML private ListView<UsbDevice> deviceList;
 	
 	public Workbench() throws IOException {

@@ -34,7 +34,7 @@ public class DeviceSelect extends BorderPane {
 		return null;
 	}
 	
-	@FXML private ListView<UsbReady<?, ?, ?>> deviceList;
+	@FXML private ListView<UsbReady<?, ?>> deviceList;
 	@FXML private Button btnUseDevice;
 	private final FocusScan app;
 	
@@ -50,7 +50,7 @@ public class DeviceSelect extends BorderPane {
 	}
 	
 	@FXML private void handleUseDevice(ActionEvent event) {
-		UsbReady<?, ?, ?> ready = deviceList.getSelectionModel().getSelectedItem();
+		UsbReady<?, ?> ready = deviceList.getSelectionModel().getSelectedItem();
 		if (null != ready)
 			app.selectDevice(ready);
 	}

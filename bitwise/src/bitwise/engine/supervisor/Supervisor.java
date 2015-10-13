@@ -1,7 +1,7 @@
 package bitwise.engine.supervisor;
 
 import bitwise.MainCertificate;
-import bitwise.apps.AppFactory;
+import bitwise.apps.BaseAppFactory;
 import bitwise.appservice.AppService;
 import bitwise.appservice.AppServiceHandle;
 import bitwise.appservice.AppServiceRequest;
@@ -15,15 +15,15 @@ import bitwise.devices.usbservice.UsbServiceHandle;
 import bitwise.devices.usbservice.UsbServiceRequest;
 import bitwise.devices.usbservice.requests.AddUsbDriverFactory;
 import bitwise.devices.usbservice.requests.AddUsbDriverFactoryRequester;
-import bitwise.engine.service.Request;
-import bitwise.engine.service.Service;
-import bitwise.engine.service.ServiceCertificate;
+import bitwise.engine.service.BaseRequest;
+import bitwise.engine.service.BaseService;
+import bitwise.engine.service.ServiceRequestHandlerCertificate;
 import bitwise.log.Log;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-public final class Supervisor extends Service<SupervisorRequest, SupervisorHandle> implements AddAppFactoryRequester, StartAppRequester, AddUsbDriverFactoryRequester {
+public final class Supervisor extends BaseService<SupervisorHandle> implements AddAppFactoryRequester, StartAppRequester, AddUsbDriverFactoryRequester {
 	private static Supervisor instance = null;
 	public static Supervisor getInstance() {
 		if (null == instance) {
@@ -35,7 +35,7 @@ public final class Supervisor extends Service<SupervisorRequest, SupervisorHandl
 	
 	private final SupervisorHandle handle;
 	private final SupervisorCertificate cert = new SupervisorCertificate();
-	private final ObservableList<Service<?, ?>> services = FXCollections.observableArrayList();
+	private final ObservableList<BaseService<?>> services = FXCollections.observableArrayList();
 	private final AppService appService;
 	private final UsbService usbService;
 	private boolean initialized = false;
@@ -47,7 +47,7 @@ public final class Supervisor extends Service<SupervisorRequest, SupervisorHandl
 		usbService = new UsbService(cert);
 	}
 	
-	public ObservableList<Service<?, ?>> getServicesList() {
+	public ObservableList<BaseService<?>> getServicesList() {
 		return services;
 	}
 	
@@ -64,21 +64,21 @@ public final class Supervisor extends Service<SupervisorRequest, SupervisorHandl
 		}
 	}
 	
-	public void addAppFactory(MainCertificate mainCert, AppFactory<?, ?, ?> factory) {
+	public void addAppFactory(MainCertificate mainCert, BaseAppFactory<?, ?> factory) {
 		AppServiceHandle appService = getAppServiceHandle();
-		AppServiceRequest request = appService.addAppFactory(this, factory);
+		AppServiceRequest<?> request = appService.addAppFactory(this, factory);
 		appService.enqueueRequest(request);
 	}
 	
-	public void startApp(MainCertificate mainCert, AppFactory<?, ?, ?> factory) {
+	public void startApp(MainCertificate mainCert, BaseAppFactory<?, ?> factory) {
 		AppServiceHandle appService = getAppServiceHandle();
-		AppServiceRequest request = appService.startApp(this, factory);
+		AppServiceRequest<?> request = appService.startApp(this, factory);
 		appService.enqueueRequest(request);
 	}
 	
-	public void addUsbDriverFactory(MainCertificate mainCert, UsbDriverFactory<?, ?, ?> factory) {
+	public void addUsbDriverFactory(MainCertificate mainCert, UsbDriverFactory<?, ?> factory) {
 		UsbServiceHandle usbService = getUsbServiceHandle();
-		UsbServiceRequest request = usbService.addUsbDriverFactory(this, factory);
+		UsbServiceRequest<?> request = usbService.addUsbDriverFactory(this, factory);
 		usbService.enqueueRequest(request);
 	}
 	
@@ -90,7 +90,7 @@ public final class Supervisor extends Service<SupervisorRequest, SupervisorHandl
 		return usbService.getServiceHandle();
 	}
 	
-	public void addService(Service<?, ?> service) {
+	public void addService(BaseService<?> service) {
 		Supervisor thing = this;
 		Platform.runLater(new Runnable() {
 			@Override
@@ -102,9 +102,9 @@ public final class Supervisor extends Service<SupervisorRequest, SupervisorHandl
 		});
 	}
 	
-	public void notifyServiceStopped(ServiceCertificate serviceCert, Service<?, ?> service) {
+	public void notifyServiceStopped(ServiceRequestHandlerCertificate serviceCert, BaseService<?> service) {
 		if (null == serviceCert)
-			throw new IllegalArgumentException("ServiceCertificate");
+			throw new IllegalArgumentException("ServiceRequestHandlerCertificate");
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
@@ -113,7 +113,7 @@ public final class Supervisor extends Service<SupervisorRequest, SupervisorHandl
 		});
 	}
 	
-	public void stopService(Service<?, ?> service) throws InterruptedException {
+	public void stopService(BaseService<?> service) throws InterruptedException {
 		service.stopService(cert);
 	}
 	
@@ -121,7 +121,7 @@ public final class Supervisor extends Service<SupervisorRequest, SupervisorHandl
 		if (null == mainCert)
 			throw new IllegalArgumentException("MainCertificate");
 		Log.log(this, "Stopping all services");
-		for (Service<?, ?> service : services) {
+		for (BaseService<?> service : services) {
 			Log.log(this, "Stopping service %s", service);
 			service.stopService(cert);
 		}
@@ -147,23 +147,23 @@ public final class Supervisor extends Service<SupervisorRequest, SupervisorHandl
 	}
 
 	@Override
-	protected void onRequestComplete(Request in) {
+	protected void onRequestComplete(BaseRequest<?, ?> in) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void notifyRequestComplete(AddAppFactory<?, ?, ?> in) {
+	public void notifyRequestComplete(AddAppFactory<?, ?> in) {
 		Log.log(this, "Added app factory %s", in.getAppFactory());
 	}
 
 	@Override
-	public void notifyRequestComplete(StartApp<?, ?, ?> in) {
+	public void notifyRequestComplete(StartApp<?, ?> in) {
 		Log.log(this, "App started %s", in.getAppFactory());
 	}
 
 	@Override
-	public void notifyRequestComplete(AddUsbDriverFactory<?, ?, ?> in) {
+	public void notifyRequestComplete(AddUsbDriverFactory<?, ?> in) {
 		Log.log(this, "Added driver factory %s", in.getDriverFactory());
 	}
 }

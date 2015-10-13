@@ -1,18 +1,12 @@
-package bitwise.engine.service.requests;
+package bitwise.engine.service;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import bitwise.engine.Thing;
-import bitwise.engine.service.Request;
-import bitwise.engine.service.RequestContext;
-import bitwise.engine.service.Requester;
-import bitwise.engine.service.Service;
-import bitwise.engine.service.ServiceCertificate;
-import bitwise.engine.service.ServiceID;
 import bitwise.log.Log;
 
-public abstract class BaseRequest<S extends Service<?, ?>, R extends Requester> extends Thing<RequestID> implements Request {
+public abstract class BaseRequest<S extends BaseService<?>, R extends BaseRequester> extends Thing<RequestID> {
 	private final S service;
 	private final R requester;
 	private final RequestState requestState = new RequestState();
@@ -46,41 +40,35 @@ public abstract class BaseRequest<S extends Service<?, ?>, R extends Requester> 
 		servedLatch.countDown();
 	}
 	
-	@Override
 	public final ServiceID getServiceID() {
 		return service.getID();
 	}
 	
-	@Override
 	public final ServiceID getRequesterID() {
 		return requester.getID();
 	}
 	
-	@Override
 	public final RequestStatus getRequestStatus() {
 		return requestState.getRequestStatus();
 	}
 	
-	@Override
-	public final boolean tryEnqueueServeRequest(ServiceCertificate cert) {
+	protected final boolean tryEnqueueServeRequest(ServiceHandleCertificate cert) {
 		if (null == cert)
-			throw new IllegalArgumentException("ServiceCertificate");
+			throw new IllegalArgumentException("ServiceHandleCertificate");
 		return requestState.tryEnqueueServeRequest();
 	}
 	
-	@Override
-	public final boolean tryEnqueueEpilogueRequest(ServiceCertificate cert) {
+	protected final boolean tryEnqueueEpilogueRequest(ServiceHandleCertificate cert) {
 		if (null == cert)
-			throw new IllegalArgumentException("ServiceCertificate");
-		return requestState.tryEnqueueServeRequest();
+			throw new IllegalArgumentException("ServiceHandleCertificate");
+		return requestState.tryEnqueueEpilogueRequest();
 	}
 	
 	protected abstract void onServeRequest(RequestContext ctx) throws InterruptedException;
 	
-	@Override
-	public final void serveRequest(ServiceCertificate cert, RequestContext ctx) {
+	protected final void serveRequest(ServiceRequestHandlerCertificate cert, RequestContext ctx) {
 		if (null == cert)
-			throw new IllegalArgumentException("ServiceCertificate");
+			throw new IllegalArgumentException("ServiceRequestHandlerCertificate");
 		if (null == ctx)
 			throw new IllegalArgumentException("RequestContext");
 		if (requestState.tryServeRequest()) {
@@ -100,15 +88,17 @@ public abstract class BaseRequest<S extends Service<?, ?>, R extends Requester> 
 				getRequester().generalNotifyRequestFailure(this);
 			}
 		}
+		else {
+			Log.log(this, "Could not serve");
+		}
 		servedLatch.countDown();
 	}
 	
 	protected abstract void onEpilogueRequest(RequestContext ctx) throws InterruptedException;
 	
-	@Override
-	public final void epilogueRequest(ServiceCertificate cert, RequestContext ctx) {
+	protected final void epilogueRequest(ServiceRequestHandlerCertificate cert, RequestContext ctx) {
 		if (null == cert)
-			throw new IllegalArgumentException("ServiceCertificate");
+			throw new IllegalArgumentException("ServiceRequestHandlerCertificate");
 		if (null == ctx)
 			throw new IllegalArgumentException("RequestContext");
 		if (requestState.tryEpilogueRequest()) {
@@ -124,6 +114,9 @@ public abstract class BaseRequest<S extends Service<?, ?>, R extends Requester> 
 				Log.logEpilogueException(this, e);
 				requestState.notifyEpilogueException(e);
 			}
+		}
+		else {
+			Log.log(this, "Could not epilogue");
 		}
 	}
 	

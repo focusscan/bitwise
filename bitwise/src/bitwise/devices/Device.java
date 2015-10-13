@@ -3,7 +3,7 @@ package bitwise.devices;
 import bitwise.engine.Thing;
 
 public abstract class Device extends Thing<DeviceID> {
-	private Driver<?, ?, ?> driver = null;
+	private BaseDriver<?, ?> driver = null;
 	
 	protected Device() {
 		super(new DeviceID());
@@ -11,7 +11,7 @@ public abstract class Device extends Thing<DeviceID> {
 	
 	protected abstract void onSetDriver();
 	
-	protected synchronized boolean setDriver(Driver<?, ?, ?> in_driver) {
+	protected synchronized boolean setDriver(BaseDriver<?, ?> in_driver) {
 		if (null == driver) {
 			driver = in_driver;
 			onSetDriver();

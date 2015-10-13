@@ -12,10 +12,6 @@ public class Configuration {
 		
 	}
 	
-	public int getIncomingRequestQueueSize() {
-		return 16;
-	}
-	
 	public boolean rememberInvalidContexts() {
 		return true;
 	}

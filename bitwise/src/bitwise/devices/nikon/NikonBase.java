@@ -1,10 +1,9 @@
 package bitwise.devices.nikon;
 
-import bitwise.devices.nikon.NikonCameraRequest;
 import bitwise.devices.usbptpcamera.UsbPtpCamera;
 import bitwise.devices.usbservice.UsbDevice;
 
-public class NikonBase extends UsbPtpCamera<NikonCameraRequest, NikonHandle> {
+public class NikonBase extends UsbPtpCamera<NikonHandle> {
 	private final NikonHandle handle;
 	
 	protected NikonBase(UsbDevice in_device) {

@@ -1,9 +1,9 @@
 package bitwise.log;
 
 import bitwise.engine.Thing;
-import bitwise.engine.service.Service;
-import bitwise.engine.service.ServiceTask;
-import bitwise.engine.service.requests.BaseRequest;
+import bitwise.engine.service.BaseRequest;
+import bitwise.engine.service.BaseService;
+import bitwise.engine.service.BaseServiceTask;
 import bitwise.engine.supervisor.Supervisor;
 
 public final class Log {
@@ -19,11 +19,11 @@ public final class Log {
 		log("Thing", thing, format, args);
 	}
 	
-	public static void log(Service<?, ?> thing, String format, Object... args) {
+	public static void log(BaseService<?> thing, String format, Object... args) {
 		log("Service", thing, format, args);
 	}
 	
-	public static void log(ServiceTask thing, String format, Object... args) {
+	public static void log(BaseServiceTask thing, String format, Object... args) {
 		log("Task", thing, format, args);
 	}
 	

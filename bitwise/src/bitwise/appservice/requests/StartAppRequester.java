@@ -1,7 +1,7 @@
 package bitwise.appservice.requests;
 
-import bitwise.engine.service.Requester;
+import bitwise.engine.service.BaseRequester;
 
-public interface StartAppRequester extends Requester {
-	public void notifyRequestComplete(StartApp<?, ?, ?> in);
+public interface StartAppRequester extends BaseRequester {
+	public void notifyRequestComplete(StartApp<?, ?> in);
 }

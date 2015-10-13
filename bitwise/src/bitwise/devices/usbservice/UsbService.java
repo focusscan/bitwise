@@ -5,19 +5,18 @@ import javax.usb.UsbHostManager;
 import javax.usb.event.UsbServicesEvent;
 import javax.usb.event.UsbServicesListener;
 
-import bitwise.devices.Driver;
-import bitwise.devices.DriverHandle;
-import bitwise.devices.DriverRequest;
-import bitwise.engine.service.Request;
-import bitwise.engine.service.Requester;
-import bitwise.engine.service.Service;
+import bitwise.devices.BaseDriver;
+import bitwise.devices.BaseDriverHandle;
+import bitwise.engine.service.BaseRequest;
+import bitwise.engine.service.BaseRequester;
+import bitwise.engine.service.BaseService;
 import bitwise.engine.supervisor.Supervisor;
 import bitwise.engine.supervisor.SupervisorCertificate;
 import bitwise.log.Log;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 
-public final class UsbService extends Service<UsbServiceRequest, UsbServiceHandle> implements UsbServicesListener {
+public final class UsbService extends BaseService<UsbServiceHandle> implements UsbServicesListener {
 	private final UsbServiceCertificate cert = new UsbServiceCertificate();
 	private final UsbServiceHandle serviceHandle;
 	private final UsbTree tree;
@@ -30,7 +29,7 @@ public final class UsbService extends Service<UsbServiceRequest, UsbServiceHandl
 		serviceHandle = new UsbServiceHandle(this);
 	}
 	
-	public ObservableList<UsbDriverFactory<?, ?, ?>> getDriverFactoryList() {
+	public ObservableList<UsbDriverFactory<?, ?>> getDriverFactoryList() {
 		return tree.getDriverFactoryList();
 	}
 	
@@ -38,19 +37,19 @@ public final class UsbService extends Service<UsbServiceRequest, UsbServiceHandl
 		return tree.getDeviceList();
 	}
 	
-	public ObservableList<UsbReady<?, ?, ?>> getReadyList() {
+	public ObservableList<UsbReady<?, ?>> getReadyList() {
 		return tree.getReadyList();
 	}
 	
-	public FilteredList<UsbReady<?, ?, ?>> getReadyByHandleType(Class<?> in_class) {
+	public FilteredList<UsbReady<?, ?>> getReadyByHandleType(Class<?> in_class) {
 		return tree.getReadyByHandleType(in_class);
 	}
 	
-	public void addDriverFactory(UsbDriverFactory<?, ?, ?> factory) {
+	public void addDriverFactory(UsbDriverFactory<?, ?> factory) {
 		tree.addDriverFactory(factory);
 	}
 	
-	public <R extends DriverRequest, H extends DriverHandle<R, ?>, A extends Driver<UsbDevice, R, H>> H startDriver(Requester requester, UsbDevice device, UsbDriverFactory<R, H, A> factory) {
+	public <H extends BaseDriverHandle<?, ?>, A extends BaseDriver<UsbDevice, H>> H startDriver(BaseRequester requester, UsbDevice device, UsbDriverFactory<H, A> factory) {
 		Log.log(this, "Starting driver from factory %s", factory);
 		A driver = factory.makeDriver(cert, device);
 		requester.generalNotifyChildDriver(cert, driver);
@@ -109,7 +108,7 @@ public final class UsbService extends Service<UsbServiceRequest, UsbServiceHandl
 	}
 
 	@Override
-	protected void onRequestComplete(Request in) {
+	protected void onRequestComplete(BaseRequest<?, ?> in) {
 	}
 
 	@Override

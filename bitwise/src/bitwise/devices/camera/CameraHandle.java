@@ -2,9 +2,9 @@ package bitwise.devices.camera;
 
 import java.util.List;
 
-import bitwise.devices.DriverRequest;
+import bitwise.devices.BaseDriverRequest;
 
-public interface CameraHandle<R extends DriverRequest> {
+public interface CameraHandle<R extends BaseDriverRequest<?, ?>> {
 	public void setCameraEventListener(CameraListener in);
 	
 	public int getBatteryRemaining();

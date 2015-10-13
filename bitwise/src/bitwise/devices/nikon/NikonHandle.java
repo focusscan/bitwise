@@ -15,7 +15,7 @@ import bitwise.devices.camera.StorageDevice;
 import bitwise.devices.nikon.NikonCameraRequest;
 import bitwise.devices.usbptpcamera.UsbPtpCameraHandle;
 
-public class NikonHandle extends UsbPtpCameraHandle<NikonCameraRequest, NikonBase> implements CameraHandle<NikonCameraRequest> {
+public class NikonHandle extends UsbPtpCameraHandle<NikonCameraRequest<?>, NikonBase> implements CameraHandle<NikonCameraRequest<?>> {
 	protected NikonHandle(NikonBase in_service) {
 		super(in_service);
 	}
@@ -45,7 +45,7 @@ public class NikonHandle extends UsbPtpCameraHandle<NikonCameraRequest, NikonBas
 	}
 
 	@Override
-	public NikonCameraRequest takePicture(StorageDevice in_storage, ImageFormat in_format) {
+	public NikonCameraRequest<?> takePicture(StorageDevice in_storage, ImageFormat in_format) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -63,7 +63,7 @@ public class NikonHandle extends UsbPtpCameraHandle<NikonCameraRequest, NikonBas
 	}
 
 	@Override
-	public NikonCameraRequest setFNumber(FNumber in) {
+	public NikonCameraRequest<?> setFNumber(FNumber in) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -81,7 +81,7 @@ public class NikonHandle extends UsbPtpCameraHandle<NikonCameraRequest, NikonBas
 	}
 
 	@Override
-	public NikonCameraRequest setExposureTime(ExposureTime in) {
+	public NikonCameraRequest<?> setExposureTime(ExposureTime in) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -99,7 +99,7 @@ public class NikonHandle extends UsbPtpCameraHandle<NikonCameraRequest, NikonBas
 	}
 
 	@Override
-	public NikonCameraRequest setIso(Iso in) {
+	public NikonCameraRequest<?> setIso(Iso in) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -117,7 +117,7 @@ public class NikonHandle extends UsbPtpCameraHandle<NikonCameraRequest, NikonBas
 	}
 
 	@Override
-	public NikonCameraRequest setExposureMode(ExposureMode in) {
+	public NikonCameraRequest<?> setExposureMode(ExposureMode in) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -135,7 +135,7 @@ public class NikonHandle extends UsbPtpCameraHandle<NikonCameraRequest, NikonBas
 	}
 
 	@Override
-	public NikonCameraRequest setFocusMode(FocusMode in) {
+	public NikonCameraRequest<?> setFocusMode(FocusMode in) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -153,7 +153,7 @@ public class NikonHandle extends UsbPtpCameraHandle<NikonCameraRequest, NikonBas
 	}
 
 	@Override
-	public NikonCameraRequest setFlashMode(FlashMode in) {
+	public NikonCameraRequest<?> setFlashMode(FlashMode in) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -1,23 +1,20 @@
 package bitwise.engine.service;
 
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import bitwise.engine.config.Configuration;
-import bitwise.engine.service.requests.RequestStatus;
 import bitwise.engine.supervisor.Supervisor;
 import bitwise.log.Log;
 
-public final class ServiceRequestHandler<R extends Request> {
-	private final Service<R, ?> service;
-	private final ServiceCertificate cert;
-	private final LinkedBlockingQueue<Request> incomingRequests;
+public final class ServiceRequestHandler {
+	private final ServiceRequestHandlerCertificate cert = new ServiceRequestHandlerCertificate();
+	private final BaseService<?> service;
+	private final BlockingQueue<BaseRequest<?, ?>> incomingRequests = new LinkedBlockingQueue<>();;
 	private Runnable requestTask = null;
 	private Thread requestThread = null;
 	
-	protected ServiceRequestHandler(Service<R, ?> in_service, ServiceCertificate in_cert) {
+	protected ServiceRequestHandler(BaseService<?> in_service) {
 		service = in_service;
-		cert = in_cert;
-		incomingRequests = new LinkedBlockingQueue<>(Configuration.getInstance().getIncomingRequestQueueSize());
 		requestTask = new Runnable() {
 			@Override
 			public void run() {
@@ -28,12 +25,20 @@ public final class ServiceRequestHandler<R extends Request> {
 					}
 					Log.log(service, "ServiceRequestHandler started");
 					while (!Thread.interrupted()) {
-						Request request = incomingRequests.take();
+						BaseRequest<?, ?> request = incomingRequests.take();
+						Log.log(service, "Next request %s", request);
 						RequestContext ctx = new RequestContext();
-						if (request.getRequestStatus() == RequestStatus.Served)
-							request.epilogueRequest(cert, ctx);
-						else
+						if (request.getRequestStatus() == RequestStatus.EnqueuedServe) {
+							Log.log(service, "Serving %s", request);
 							request.serveRequest(cert, ctx);
+						}
+						else if (request.getRequestStatus() == RequestStatus.EnqueuedEpilogue) {
+							Log.log(service, "Epilogueing %s", request);
+							request.epilogueRequest(cert, ctx);
+						}
+						else {
+							Log.log(service, "Not touching %s (status %s)", request, request.getRequestStatus());
+						}
 						ctx.invalidate();
 					}
 				} catch (InterruptedException e) {
@@ -49,22 +54,16 @@ public final class ServiceRequestHandler<R extends Request> {
 		};
 	}
 	
-	protected void enqueueRequest(R in) {
-		if (in.tryEnqueueServeRequest(cert))
-			incomingRequests.add(in);
+	protected BlockingQueue<BaseRequest<?, ?>> getIncomingRequests() {
+		return incomingRequests;
 	}
 	
-	protected void enqueueEpilogue(Request in) {
-		if (in.tryEnqueueEpilogueRequest(cert))
-			incomingRequests.add(in);
-	}
-	
-	public synchronized boolean serviceIsRunning() {
+	protected synchronized boolean serviceIsRunning() {
 		return (null != requestThread && requestThread.isAlive());
 	}
 	
 	protected synchronized void startRequestHandler(ServiceCertificate in_cert) {
-		if (in_cert != cert)
+		if (null == in_cert)
 			throw new IllegalArgumentException("ServiceCertificate");
 		if (!serviceIsRunning()) {
 			requestThread = new Thread(requestTask);
@@ -74,7 +73,7 @@ public final class ServiceRequestHandler<R extends Request> {
 	}
 	
 	protected synchronized void stopRequestHandler(ServiceCertificate in_cert) throws InterruptedException {
-		if (in_cert != cert)
+		if (null == in_cert)
 			throw new IllegalArgumentException("ServiceCertificate");
 		if (serviceIsRunning()) {
 			requestThread.interrupt();

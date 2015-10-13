@@ -1,8 +1,8 @@
 package bitwise.engine.service;
 
-import bitwise.apps.App;
+import bitwise.apps.BaseApp;
 import bitwise.appservice.AppServiceCertificate;
-import bitwise.devices.Driver;
+import bitwise.devices.BaseDriver;
 import bitwise.devices.usbservice.UsbServiceCertificate;
 import bitwise.engine.Thing;
 import bitwise.engine.config.Configuration;
@@ -13,20 +13,20 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-public abstract class Service<R extends Request, H extends ServiceHandle<R, ?>> extends Thing<ServiceID> implements Requester {
+public abstract class BaseService<H extends BaseServiceHandle<?, ?>> extends Thing<ServiceID> implements BaseRequester {
 	private final ServiceCertificate cert = new ServiceCertificate();
-	private ServiceRequestHandler<R> requestHandler;
-	private ObservableList<ServiceTask> serviceTasks = FXCollections.observableArrayList();
-	private ObservableList<Request> outRequests = FXCollections.observableArrayList();
-	private ObservableList<App<?, ?>> childServices = FXCollections.observableArrayList();
-	private ObservableList<Driver<?, ?, ?>> childDrivers = FXCollections.observableArrayList();
+	private ServiceRequestHandler requestHandler;
+	private ObservableList<BaseServiceTask> serviceTasks = FXCollections.observableArrayList();
+	private ObservableList<BaseRequest<?, ?>> outRequests = FXCollections.observableArrayList();
+	private ObservableList<BaseApp<?>> childServices = FXCollections.observableArrayList();
+	private ObservableList<BaseDriver<?, ?>> childDrivers = FXCollections.observableArrayList();
 	
-	protected Service() {
+	protected BaseService() {
 		super(new ServiceID());
-		requestHandler = new ServiceRequestHandler<>(this, cert);
+		requestHandler = new ServiceRequestHandler(this);
 	}
 	
-	protected final ServiceRequestHandler<R> getRequestHandler() {
+	protected final ServiceRequestHandler getRequestHandler() {
 		return requestHandler;
 	}
 	
@@ -58,10 +58,10 @@ public abstract class Service<R extends Request, H extends ServiceHandle<R, ?>> 
 				Log.log(this, "Stopping request handler");
 				requestHandler.stopRequestHandler(cert);
 				Log.log(this, "Stopping service tasks");
-				for (ServiceTask serviceTask : serviceTasks)
+				for (BaseServiceTask serviceTask : serviceTasks)
 					serviceTask.stopTask(cert);
 				Log.log(this,  "Stopping drivers");
-				for (Driver<?, ?, ?> driver : childDrivers)
+				for (BaseDriver<?, ?> driver : childDrivers)
 					Supervisor.getInstance().stopService(driver);
 				Log.log(this, "Service stopped");
 			}
@@ -85,7 +85,7 @@ public abstract class Service<R extends Request, H extends ServiceHandle<R, ?>> 
 		stopThread.start();
 	}
 	
-	protected final void addServiceTask(ServiceTask serviceTask) {
+	protected final void addServiceTask(BaseServiceTask serviceTask) {
 		Log.log(this, "Adding task %s", serviceTask);
 		Platform.runLater(new Runnable() {
 			@Override
@@ -96,17 +96,17 @@ public abstract class Service<R extends Request, H extends ServiceHandle<R, ?>> 
 		serviceTask.startTask(cert);
 	}
 	
-	protected final void notifyServiceTaskDone(ServiceTask serviceTask) {
+	protected final void notifyServiceTaskDone(BaseServiceTask serviceTask) {
 		Log.log(this, "Task %s done", serviceTask);
 		if (!Configuration.getInstance().rememberDoneServiceTasks())
 			serviceTasks.remove(serviceTask);
 	}
 	
 	@Override
-	public final void generalNotifyChildApp(AppServiceCertificate appCert, App<?, ?> in) {
+	public final void generalNotifyChildApp(AppServiceCertificate appCert, BaseApp<?> in) {
 		if (null == cert)
 			throw new IllegalArgumentException("AppServiceCertificate");
-		Service<?, ?> thing = this;
+		BaseService<?> thing = this;
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
@@ -117,10 +117,10 @@ public abstract class Service<R extends Request, H extends ServiceHandle<R, ?>> 
 	}
 	
 	@Override
-	public final void generalNotifyChildDriver(UsbServiceCertificate usbCert, Driver<?, ?, ?> in) {
+	public final void generalNotifyChildDriver(UsbServiceCertificate usbCert, BaseDriver<?, ?> in) {
 		if (null == cert)
 			throw new IllegalArgumentException("UsbServiceCertificate");
-		Service<?, ?> thing = this;
+		BaseService<?> thing = this;
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
@@ -130,8 +130,9 @@ public abstract class Service<R extends Request, H extends ServiceHandle<R, ?>> 
 		});
 	}
 	
-	public final void generalNotifyRequestEnqueued(Request in) {
-		Service<?, ?> thing = this;
+	@Override
+	public final void generalNotifyRequestEnqueued(BaseRequest<?, ?> in) {
+		BaseService<?> thing = this;
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
@@ -141,10 +142,10 @@ public abstract class Service<R extends Request, H extends ServiceHandle<R, ?>> 
 		});
 	}
 	
-	protected abstract void onRequestComplete(Request in);
+	protected abstract void onRequestComplete(BaseRequest<?, ?> in);
 	
 	@Override
-	public final void generalNotifyRequestComplete(Request in) throws InterruptedException {
+	public final void generalNotifyRequestComplete(BaseRequest<?, ?> in) {
 		Log.log(this, "(Outbound) request complete notification %s", in);
 		if (!Configuration.getInstance().rememberDoneRequests()) {
 			Platform.runLater(new Runnable() {
@@ -155,11 +156,11 @@ public abstract class Service<R extends Request, H extends ServiceHandle<R, ?>> 
 			});
 		}
 		onRequestComplete(in);
-		requestHandler.enqueueEpilogue(in);
+		getServiceHandle().enqueueEpilogue(cert, in);
 	}
 	
 	@Override
-	public void generalNotifyRequestFailure(Request in) {
+	public final void generalNotifyRequestFailure(BaseRequest<?, ?> in) {
 		Log.log(this, "(Outbound) request failure notification %s", in);
 		if (!Configuration.getInstance().rememberDoneRequests()) {
 			Platform.runLater(new Runnable() {
@@ -170,5 +171,6 @@ public abstract class Service<R extends Request, H extends ServiceHandle<R, ?>> 
 			});
 		}
 		onRequestComplete(in);
+		getServiceHandle().enqueueEpilogue(cert, in);
 	}
 }

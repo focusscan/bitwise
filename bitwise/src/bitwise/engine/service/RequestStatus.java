@@ -1,4 +1,4 @@
-package bitwise.engine.service.requests;
+package bitwise.engine.service;
 
 public enum RequestStatus {
 	Created,
