@@ -26,7 +26,7 @@ public class CanonEventResponse implements Response {
 	private UInt32 exposureMode = null;
 	private short[] validExposureModes = null;
 	private UInt32 exposureTime = null;
-	private int[] validExposureTimes = null;
+	private short[] validExposureTimes = null;
 	private UInt32 fNumber = null;
 	private short[] validFNumbers = null;
 	private UInt32 focusMode = null;
@@ -71,6 +71,8 @@ public class CanonEventResponse implements Response {
 		} else if (property == CanonDevicePropCode.ExposureTime.asInt32().getValue()) {
 			if (recordType == CurrentValue)
 				exposureTime = data.get(2);
+			else if (recordType == ValidRange)
+				validExposureTimes = toArray(data, 4);
 		} else if (property == CanonDevicePropCode.FNumber.asInt32().getValue()) {
 			if (recordType == CurrentValue)
 				fNumber = data.get(2);
@@ -129,9 +131,14 @@ public class CanonEventResponse implements Response {
 	}
 	
 	public int[] getValidExposureTimes() {
-		int[] temp = new int[1];
-		temp[0] = exposureTime.getValue();
-		return temp;
+		if (null == validExposureTimes)
+			return null;
+		
+		int[] ret = new int[validExposureTimes.length];
+		for (int i = 0; i < validExposureTimes.length; i++) {
+			ret[i] = validExposureTimes[i];
+		}
+		return ret;
 	}
 	
 	public short getFNumber() {

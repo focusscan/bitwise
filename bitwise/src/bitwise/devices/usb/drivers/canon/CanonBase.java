@@ -114,6 +114,7 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 	protected void cmd_fetchAllCameraProperties() {
 		CanonEventResponse evtData = parseCameraEvent();
 		updateExposureIndex(evtData);
+		updateExposureTime(evtData);
 		updateExposureMode(evtData);
 		updateFNumber(evtData);
 		updateFocusMode(evtData);
@@ -373,6 +374,13 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 		} else {
 			bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new ExposureTimeChanged(this, prop_exposureTime, prop_exposureTimeValid));
 		}
+	}
+	
+	@Override
+	protected boolean cmd_setExposureTime(ExposureTime in) throws UsbNotActiveException, UsbNotOpenException, UsbDisconnectedException, InterruptedException, UsbException {
+		runOperation(new SetDevicePropValueEx(CanonDevicePropCode.ExposureTime, new UInt32(in.getValue())));
+		cmd_fetchAllCameraProperties();
+		return true;
 	}
 	
 	@Override
