@@ -1,13 +1,18 @@
 package bitwise.engine.service;
 
+import java.util.concurrent.BlockingQueue;
+
 import bitwise.log.Log;
 
 public abstract class BaseServiceHandle<R extends BaseRequest<?, ?>, S extends BaseService<?>> {
-	private final ServiceHandleCertificate cert = new ServiceHandleCertificate();
+	private final ServiceHandleCertificate cert;
 	private final S service;
+	private final BlockingQueue<BaseRequest<?, ?>> incomingRequests;
 	
 	protected BaseServiceHandle(S in_service) {
+		cert = new ServiceHandleCertificate();
 		service = in_service;
+		incomingRequests = service.getRequestHandler().getIncomingRequests(cert);
 	}
 	
 	protected final S getService() {
@@ -18,7 +23,7 @@ public abstract class BaseServiceHandle<R extends BaseRequest<?, ?>, S extends B
 		if (!(in instanceof BaseRequest<?, ?>))
 			throw new IllegalArgumentException("Request");
 		if (in.tryEnqueueServeRequest(cert)) {
-			service.getRequestHandler().getIncomingRequests().add(in);
+			incomingRequests.add(in);
 			in.getService().generalNotifyRequestEnqueued(in);
 			Log.log(service, "Enqueued for serving: %s", in);
 		}
@@ -30,7 +35,7 @@ public abstract class BaseServiceHandle<R extends BaseRequest<?, ?>, S extends B
 		if (null == serviceCert)
 			throw new IllegalArgumentException("ServiceCertificate");
 		if (in.tryEnqueueEpilogueRequest(cert)) {
-			service.getRequestHandler().getIncomingRequests().add(in);
+			incomingRequests.add(in);
 			Log.log(service, "Enqueued for epilogue: %s", in);
 		}
 		else

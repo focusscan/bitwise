@@ -54,7 +54,9 @@ public final class ServiceRequestHandler {
 		};
 	}
 	
-	protected BlockingQueue<BaseRequest<?, ?>> getIncomingRequests() {
+	protected BlockingQueue<BaseRequest<?, ?>> getIncomingRequests(ServiceHandleCertificate shCert) {
+		if (null == shCert)
+			throw new IllegalArgumentException("ServiceHandleCertificate");
 		return incomingRequests;
 	}
 	
