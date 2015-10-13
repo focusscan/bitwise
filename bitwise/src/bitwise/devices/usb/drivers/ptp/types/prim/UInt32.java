@@ -19,10 +19,10 @@ public class UInt32 extends Int32 {
 		}
 	};
 	
-	public static final Decoder<CanonArr<UInt32>> canonArrayDecoder = new Decoder<CanonArr<UInt32>>() {
+	public static final Decoder<CanonArr> canonArrayDecoder = new Decoder<CanonArr>() {
 		@Override
-		public CanonArr<UInt32> decode(ByteBuffer in) {
-			return new CanonArr<>(decoder, in);
+		public CanonArr decode(ByteBuffer in) {
+			return new CanonArr(decoder, in);
 		}
 	};
 	

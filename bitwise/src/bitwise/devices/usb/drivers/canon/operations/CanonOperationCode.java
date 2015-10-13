@@ -2,7 +2,6 @@ package bitwise.devices.usb.drivers.canon.operations;
 
 import java.nio.ByteBuffer;
 
-import bitwise.devices.usb.drivers.ptp.types.Code;
 import bitwise.devices.usb.drivers.ptp.types.operations.OperationCode;
 import bitwise.devices.usb.drivers.ptp.types.prim.Decoder;
 

@@ -20,17 +20,13 @@ import bitwise.devices.kinds.fullcamera.ImageFormat;
 import bitwise.devices.kinds.fullcamera.StorageDevice;
 import bitwise.devices.kinds.fullcamera.events.*;
 import bitwise.devices.usb.UsbContext;
-import bitwise.devices.usb.drivers.canon.operations.GetDeviceInfoEx;
-import bitwise.devices.usb.drivers.canon.operations.GetDevicePropValue;
 import bitwise.devices.usb.drivers.canon.operations.GetEvent;
-import bitwise.devices.usb.drivers.canon.operations.SetDevicePropValueEx;
 import bitwise.devices.usb.drivers.canon.operations.SetEventMode;
 import bitwise.devices.usb.drivers.canon.operations.SetRemoteMode;
+import bitwise.devices.usb.drivers.canon.responses.CanonEventResponse;
 import bitwise.devices.usb.drivers.ptp.PtpCamera;
-import bitwise.devices.usb.drivers.ptp.types.ObjectFormatCode;
 import bitwise.devices.usb.drivers.ptp.types.events.Event;
-import bitwise.devices.usb.drivers.ptp.types.prim.Arr;
-import bitwise.devices.usb.drivers.ptp.types.prim.PtpType;
+import bitwise.devices.usb.drivers.ptp.types.prim.UInt32;
 
 public abstract class CanonBase extends PtpCamera implements FullCamera {
 	private static final byte interfaceAddr = (byte)0x00;
@@ -38,12 +34,39 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 	private static final byte dataOutEPNum = (byte)0x81;
 	private static final byte interruptEPNum = (byte)0x83;
 	
+	private UInt32 prop_batteryLevel = null;
+	private ExposureIndex prop_exposureIndex = null;
+	private List<ExposureIndex> prop_exposureIndexValid = null;
+	private ExposureMode prop_exposureMode = null;
+	private List<ExposureMode> prop_exposureModeValid = null;
+	private ExposureTime prop_exposureTime = null;
+	private List<ExposureTime> prop_exposureTimeValid = null;
+	private FNumber prop_fNumber = null;
+	private List<FNumber> prop_fNumberValid = null;
+	private FocusMode prop_focusMode = null;
+	private List<FocusMode> prop_focusModeValid = null;
+	
+	private FlashMode prop_flashMode = null;
+	private List<FlashMode> prop_flashModeValid = null;
+	
 	public CanonBase(App in_app) {
 		super(interfaceAddr, dataOutEPNum, dataInEPNum, interruptEPNum, in_app);
 	}
 	
 	@Override
 	protected boolean onPtpInitialize(UsbContext ctx) {
+		SetRemoteMode setRemoteMode = new SetRemoteMode();
+		SetEventMode setEventMode = new SetEventMode();
+		
+		try {
+			runOperation(setRemoteMode);
+			runOperation(setEventMode);
+		} catch (UsbNotActiveException | UsbNotOpenException | UsbDisconnectedException | InterruptedException
+				| UsbException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}		
 		return true;
 	}
 	
@@ -55,6 +78,19 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 	@Override
 	protected boolean handleEvent(Event preEvent) {
 		return super.handleEvent(preEvent);
+	}
+	
+	protected CanonEventResponse parseCameraEvent() {
+		GetEvent getEvent = new GetEvent();
+		try {
+			runOperation(getEvent);
+		} catch (UsbNotActiveException | UsbNotOpenException | UsbDisconnectedException | InterruptedException
+				| UsbException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		CanonEventResponse evtData = getEvent.getResponseData();
+		return evtData;
 	}
 	
 	private List<StorageDevice> storageDevices = null;
@@ -72,23 +108,27 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 	
 	@Override
 	protected void cmd_fetchAllCameraProperties() {
-		SetRemoteMode setRemoteMode = new SetRemoteMode();
-		SetEventMode setEventMode = new SetEventMode();
-		GetEvent getEvent = new GetEvent();
-		GetDevicePropValue getDevicePropValue = new GetDevicePropValue();
-		GetDeviceInfoEx getDeviceInfoEx = new GetDeviceInfoEx();
-		SetDevicePropValueEx setDevicePropValueEx = new SetDevicePropValueEx();
-		try {
-			runOperation(setRemoteMode);
-			runOperation(setEventMode);
-			runOperation(getEvent);
-			runOperation(setDevicePropValueEx);
+			CanonEventResponse evtData = parseCameraEvent();
+//			prop_batteryLevel = evtData.getBatteryLevel();
+			short[] exivals = new short[1];
+			exivals[0] = (short)evtData.getExposureIndex().getValue();
+			exposureIndexChanged((short)evtData.getExposureIndex().getValue(), exivals);
 			
-		} catch (UsbNotActiveException | UsbNotOpenException | UsbDisconnectedException | InterruptedException
-				| UsbException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			short[] exvals = new short[1];
+			exvals[0] = (short)evtData.getExposureMode().getValue();
+			exposureModeChanged((short)evtData.getExposureMode().getValue(), exvals);
+			
+			int[] extvals = new int[1];
+			extvals[0] = evtData.getExposureTime().getValue();
+			exposureTimeChanged(evtData.getExposureTime().getValue(), extvals);
+			
+			short[] fnvals = new short[1];
+			fnvals[0] = (short)evtData.getFNumber().getValue();
+			fNumberChanged((short)evtData.getFNumber().getValue(), fnvals);
+			
+			short[] focus = new short[1];
+			focus[0] = (short)evtData.getFocusMode().getValue();
+			focusModeChanged((short)evtData.getFocusMode().getValue(), focus);
 	}
 	
 	private ImageFormat decode_imageFormat(short in) {
@@ -191,10 +231,6 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 		return new ArrayList<ImageFormat>();
 	}
 	
-	
-	private ExposureMode prop_exposureMode = null;
-	private List<ExposureMode> prop_exposureModeValid = null;
-	
 	@Override
 	public ExposureMode getExposureMode() {
 		return prop_exposureMode;
@@ -208,38 +244,26 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 	private ExposureMode decode_exposureMode(short in) {
 		String name = null;
 		switch (in) {
+			case (short) 0x0000:
+				name = "Program";
+				break;
 			case (short) 0x0001:
-				name = "[M]anual";
+				name = "Tv";
 				break;
 			case (short) 0x0002:
-				name = "[P]ortrait";
+				name = "Av";
 				break;
 			case (short) 0x0003:
-				name = "[A]perture Priority";
+				name = "Manual";
 				break;
 			case (short) 0x0004:
-				name = "[S]hutter Priority";
+				name = "Bulb";
 				break;
-			case (short) 0x8010:
-				name = "AUTO";
+			case (short) 0x0009:
+				name = "Auto";
 				break;
-			case (short) 0x8011:
-				name = "Portrait";
-				break;
-			case (short) 0x8012:
-				name = "Landscape";
-				break;
-			case (short) 0x8013:
-				name = "Close up";
-				break;
-			case (short) 0x8014:
-				name = "Sports";
-				break;
-			case (short) 0x8016:
-				name = "Flash prohib";
-				break;
-			case (short) 0x8017:
-				name = "Child";
+			case (short) 0x0013:
+				name = "Creative Auto";
 				break;
 			default:
 				name = String.format("[code %04x]", in);
@@ -255,9 +279,6 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 			prop_exposureModeValid.add(decode_exposureMode(v));
 		bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new ExposureModeChanged(this, prop_exposureMode, prop_exposureModeValid));
 	}
-	
-	private FNumber prop_fNumber = null;
-	private List<FNumber> prop_fNumberValid = null;
 	
 	@Override
 	public FNumber getFNumber() {
@@ -290,9 +311,6 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 		bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new FocalLengthChanged(this, in));
 	}
 	
-	private FocusMode prop_focusMode;
-	private List<FocusMode> prop_focusModeValid;
-	
 	@Override
 	public FocusMode getFocusMode() {
 		return prop_focusMode;
@@ -306,20 +324,14 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 	private FocusMode decode_focusMode(short in) {
 		String name = null;
 		switch (in) {
+			case (short) 0x0000:
+				name = "One Shot";
+				break;
 			case (short) 0x0001:
-				name = "[M]anual";
+				name = "AI Focus";
 				break;
-			case (short) 0x8010:
-				name = "[S]ingle AF";
-				break;
-			case (short) 0x8011:
-				name = "[C]ontinuous AF";
-				break;
-			case (short) 0x8012:
-				name = "[A]F auto switching";
-				break;
-			case (short) 0x8013:
-				name = "[F] Constant AF";
+			case (short) 0x0002:
+				name = "AI Servo";
 				break;
 			default:
 				name = String.format("[code %04x]", in);
@@ -335,9 +347,6 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 			prop_focusModeValid.add(decode_focusMode(v));
 		bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new FocusModeChanged(this, prop_focusMode, prop_focusModeValid));
 	}
-	
-	private FlashMode prop_flashMode;
-	private List<FlashMode> prop_flashModeValid;
 	
 	@Override
 	public FlashMode getFlashMode() {
@@ -385,9 +394,6 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 		bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new FlashModeChanged(this, prop_flashMode, prop_flashModeValid));
 	}
 	
-	private ExposureTime prop_exposureTime = null;
-	private List<ExposureTime> prop_exposureTimeValid = null;
-	
 	@Override
 	public ExposureTime getExposureTime() {
 		return prop_exposureTime;
@@ -399,8 +405,178 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 	}
 	
 	private ExposureTime decode_exposureTime(int in) {
-		float time = ((float)in) / 10000;
-		return new ExposureTime(String.format("%fs", time), in);
+		String name = null;
+		switch (in) {
+		case 0:
+			name = "30s";
+			break;
+		case 1:
+			name = "25s";
+			break;
+		case 2:
+			name = "20s";
+			break;
+		case 3:
+			name = "15s";
+			break;
+		case 4:
+			name = "13s";
+			break;
+		case 5:
+			name = "10s";
+			break;
+		case 6:
+			name = "8s";
+			break;
+		case 7:
+			name = "6s";
+			break;
+		case 8:
+			name = "5s";
+			break;
+		case 9:
+			name = "4s";
+			break;
+		case 10:
+			name = "3.2s";
+			break;
+		case 11:
+			name = "2.5s";
+			break;
+		case 12:
+			name = "2s";
+			break;
+		case 13:
+			name = "1.6s";
+			break;
+		case 14:
+			name = "1.3s";
+			break;
+		case 15:
+			name = "1s";
+			break;
+		case 16:
+			name = "0.8s";
+			break;
+		case 17:
+			name = "0.6s";
+			break;
+		case 18:
+			name = "0.5s";
+			break;
+		case 19:
+			name = "0.4s";
+			break;
+		case 20:
+			name = "0.3s";
+			break;
+		case 21:
+			name = "1/4s";
+			break;
+		case 22:
+			name = "1/5s";
+			break;
+		case 23:
+			name = "1/6s";
+			break;
+		case 24:
+			name = "1/8s";
+			break;
+		case 25:
+			name = "1/10s";
+			break;
+		case 26:
+			name = "1/13s";
+			break;
+		case 27:
+			name = "1/15s";
+			break;
+		case 28:
+			name = "1/20s";
+			break;
+		case 29:
+			name = "1/25s";
+			break;
+		case 30:
+			name = "1/30s";
+			break;
+		case 31:
+			name = "1/40s";
+			break;
+		case 32:
+			name = "1/50s";
+			break;
+		case 33:
+			name = "1/60s";
+			break;
+		case 34:
+			name = "1/80s";
+			break;
+		case 35:
+			name = "1/100s";
+			break;
+		case 36:
+			name = "1/125s";
+			break;
+		case 37:
+			name = "1/160s";
+			break;
+		case 38:
+			name = "1/200s";
+			break;
+		case 39:
+			name = "1/250s";
+			break;
+		case 40:
+			name = "1/320s";
+			break;
+		case 41:
+			name = "1/400s";
+			break;
+		case 42:
+			name = "1/500s";
+			break;
+		case 43:
+			name = "1/640s";
+			break;
+		case 44:
+			name = "1/800s";
+			break;
+		case 45:
+			name = "1/1000s";
+			break;
+		case 46:
+			name = "1/1250s";
+			break;
+		case 47:
+			name = "1/1600s";
+			break;
+		case 48:
+			name = "1/2000s";
+			break;
+		case 49:
+			name = "1/2500s";
+			break;
+		case 50:
+			name = "1/3200s";
+			break;
+		case 51:
+			name = "1/4000s";
+			break;
+		case 52:
+			name = "1/5000s";
+			break;
+		case 53:
+			name = "1/6400s";
+			break;
+		case 0x63:
+			name = "1/8000s";
+			break;
+			
+		default:
+			name = String.format("[code %04x]", in);
+	}
+		return new ExposureTime(name, in);
 	}
 	
 	@Override
@@ -411,9 +587,6 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 			prop_exposureTimeValid.add(decode_exposureTime(v));
 		bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new ExposureTimeChanged(this, prop_exposureTime, prop_exposureTimeValid));
 	}
-	
-	private ExposureIndex prop_exposureIndex = null;
-	private List<ExposureIndex> prop_exposureIndexValid = null;
 	
 	@Override
 	public ExposureIndex getExposureIndex() {
@@ -426,7 +599,39 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 	}
 	
 	private ExposureIndex decode_exposureIndex(short in) {
-		return new ExposureIndex(String.format("%s", in), in);
+		String name = null;
+		switch (in) {
+			case (short) 0x0:
+				name = "Auto";
+				break;
+			case (short) 0x40:
+				name = "100";
+				break;
+			case (short) 0x50:
+				name = "200";
+				break;
+			case (short) 0x58:
+				name = "400";
+				break;
+			case (short) 0x60:
+				name = "800";
+				break;
+			case (short) 0x68:
+				name = "1600";
+				break;
+			case (short) 0x70:
+				name = "3200";
+				break;
+			case (short) 0x78:
+				name = "6400";
+				break;
+			case (short) 0x80:
+				name = "12800";
+				break;
+			default:
+				name = String.format("[code %04x]", in);
+		}
+		return new ExposureIndex(name, in);
 	}
 	
 	@Override
