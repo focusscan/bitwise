@@ -3,7 +3,7 @@ package bitwise.apps.focusscan;
 import bitwise.apps.BaseAppFactory;
 import bitwise.log.Log;
 
-public final class FocusScanFactory extends BaseAppFactory<FocusScanHandle, FocusScan> {
+public final class FocusScanFactory extends BaseAppFactory<FocusScanHandle> {
 	private static FocusScanFactory instance;
 	public static FocusScanFactory getInstance() {
 		if (null == instance) {

@@ -1,6 +1,5 @@
 package bitwise.devices.usbservice;
 
-import bitwise.devices.BaseDriver;
 import bitwise.devices.BaseDriverHandle;
 import bitwise.devices.usbservice.requests.AddUsbDriverFactory;
 import bitwise.devices.usbservice.requests.AddUsbDriverFactoryRequester;
@@ -15,7 +14,7 @@ public final class UsbServiceHandle extends BaseServiceHandle<UsbServiceRequest<
 		super(in_service);
 	}
 	
-	public ObservableList<UsbDriverFactory<?, ?>> getDriverFactoryList() {
+	public ObservableList<UsbDriverFactory<?>> getDriverFactoryList() {
 		return getService().getDriverFactoryList();
 	}
 	
@@ -23,19 +22,23 @@ public final class UsbServiceHandle extends BaseServiceHandle<UsbServiceRequest<
 		return getService().getDeviceList();
 	}
 	
-	public ObservableList<UsbReady<?, ?>> getReadyList() {
+	public ObservableList<UsbReady<?>> getReadyList() {
 		return getService().getReadyList();
 	}
 	
-	public FilteredList<UsbReady<?, ?>> getReadyByHandleType(Class<?> in_class) {
+	public FilteredList<UsbReady<?>> getReadyByHandleType(Class<?> in_class) {
 		return getService().getReadyByHandleType(in_class);
 	}
 	
-	public <H extends BaseDriverHandle<?, ?>, A extends BaseDriver<UsbDevice, H>> AddUsbDriverFactory<H, A> addUsbDriverFactory(AddUsbDriverFactoryRequester requester, UsbDriverFactory<H, A> factory) {
-		return new AddUsbDriverFactory<>(getService(), requester, factory);
+	public <H extends BaseDriverHandle<?, ?>> AddUsbDriverFactory<H> addUsbDriverFactory(AddUsbDriverFactoryRequester requester, UsbDriverFactory<H> factory) {
+		AddUsbDriverFactory<H> request = new AddUsbDriverFactory<>(getService(), requester, factory);
+		this.enqueueRequest(request);
+		return request;
 	}
 	
-	public <H extends BaseDriverHandle<?, ?>, A extends BaseDriver<UsbDevice, H>> StartUsbDriver<H, A> startUsbDriver(StartUsbDriverRequester requester, UsbReady<H, A> ready) {
-		return new StartUsbDriver<>(getService(), requester, ready);
+	public <H extends BaseDriverHandle<?, ?>> StartUsbDriver<H> startUsbDriver(StartUsbDriverRequester requester, UsbReady<H> ready) {
+		StartUsbDriver<H> request = new StartUsbDriver<>(getService(), requester, ready);
+		this.enqueueRequest(request);
+		return request;
 	}
 }

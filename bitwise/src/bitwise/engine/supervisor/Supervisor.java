@@ -4,7 +4,6 @@ import bitwise.MainCertificate;
 import bitwise.apps.BaseAppFactory;
 import bitwise.appservice.AppService;
 import bitwise.appservice.AppServiceHandle;
-import bitwise.appservice.AppServiceRequest;
 import bitwise.appservice.requests.AddAppFactory;
 import bitwise.appservice.requests.AddAppFactoryRequester;
 import bitwise.appservice.requests.StartApp;
@@ -12,7 +11,6 @@ import bitwise.appservice.requests.StartAppRequester;
 import bitwise.devices.usbservice.UsbDriverFactory;
 import bitwise.devices.usbservice.UsbService;
 import bitwise.devices.usbservice.UsbServiceHandle;
-import bitwise.devices.usbservice.UsbServiceRequest;
 import bitwise.devices.usbservice.requests.AddUsbDriverFactory;
 import bitwise.devices.usbservice.requests.AddUsbDriverFactoryRequester;
 import bitwise.engine.service.BaseRequest;
@@ -64,22 +62,19 @@ public final class Supervisor extends BaseService<SupervisorHandle> implements A
 		}
 	}
 	
-	public void addAppFactory(MainCertificate mainCert, BaseAppFactory<?, ?> factory) {
+	public void addAppFactory(MainCertificate mainCert, BaseAppFactory<?> factory) {
 		AppServiceHandle appService = getAppServiceHandle();
-		AppServiceRequest<?> request = appService.addAppFactory(this, factory);
-		appService.enqueueRequest(request);
+		appService.addAppFactory(this, factory);
 	}
 	
-	public void startApp(MainCertificate mainCert, BaseAppFactory<?, ?> factory) {
+	public void startApp(MainCertificate mainCert, BaseAppFactory<?> factory) {
 		AppServiceHandle appService = getAppServiceHandle();
-		AppServiceRequest<?> request = appService.startApp(this, factory);
-		appService.enqueueRequest(request);
+		appService.startApp(this, factory);
 	}
 	
-	public void addUsbDriverFactory(MainCertificate mainCert, UsbDriverFactory<?, ?> factory) {
+	public void addUsbDriverFactory(MainCertificate mainCert, UsbDriverFactory<?> factory) {
 		UsbServiceHandle usbService = getUsbServiceHandle();
-		UsbServiceRequest<?> request = usbService.addUsbDriverFactory(this, factory);
-		usbService.enqueueRequest(request);
+		usbService.addUsbDriverFactory(this, factory);
 	}
 	
 	public AppServiceHandle getAppServiceHandle() {
@@ -153,17 +148,17 @@ public final class Supervisor extends BaseService<SupervisorHandle> implements A
 	}
 
 	@Override
-	public void notifyRequestComplete(AddAppFactory<?, ?> in) {
+	public void notifyRequestComplete(AddAppFactory<?> in) {
 		Log.log(this, "Added app factory %s", in.getAppFactory());
 	}
 
 	@Override
-	public void notifyRequestComplete(StartApp<?, ?> in) {
+	public void notifyRequestComplete(StartApp<?> in) {
 		Log.log(this, "App started %s", in.getAppFactory());
 	}
 
 	@Override
-	public void notifyRequestComplete(AddUsbDriverFactory<?, ?> in) {
+	public void notifyRequestComplete(AddUsbDriverFactory<?> in) {
 		Log.log(this, "Added driver factory %s", in.getDriverFactory());
 	}
 }

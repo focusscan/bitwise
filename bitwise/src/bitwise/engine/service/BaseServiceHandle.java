@@ -19,7 +19,7 @@ public abstract class BaseServiceHandle<R extends BaseRequest<?, ?>, S extends B
 		return service;
 	}
 	
-	public final void enqueueRequest(R in) {
+	protected final void enqueueRequest(R in) {
 		if (!(in instanceof BaseRequest<?, ?>))
 			throw new IllegalArgumentException("Request");
 		if (in.tryEnqueueServeRequest(cert)) {

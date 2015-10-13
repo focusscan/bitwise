@@ -15,15 +15,15 @@ import javafx.collections.transformation.FilteredList;
 
 public final class UsbTree {
 	private final UsbService service;
-	private final ObservableList<UsbDriverFactory<?, ?>> factories = FXCollections.observableArrayList();
+	private final ObservableList<UsbDriverFactory<?>> factories = FXCollections.observableArrayList();
 	private final ObservableList<UsbDevice> devices = FXCollections.observableArrayList();
-	private final ObservableList<UsbReady<?, ?>> ready = FXCollections.observableArrayList();
+	private final ObservableList<UsbReady<?>> ready = FXCollections.observableArrayList();
 	
 	protected UsbTree(UsbService in_service) {
 		service = in_service;
 	}
 	
-	public ObservableList<UsbDriverFactory<?, ?>> getDriverFactoryList() {
+	public ObservableList<UsbDriverFactory<?>> getDriverFactoryList() {
 		return factories;
 	}
 	
@@ -31,14 +31,14 @@ public final class UsbTree {
 		return devices;
 	}
 	
-	public ObservableList<UsbReady<?, ?>> getReadyList() {
+	public ObservableList<UsbReady<?>> getReadyList() {
 		return ready;
 	}
 	
-	public FilteredList<UsbReady<?, ?>> getReadyByHandleType(Class<?> in_class) {
-		return ready.filtered(new Predicate<UsbReady<?, ?>>() {
+	public FilteredList<UsbReady<?>> getReadyByHandleType(Class<?> in_class) {
+		return ready.filtered(new Predicate<UsbReady<?>>() {
 			@Override
-			public boolean test(UsbReady<?, ?> rdy) {
+			public boolean test(UsbReady<?> rdy) {
 				return in_class.isAssignableFrom(rdy.getFactory().getHandleClass());
 			}
 		});
@@ -49,8 +49,8 @@ public final class UsbTree {
 			@Override
 			public void run() {
 				synchronized(ready) {
-					UsbReady<?, ?> foundIt = null;
-					for (UsbReady<?, ?> rdy : ready) {
+					UsbReady<?> foundIt = null;
+					for (UsbReady<?> rdy : ready) {
 						if (rdy.getDevice().equals(in)) {
 							foundIt = rdy;
 							break;
@@ -68,7 +68,7 @@ public final class UsbTree {
 			@Override
 			public void run() {
 				synchronized (ready) {
-					for (UsbDriverFactory<?, ?> factory : factories) {
+					for (UsbDriverFactory<?> factory : factories) {
 						if (factory.isCompatibleWith(in))
 							ready.add(new UsbReady<>(in, factory));
 					}
@@ -82,7 +82,7 @@ public final class UsbTree {
 		ready.clear();
 	}
 	
-	public void addDriverFactory(UsbDriverFactory<?, ?> factory) {
+	public void addDriverFactory(UsbDriverFactory<?> factory) {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
@@ -114,7 +114,7 @@ public final class UsbTree {
 				public void run() {
 					devices.add(newDevice);
 					synchronized (ready) {
-						for (UsbDriverFactory<?, ?> factory : factories) {
+						for (UsbDriverFactory<?> factory : factories) {
 							if (factory.isCompatibleWith(newDevice))
 								ready.add(new UsbReady<>(newDevice, factory));
 						}
@@ -147,12 +147,12 @@ public final class UsbTree {
 				public void run() {
 					devices.remove(toRemove);
 					synchronized (ready) {
-						ArrayList<UsbReady<?, ?>> removeList = new ArrayList<>();
-						for (UsbReady<?, ?> rdy : ready) {
+						ArrayList<UsbReady<?>> removeList = new ArrayList<>();
+						for (UsbReady<?> rdy : ready) {
 							if (rdy.getDevice().equals(toRemove))
 								removeList.add(rdy);
 						}
-						for (UsbReady<?, ?> rdy : removeList)
+						for (UsbReady<?> rdy : removeList)
 							ready.remove(rdy);
 					}
 				}

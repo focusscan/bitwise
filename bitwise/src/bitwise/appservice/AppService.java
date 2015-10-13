@@ -16,7 +16,7 @@ import javafx.collections.ObservableList;
 public final class AppService extends BaseService<AppServiceHandle> {
 	private final AppServiceCertificate cert = new AppServiceCertificate();
 	private final AppServiceHandle serviceHandle;
-	private final ObservableList<BaseAppFactory<?, ?>> factories = FXCollections.observableArrayList();
+	private final ObservableList<BaseAppFactory<?>> factories = FXCollections.observableArrayList();
 	
 	public AppService(SupervisorCertificate supervisorCert) {
 		super();
@@ -25,11 +25,11 @@ public final class AppService extends BaseService<AppServiceHandle> {
 		serviceHandle = new AppServiceHandle(this);
 	}
 	
-	public ObservableList<BaseAppFactory<?, ?>> getAppFactoryList() {
+	public ObservableList<BaseAppFactory<?>> getAppFactoryList() {
 		return factories;
 	}
 	
-	public void addAppFactory(BaseAppFactory<?, ?> factory) {
+	public void addAppFactory(BaseAppFactory<?> factory) {
 		AppService thing = this;
 		Platform.runLater(new Runnable() {
 			@Override
@@ -40,9 +40,9 @@ public final class AppService extends BaseService<AppServiceHandle> {
 		});
 	}
 	
-	public <H extends BaseAppHandle<?, ?>, A extends BaseApp<H>> H startApp(BaseRequester requester, BaseAppFactory<H, A> factory) {
+	public <H extends BaseAppHandle<?, ?>> H startApp(BaseRequester requester, BaseAppFactory<H> factory) {
 		Log.log(this, "Starting app from factory %s", factory);
-		A app = factory.makeApp(cert);
+		BaseApp<H> app = factory.makeApp(cert);
 		requester.generalNotifyChildApp(cert, app);
 		Supervisor.getInstance().addService(app);
 		Log.log(this, "Started app %s", app);

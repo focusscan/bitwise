@@ -1,6 +1,5 @@
 package bitwise.appservice;
 
-import bitwise.apps.BaseApp;
 import bitwise.apps.BaseAppFactory;
 import bitwise.apps.BaseAppHandle;
 import bitwise.appservice.requests.*;
@@ -12,15 +11,19 @@ public final class AppServiceHandle extends BaseServiceHandle<AppServiceRequest<
 		super(in_service);
 	}
 	
-	public ObservableList<BaseAppFactory<?, ?>> getAppFactoryList() {
+	public ObservableList<BaseAppFactory<?>> getAppFactoryList() {
 		return getService().getAppFactoryList();
 	}
 	
-	public <H extends BaseAppHandle<?, ?>, A extends BaseApp<H>> AddAppFactory<H, A> addAppFactory(AddAppFactoryRequester requester, BaseAppFactory<H, A> factory) {
-		return new AddAppFactory<>(getService(), requester, factory);
+	public <H extends BaseAppHandle<?, ?>> AddAppFactory<H> addAppFactory(AddAppFactoryRequester requester, BaseAppFactory<H> factory) {
+		AddAppFactory<H> request = new AddAppFactory<>(getService(), requester, factory);
+		this.enqueueRequest(request);
+		return request;
 	}
 	
-	public <H extends BaseAppHandle<?, ?>, A extends BaseApp<H>> StartApp<H, A> startApp(StartAppRequester requester, BaseAppFactory<H, A> factory) {
-		return new StartApp<>(getService(), requester, factory);
+	public <H extends BaseAppHandle<?, ?>> StartApp<H> startApp(StartAppRequester requester, BaseAppFactory<H> factory) {
+		StartApp<H> request = new StartApp<>(getService(), requester, factory);
+		this.enqueueRequest(request);
+		return request;
 	}
 }

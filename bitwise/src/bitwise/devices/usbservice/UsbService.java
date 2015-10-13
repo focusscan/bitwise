@@ -29,7 +29,7 @@ public final class UsbService extends BaseService<UsbServiceHandle> implements U
 		serviceHandle = new UsbServiceHandle(this);
 	}
 	
-	public ObservableList<UsbDriverFactory<?, ?>> getDriverFactoryList() {
+	public ObservableList<UsbDriverFactory<?>> getDriverFactoryList() {
 		return tree.getDriverFactoryList();
 	}
 	
@@ -37,21 +37,21 @@ public final class UsbService extends BaseService<UsbServiceHandle> implements U
 		return tree.getDeviceList();
 	}
 	
-	public ObservableList<UsbReady<?, ?>> getReadyList() {
+	public ObservableList<UsbReady<?>> getReadyList() {
 		return tree.getReadyList();
 	}
 	
-	public FilteredList<UsbReady<?, ?>> getReadyByHandleType(Class<?> in_class) {
+	public FilteredList<UsbReady<?>> getReadyByHandleType(Class<?> in_class) {
 		return tree.getReadyByHandleType(in_class);
 	}
 	
-	public void addDriverFactory(UsbDriverFactory<?, ?> factory) {
+	public void addDriverFactory(UsbDriverFactory<?> factory) {
 		tree.addDriverFactory(factory);
 	}
 	
-	public <H extends BaseDriverHandle<?, ?>, A extends BaseDriver<UsbDevice, H>> H startDriver(BaseRequester requester, UsbDevice device, UsbDriverFactory<H, A> factory) {
+	public <H extends BaseDriverHandle<?, ?>> H startDriver(BaseRequester requester, UsbDevice device, UsbDriverFactory<H> factory) {
 		Log.log(this, "Starting driver from factory %s", factory);
-		A driver = factory.makeDriver(cert, device);
+		BaseDriver<UsbDevice, H> driver = factory.makeDriver(cert, device);
 		requester.generalNotifyChildDriver(cert, driver);
 		Supervisor.getInstance().addService(driver);
 		Log.log(this, "Started driver %s", driver);

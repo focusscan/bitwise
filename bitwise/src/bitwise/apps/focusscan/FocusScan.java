@@ -64,13 +64,13 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 		return cameraHandle;
 	}
 	
-	public void selectDevice(UsbReady<?, ?> ready) {
+	public void selectDevice(UsbReady<?> ready) {
 		UsbServiceHandle usbService = Supervisor.getInstance().getUsbServiceHandle();
-		usbService.enqueueRequest(usbService.startUsbDriver(this, ready));
+		usbService.startUsbDriver(this, ready);
 	}
 
 	@Override
-	public void notifyRequestComplete(StartUsbDriver<?, ?> in) {
+	public void notifyRequestComplete(StartUsbDriver<?> in) {
 		cameraHandle = (CameraHandle<?>) in.getHandle();
 	}
 }

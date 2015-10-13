@@ -1,23 +1,21 @@
 package bitwise.devices.usbservice.requests;
 
-import bitwise.devices.BaseDriver;
 import bitwise.devices.BaseDriverHandle;
-import bitwise.devices.usbservice.UsbDevice;
 import bitwise.devices.usbservice.UsbReady;
 import bitwise.devices.usbservice.UsbService;
 import bitwise.devices.usbservice.UsbServiceRequest;
 import bitwise.engine.service.RequestContext;
 
-public final class StartUsbDriver<H extends BaseDriverHandle<?, ?>, A extends BaseDriver<UsbDevice, H>> extends UsbServiceRequest<StartUsbDriverRequester> {
-	private final UsbReady<H, A> ready;
+public final class StartUsbDriver<H extends BaseDriverHandle<?, ?>> extends UsbServiceRequest<StartUsbDriverRequester> {
+	private final UsbReady<H> ready;
 	private H handle;
 	
-	public StartUsbDriver(UsbService in_service, StartUsbDriverRequester in_requester, UsbReady<H, A> in_ready) {
+	public StartUsbDriver(UsbService in_service, StartUsbDriverRequester in_requester, UsbReady<H> in_ready) {
 		super(in_service, in_requester);
 		ready = in_ready;
 	}
 	
-	public UsbReady<H, A> getReady() {
+	public UsbReady<H> getReady() {
 		return ready;
 	}
 	
