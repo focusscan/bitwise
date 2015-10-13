@@ -33,10 +33,12 @@ public class BaseUsbPtpReader<T> implements javax.usb.event.UsbPipeListener {
 		submitNextBuffer();
 	}
 	
-	public void stop() throws UsbNotActiveException, UsbNotOpenException, UsbDisconnectedException, UsbException {
-		pipe.abortAllSubmissions();
+	public void stop(boolean close) throws UsbNotActiveException, UsbNotOpenException, UsbDisconnectedException, UsbException {
 		pipe.removeUsbPipeListener(this);
-		pipe.close();
+		if (close) {
+			pipe.abortAllSubmissions();
+			pipe.close();
+		}
 	}
 	
 	protected void submitNextBuffer() {

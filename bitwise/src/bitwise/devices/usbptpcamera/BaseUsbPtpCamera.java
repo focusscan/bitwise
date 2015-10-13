@@ -93,14 +93,21 @@ public abstract class BaseUsbPtpCamera<H extends BaseUsbPtpCameraHandle<?>> exte
 		return false;
 	}
 	
-	private void closeEndpoints() throws UsbNotActiveException, UsbNotOpenException, UsbDisconnectedException, UsbException {
-		if (null != dataInPipe && dataInPipe.isOpen()) {
-			dataInPipe.abortAllSubmissions();
-			dataInPipe.close();
+	private void closeEndpoints() throws UsbNotActiveException, UsbNotOpenException, UsbDisconnectedException {
+		boolean connected = getDevice().isConnected();
+		try {
+			dataOutReader.stop(connected);
+			intrptReader.stop(connected);
+			if (connected) {
+				if (null != dataInPipe && dataInPipe.isOpen()) {
+					dataInPipe.abortAllSubmissions();
+					dataInPipe.close();
+				}
+				iface.release();
+			}
+		} catch (UsbException e) {
+			Log.logException(this, e);
 		}
-		iface.release();
-		dataOutReader.stop();
-		intrptReader.stop();
 	}
 	
 	protected abstract void onStopPtpDriver();
@@ -109,9 +116,11 @@ public abstract class BaseUsbPtpCamera<H extends BaseUsbPtpCameraHandle<?>> exte
 	protected void onStopDriver() {
 		try {
 			Log.log(this, "Stopping PTP camera");
-			closeSession();
+			if (getDevice().isConnected()) {
+				closeSession();
+			}
 			closeEndpoints();
-		} catch (InterruptedException | UsbNotActiveException | UsbNotOpenException | UsbDisconnectedException | UsbException e) {
+		} catch (InterruptedException | UsbNotActiveException | UsbNotOpenException | UsbDisconnectedException e) {
 			Log.logException(this, e);
 		}
 		onStopPtpDriver();
