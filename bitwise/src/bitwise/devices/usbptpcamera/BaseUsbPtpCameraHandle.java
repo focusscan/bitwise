@@ -21,14 +21,16 @@ public abstract class BaseUsbPtpCameraHandle<A extends BaseUsbPtpCamera<?>> exte
 
 	@Override
 	public GetPropertyRequest<List<ImageFormat>> getImageFormats(GetPropertyRequester requester) {
-		// TODO Auto-generated method stub
-		return null;
+		GetImageFormats<A> r = new GetImageFormats<A>(getService(), requester, getCameraPropertyFactory());
+		this.enqueueRequest(r);
+		return r;
 	}
 
 	@Override
 	public GetPropertyRequest<List<StorageDevice>> getStorageDevices(GetPropertyRequester requester) {
-		// TODO Auto-generated method stub
-		return null;
+		GetStorageDevices<A> r = new GetStorageDevices<A>(getService(), requester, getCameraPropertyFactory());
+		this.enqueueRequest(r);
+		return r;
 	}
 
 	@Override

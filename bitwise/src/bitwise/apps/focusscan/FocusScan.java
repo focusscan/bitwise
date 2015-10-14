@@ -79,6 +79,6 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 
 	@Override
 	public void notifyRequestComplete(GetPropertyRequest<?> in) {
-		Log.log(this, "Property fetched: %s", in);
+		Log.log(this, "Property fetched: %s, value %s", in, in.getValue());
 	}
 }

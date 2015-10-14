@@ -11,9 +11,13 @@ import bitwise.devices.usbptpcamera.coder.UsbPtpTypeCastException;
 
 public class NikonPropertyFactory implements CameraPropertyFactory {
 	@Override
-	public BatteryLevel getBatteryLevel(UsbPtpPrimType in) throws UsbPtpTypeCastException {
+	public BatteryLevel getBatteryLevel(UsbPtpPrimType in, UsbPtpPrimType min, UsbPtpPrimType max) throws UsbPtpTypeCastException {
 		Int8 raw = in.castTo(Int8.class);
-		return new BatteryLevel(raw.toString(), raw.value);
+		Int8 rawMin = min.castTo(Int8.class);
+		Int8 rawMax = max.castTo(Int8.class);
+		int pcnt = ((0xff & (int) raw.value) - (0xff & (int) rawMin.value)) * 100;
+		pcnt = pcnt / ((0xff & (int) rawMax.value) - (0xff & (int) rawMin.value));
+		return new BatteryLevel(String.format("%d%%", pcnt), (byte) pcnt);
 	}
 	
 	@Override
@@ -53,9 +57,8 @@ public class NikonPropertyFactory implements CameraPropertyFactory {
 	}
 	
 	@Override
-	public ImageFormat getImageFormat(UsbPtpPrimType in) throws UsbPtpTypeCastException {
-		Int16 raw = in.castTo(Int16.class);
-		return new ImageFormat(raw.toString(), raw.value);
+	public ImageFormat getImageFormat(short in) throws UsbPtpTypeCastException {
+		return new ImageFormat(String.format("%04x", in), in);
 	}
 	
 	@Override

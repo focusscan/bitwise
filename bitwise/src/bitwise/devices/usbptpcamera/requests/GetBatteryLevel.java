@@ -11,6 +11,7 @@ import bitwise.devices.usbptpcamera.CameraPropertyFactory;
 import bitwise.devices.usbptpcamera.UsbPtpException;
 import bitwise.devices.usbptpcamera.operations.DevicePropCode;
 import bitwise.devices.usbptpcamera.responses.DevicePropDesc;
+import bitwise.devices.usbptpcamera.responses.DevicePropertyRange;
 import bitwise.engine.service.RequestContext;
 import bitwise.log.Log;
 
@@ -53,8 +54,11 @@ public class GetBatteryLevel<A extends BaseUsbPtpCamera<?>> extends BaseUsbPtpCa
 			if (null == prop)
 				return;
 			settable = prop.supportsSet();
-			value = propertyFactory.getBatteryLevel(prop.currentValue);
-			success = true;
+			if (null != prop.form && prop.form instanceof DevicePropertyRange) {
+				DevicePropertyRange range = (DevicePropertyRange) prop.form;
+				value = propertyFactory.getBatteryLevel(prop.currentValue, range.minimumValue, range.maximumValue);				
+				success = true;
+			}
 		} catch (UsbPtpException e) {
 			Log.logException(this, e);
 		}
