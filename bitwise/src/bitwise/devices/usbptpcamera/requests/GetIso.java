@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import bitwise.devices.camera.Iso;
+import bitwise.devices.camera.CameraProperty;
 import bitwise.devices.camera.GetPropertyRequest;
 import bitwise.devices.camera.GetPropertyRequester;
 import bitwise.devices.usbptpcamera.BaseUsbPtpCamera;
@@ -23,6 +24,11 @@ public class GetIso<A extends BaseUsbPtpCamera<?>> extends BaseUsbPtpCameraReque
 	public GetIso(A in_service, GetPropertyRequester in_requester, CameraPropertyFactory in_propertyFactory) {
 		super(in_service, in_requester);
 		propertyFactory = in_propertyFactory;
+	}
+	
+	@Override
+	public CameraProperty getProperty() {
+		return CameraProperty.Iso;
 	}
 	
 	private boolean success = false;

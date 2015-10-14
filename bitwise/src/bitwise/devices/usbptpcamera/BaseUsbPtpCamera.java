@@ -12,10 +12,13 @@ import javax.usb.UsbNotActiveException;
 import javax.usb.UsbNotOpenException;
 
 import bitwise.devices.BaseDriver;
+import bitwise.devices.camera.CameraListener;
+import bitwise.devices.camera.CameraProperty;
 import bitwise.devices.usbptpcamera.coder.UsbPtpBuffer;
 import bitwise.devices.usbptpcamera.coder.UsbPtpCoderException;
 import bitwise.devices.usbptpcamera.coder.UsbPtpPrimType;
 import bitwise.devices.usbptpcamera.events.Event;
+import bitwise.devices.usbptpcamera.events.EventCode;
 import bitwise.devices.usbptpcamera.events.EventDecoder;
 import bitwise.devices.usbptpcamera.operations.*;
 import bitwise.devices.usbptpcamera.responses.DevicePropDesc;
@@ -145,8 +148,42 @@ public abstract class BaseUsbPtpCamera<H extends BaseUsbPtpCameraHandle<?>> exte
 	protected void onRequestComplete(BaseRequest<?, ?> in) {
 	}
 	
+	private volatile CameraListener cameraListener = null;
+	
+	protected void setCameraListener(CameraListener in_cameraListener) {
+		cameraListener = in_cameraListener;
+	}
+	
 	protected void handlePtpEvent(Event in) {
 		Log.log(this, "PTP event %04x", in.getEventCode());
+		CameraListener listener = cameraListener;
+		if (null != listener) {
+			if (in.getEventCode() == EventCode.devicePropChanged) {
+				CameraProperty property = null;
+				final short deviceProp = (short) in.getArguments()[0];
+				if (deviceProp == DevicePropCode.batteryLevel)
+					property = CameraProperty.BatteryLevel;
+				else if (deviceProp == DevicePropCode.exposureProgramMode)
+					property = CameraProperty.ExposureProgramMode;
+				else if (deviceProp == DevicePropCode.exposureTime)
+					property = CameraProperty.ExposureTime;
+				else if (deviceProp == DevicePropCode.flashMode)
+					property = CameraProperty.FlashMode;
+				else if (deviceProp == DevicePropCode.fNumber)
+					property = CameraProperty.FNumber;
+				else if (deviceProp == DevicePropCode.focalLength)
+					property = CameraProperty.FocalLength;
+				else if (deviceProp == DevicePropCode.focusMode)
+					property = CameraProperty.FocusMode;
+				else if (deviceProp == DevicePropCode.exposureIndex)
+					property = CameraProperty.Iso;
+				if (null != property)
+					listener.onCameraPropertyChanged(this.getServiceHandle(), property);
+			}
+			else if (in.getEventCode() == EventCode.storeAdded || in.getEventCode() == EventCode.storeRemoved) {
+				listener.onCameraPropertyChanged(this.getServiceHandle(), CameraProperty.StorageDevices);
+			}
+		}
 	}
 	
 	private volatile Operation<?> currentOperation = null;

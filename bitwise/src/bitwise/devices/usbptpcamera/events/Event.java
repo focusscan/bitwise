@@ -6,12 +6,14 @@ import bitwise.devices.usbptpcamera.coder.UsbPtpCoderException;
 public class Event {
 	private final short eventCode;
 	private final int transactionID;
-	private final UsbPtpBuffer data;
+	private final int[] arguments;
 	
-	public Event(UsbPtpBuffer buf) throws UsbPtpCoderException {
+	public Event(UsbPtpBuffer buf, int argSize) throws UsbPtpCoderException {
 		eventCode = buf.getShort();
 		transactionID = buf.getInt();
-		data = buf;
+		arguments = new int[argSize / 4];
+		for (int i = 0; i < arguments.length; i++)
+			arguments[i] = buf.getInt();
 	}
 	
 	public short getEventCode() {
@@ -22,7 +24,7 @@ public class Event {
 		return transactionID;
 	}
 	
-	public UsbPtpBuffer getData() {
-		return data;
+	public int[] getArguments() {
+		return arguments;
 	}
 }

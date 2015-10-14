@@ -34,7 +34,7 @@ public class NikonPropertyFactory implements CameraPropertyFactory {
 	
 	@Override
 	public ExposureTime getExposureTime(UsbPtpPrimType in) throws UsbPtpTypeCastException {
-		Int16 raw = in.castTo(Int16.class);
+		Int32 raw = in.castTo(Int32.class);
 		return new ExposureTime(raw.toString(), raw.value);
 	}
 	

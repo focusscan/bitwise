@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import bitwise.devices.camera.StorageDevice;
+import bitwise.devices.camera.CameraProperty;
 import bitwise.devices.camera.GetPropertyRequest;
 import bitwise.devices.camera.GetPropertyRequester;
 import bitwise.devices.usbptpcamera.BaseUsbPtpCamera;
@@ -20,6 +21,11 @@ public class GetStorageDevices<A extends BaseUsbPtpCamera<?>> extends BaseUsbPtp
 	public GetStorageDevices(A in_service, GetPropertyRequester in_requester, CameraPropertyFactory in_propertyFactory) {
 		super(in_service, in_requester);
 		propertyFactory = in_propertyFactory;
+	}
+	
+	@Override
+	public CameraProperty getProperty() {
+		return CameraProperty.StorageDevices;
 	}
 
 	private boolean success = false;
@@ -62,7 +68,6 @@ public class GetStorageDevices<A extends BaseUsbPtpCamera<?>> extends BaseUsbPtp
 
 	@Override
 	protected void onEpilogueRequest(RequestContext ctx) throws InterruptedException {
-		// TODO Auto-generated method stub
-		
+		getRequester().notifyRequestComplete(this);
 	}
 }

@@ -12,10 +12,10 @@ public class EventDecoder implements UsbPtpDecoder<Event> {
 	
 	@Override
 	public Event decode(UsbPtpBuffer in) throws UsbPtpCoderException {
-		in.getInt(); /* length */
+		int length = in.getInt();
 		final short type = in.getShort();
 		if (type == BaseUsbPtpCamera.containerCodeEvent)
-			return new Event(in);
+			return new Event(in, length - 12);
 		return null;
 	}
 }

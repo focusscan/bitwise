@@ -15,8 +15,7 @@ public abstract class BaseUsbPtpCameraHandle<A extends BaseUsbPtpCamera<?>> exte
 
 	@Override
 	public void setCameraEventListener(CameraListener in) {
-		// TODO Auto-generated method stub
-		
+		getService().setCameraListener(in);
 	}
 
 	@Override
@@ -85,6 +84,27 @@ public abstract class BaseUsbPtpCameraHandle<A extends BaseUsbPtpCamera<?>> exte
 	@Override
 	public GetPropertyRequest<Iso> getIso(GetPropertyRequester requester) {
 		GetIso<A> r = new GetIso<A>(getService(), requester, getCameraPropertyFactory());
+		this.enqueueRequest(r);
+		return r;
+	}
+
+	@Override
+	public SetPropertyRequest<ExposureTime> setExposureTime(SetPropertyRequester requester, ExposureTime in) {
+		SetExposureTime<A> r = new SetExposureTime<A>(getService(), requester, in);
+		this.enqueueRequest(r);
+		return r;
+	}
+
+	@Override
+	public SetPropertyRequest<FNumber> setFNumber(SetPropertyRequester requester, FNumber in) {
+		SetFNumber<A> r = new SetFNumber<A>(getService(), requester, in);
+		this.enqueueRequest(r);
+		return r;
+	}
+
+	@Override
+	public SetPropertyRequest<Iso> setIso(SetPropertyRequester requester, Iso in) {
+		SetIso<A> r = new SetIso<A>(getService(), requester, in);
 		this.enqueueRequest(r);
 		return r;
 	}

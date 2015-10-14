@@ -3,6 +3,7 @@ package bitwise.devices.usbptpcamera.requests;
 import java.util.ArrayList;
 import java.util.List;
 
+import bitwise.devices.camera.CameraProperty;
 import bitwise.devices.camera.FlashMode;
 import bitwise.devices.camera.GetPropertyRequest;
 import bitwise.devices.camera.GetPropertyRequester;
@@ -23,6 +24,11 @@ public class GetFlashMode<A extends BaseUsbPtpCamera<?>> extends BaseUsbPtpCamer
 	public GetFlashMode(A in_service, GetPropertyRequester in_requester, CameraPropertyFactory in_propertyFactory) {
 		super(in_service, in_requester);
 		propertyFactory = in_propertyFactory;
+	}
+	
+	@Override
+	public CameraProperty getProperty() {
+		return CameraProperty.FlashMode;
 	}
 	
 	private boolean success = false;

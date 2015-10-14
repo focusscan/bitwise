@@ -2,14 +2,14 @@ package bitwise.devices.camera;
 
 public class ExposureTime {
 	private final String label;
-	private final short value;
+	private final int value;
 	
-	public ExposureTime(String in_label, short in_value) {
+	public ExposureTime(String in_label, int in_value) {
 		label = in_label;
 		value = in_value;
 	}
 	
-	public short getValue() {
+	public int getValue() {
 		return value;
 	}
 	
@@ -25,7 +25,7 @@ public class ExposureTime {
 	
 	@Override
 	public int hashCode() {
-		return Short.hashCode(value);
+		return Integer.hashCode(value);
 	}
 	
 	@Override

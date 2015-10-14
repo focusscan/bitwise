@@ -16,4 +16,8 @@ public interface CameraHandle {
 	public GetPropertyRequest<FocalLength> getFocalLength(GetPropertyRequester requester);
 	public GetPropertyRequest<FocusMode> getFocusMode(GetPropertyRequester requester);
 	public GetPropertyRequest<Iso> getIso(GetPropertyRequester requester);
+	
+	public SetPropertyRequest<ExposureTime> setExposureTime(SetPropertyRequester requester, ExposureTime in);
+	public SetPropertyRequest<FNumber> setFNumber(SetPropertyRequester requester, FNumber in);
+	public SetPropertyRequest<Iso> setIso(SetPropertyRequester requester, Iso in);
 }
