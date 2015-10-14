@@ -11,6 +11,9 @@ import javax.usb.UsbNotOpenException;
 import javax.usb.event.UsbPipeDataEvent;
 import javax.usb.event.UsbPipeErrorEvent;
 
+import bitwise.devices.usbptpcamera.coder.UsbPtpBuffer;
+import bitwise.devices.usbptpcamera.coder.UsbPtpDecoder;
+
 public class BaseUsbPtpReader<T> implements javax.usb.event.UsbPipeListener {
 	private final BlockingQueue<T> decoded = new LinkedBlockingQueue<>();
 	private final javax.usb.UsbPipe pipe;

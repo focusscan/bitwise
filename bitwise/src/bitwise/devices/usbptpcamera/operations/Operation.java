@@ -2,6 +2,7 @@ package bitwise.devices.usbptpcamera.operations;
 
 import java.util.concurrent.CountDownLatch;
 
+import bitwise.devices.usbptpcamera.coder.Encodable;
 import bitwise.devices.usbptpcamera.events.Event;
 import bitwise.devices.usbptpcamera.responses.ResponseCode;
 import bitwise.devices.usbptpcamera.responses.ResponseData;
@@ -9,6 +10,7 @@ import bitwise.devices.usbptpcamera.responses.ResponseData;
 public abstract class Operation<T> {
 	private final short operationCode;
 	private final int[] arguments;
+	private final Encodable dataOut;
 	private ResponseCode responseCode = null;
 	private ResponseData responseData = null;
 	private final CountDownLatch finishedLatch = new CountDownLatch(1);
@@ -16,6 +18,13 @@ public abstract class Operation<T> {
 	protected Operation(short in_operationCode, int arity) {
 		operationCode = in_operationCode;
 		arguments = new int[arity];
+		dataOut = null;
+	}
+	
+	protected Operation(short in_operationCode, int arity, Encodable in_dataOut) {
+		operationCode = in_operationCode;
+		arguments = new int[arity];
+		dataOut = in_dataOut;
 	}
 	
 	public final short getOperationCode() {
@@ -26,23 +35,27 @@ public abstract class Operation<T> {
 		return arguments;
 	}
 	
-	public void setArgument(int argNum, byte val) {
+	public final Encodable getDataOut() {
+		return dataOut;
+	}
+	
+	public final void setArgument(int argNum, byte val) {
 		arguments[argNum] = 0xff & val;
 	}
 	
-	public void setArgument(int argNum, short val) {
+	public final void setArgument(int argNum, short val) {
 		arguments[argNum] = 0xffff & val;
 	}
 	
-	public void setArgument(int argNum, int val) {
+	public final void setArgument(int argNum, int val) {
 		arguments[argNum] = val;
 	}
 	
-	public ResponseCode getResponseCode() {
+	public final ResponseCode getResponseCode() {
 		return responseCode;
 	}
 	
-	public ResponseData getResponseData() {
+	public final ResponseData getResponseData() {
 		return responseData;
 	}
 	

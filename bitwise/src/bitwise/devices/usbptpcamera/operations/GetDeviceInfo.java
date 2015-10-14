@@ -14,7 +14,7 @@ public class GetDeviceInfo extends Operation<DeviceInfo> {
 	
 	@Override
 	public DeviceInfo getDecodedData() {
-		if (null == decoded && null != getResponseData()) {
+		if (null == decoded && null != getResponseData() && 0 < getResponseData().getDataSize()) {
 			decoded = new DeviceInfo(getResponseData().getData());
 		}
 		return decoded;

@@ -9,17 +9,19 @@ import javax.usb.UsbNotActiveException;
 import javax.usb.UsbNotOpenException;
 
 import bitwise.devices.BaseDriver;
+import bitwise.devices.usbptpcamera.coder.UsbPtpBuffer;
+import bitwise.devices.usbptpcamera.coder.UsbPtpPrimType;
 import bitwise.devices.usbptpcamera.events.Event;
 import bitwise.devices.usbptpcamera.events.EventDecoder;
-import bitwise.devices.usbptpcamera.operations.CloseSession;
-import bitwise.devices.usbptpcamera.operations.DeviceInfo;
-import bitwise.devices.usbptpcamera.operations.GetDeviceInfo;
-import bitwise.devices.usbptpcamera.operations.OpenSession;
-import bitwise.devices.usbptpcamera.operations.Operation;
+import bitwise.devices.usbptpcamera.operations.*;
+import bitwise.devices.usbptpcamera.responses.DevicePropDesc;
+import bitwise.devices.usbptpcamera.responses.DevicePropertyEnum;
+import bitwise.devices.usbptpcamera.responses.DevicePropertyRange;
 import bitwise.devices.usbptpcamera.responses.Response;
 import bitwise.devices.usbptpcamera.responses.ResponseCode;
 import bitwise.devices.usbptpcamera.responses.ResponseData;
 import bitwise.devices.usbptpcamera.responses.ResponseDecoder;
+import bitwise.devices.usbptpcamera.responses.StorageInfo;
 import bitwise.devices.usbservice.UsbDevice;
 import bitwise.engine.service.BaseRequest;
 import bitwise.log.Log;
@@ -85,6 +87,7 @@ public abstract class BaseUsbPtpCamera<H extends BaseUsbPtpCameraHandle<?>> exte
 			getEndpoints();
 			openSession();
 			getDeviceInfo();
+			getStorageIDs();
 			Log.log(this, "Camera started");
 			return true;
 		} catch (InterruptedException | UsbNotActiveException | UsbDisconnectedException | UsbException e) {
@@ -145,22 +148,37 @@ public abstract class BaseUsbPtpCamera<H extends BaseUsbPtpCameraHandle<?>> exte
 	protected synchronized void runOperation(Operation<?> operation) throws InterruptedException {
 		currentOperation = operation;
 		try {
-			int length = 0;
 			int transactionID = 0;
 			if (operation.hasTransactionID())
 				transactionID = nextTransactionID++;
-			Log.log(this, "Operation %04x, txid %08x", operation.getOperationCode(), transactionID);
-			UsbPtpBuffer outBuffer = new UsbPtpBuffer();
-			do {
-				outBuffer.put(length);
-				outBuffer.put(containerCodeOperation);
-				outBuffer.put(operation.getOperationCode());
-				outBuffer.put(transactionID);
-				for (int arg : operation.getArguments())
-					outBuffer.put(arg);
-				length = outBuffer.getLength();
-			} while (outBuffer.disableMeasureMode());
-			dataInPipe.asyncSubmit(outBuffer.getArray());
+			{
+				int length = 0;
+				Log.log(this, "Operation %04x, txid %08x", operation.getOperationCode(), transactionID);
+				UsbPtpBuffer outBuffer = new UsbPtpBuffer();
+				do {
+					outBuffer.put(length);
+					outBuffer.put(containerCodeOperation);
+					outBuffer.put(operation.getOperationCode());
+					outBuffer.put(transactionID);
+					for (int arg : operation.getArguments())
+						outBuffer.put(arg);
+					length = outBuffer.getLength();
+				} while (outBuffer.disableMeasureMode());
+				dataInPipe.asyncSubmit(outBuffer.getArray());
+			}
+			if (null != operation.getDataOut()) {
+				int length = 0;
+				UsbPtpBuffer outBuffer = new UsbPtpBuffer();
+				do {
+					outBuffer.put(length);
+					outBuffer.put(containerCodeData);
+					outBuffer.put(operation.getOperationCode());
+					outBuffer.put(transactionID);
+					operation.getDataOut().encode(outBuffer);
+					length = outBuffer.getLength();
+				} while (outBuffer.disableMeasureMode());
+				dataInPipe.asyncSubmit(outBuffer.getArray());
+			}
 			
 			boolean responseCodeFound = false;
 			responseLoop: for (int i = 0; i < 2; i++) {
@@ -210,6 +228,68 @@ public abstract class BaseUsbPtpCamera<H extends BaseUsbPtpCameraHandle<?>> exte
 		runOperation(new CloseSession());
 	}
 	
+	protected void getStorageIDs() throws InterruptedException {
+		GetStorageIDs request = new GetStorageIDs();
+		runOperation(request);
+		StringBuilder sb = new StringBuilder();
+		sb.append("Storage IDs:");
+		for (int value : request.getDecodedData().value)
+			sb.append(String.format(" %08x", value));
+		Log.log(this, sb.toString());
+		for (int value : request.getDecodedData().value) {
+			GetStorageInfo infoRequest = new GetStorageInfo(value);
+			runOperation(infoRequest);
+			Log.log(this, "StorageInfo %08x", value);
+			// if (0x2001 == infoRequest.getResponseCode().getResponseCode()) {
+			StorageInfo info = infoRequest.getDecodedData();
+			if (null != info) {
+				final long bytesPerMeg = 1024 * 1024;
+				Log.log(this, " Desc %s label %s", info.storageDescription, info.volumeLabel);
+				Log.log(this, " %s %s %s size %d megs (%d megs free)", info.getStorageTypeEnum(), info.getFilesystemTypeEnum(), info.getAccessCapabilityEnum(), info.maxCapacity/bytesPerMeg, info.freeSpaceInBytes/bytesPerMeg);
+			}
+			else
+				Log.log(this, " (No info about this storage ID)");
+		}
+	}
+	
+	protected void getDevicePropValue(short deviceProp) throws InterruptedException {
+		GetDevicePropDesc request = new GetDevicePropDesc(deviceProp);
+		runOperation(request);
+		DevicePropDesc desc = request.getDecodedData();
+		if (null != desc) {
+			synchronized(Log.class) {
+				Log.log(this, "Device prop desc: %04x", deviceProp);
+				Log.log(this, " Default %s current %s", desc.factoryDefaultValue, desc.currentValue);
+				Log.log(this, " Form %s", desc.getFormEnum());
+				switch (desc.getFormEnum()) {
+				case Range:
+				{
+					DevicePropertyRange values = (DevicePropertyRange) desc.form;
+					Log.log(this, " Range [%s, %s] step by %s", values.minimumValue, values.maximumValue, values.stepSize);
+					break;
+				}
+				case Enum:
+				{
+					DevicePropertyEnum values = (DevicePropertyEnum) desc.form;
+					StringBuilder sb = new StringBuilder();
+					sb.append(" Enum");
+					for (UsbPtpPrimType val : values.supportedValues)
+						sb.append(String.format(" %s", val));
+					Log.log(this, sb.toString());
+					break;
+				}
+				case None:
+				default:
+					Log.log(this, " (No legal values given)");
+				}
+			}
+		}
+	}
+	
+	protected void setDevicePropValue(short deviceProp, UsbPtpPrimType value) throws InterruptedException {
+		runOperation(new SetDevicePropValue(deviceProp, value));
+	}
+	
 	protected void getDeviceInfo() throws InterruptedException {
 		GetDeviceInfo request = new GetDeviceInfo();
 		runOperation(request);
@@ -217,44 +297,44 @@ public abstract class BaseUsbPtpCamera<H extends BaseUsbPtpCameraHandle<?>> exte
 		if (null != info) {
 			synchronized(Log.class) {
 				Log.log(this, "Device info:");
-				Log.log(this, "Versions: %04x %08x %04x %s", info.standardVersion, info.vendorExtensionID, info.vendorExtensionVersion, info.vendorExtensionDesc);
-				Log.log(this, "Functional mode %04x", info.functionalMode);
+				Log.log(this, " Versions: %04x %08x %04x %s", info.standardVersion, info.vendorExtensionID, info.vendorExtensionVersion, info.vendorExtensionDesc);
+				Log.log(this, " Functional mode %04x", info.functionalMode);
 				{
 					StringBuilder operationsSupported = new StringBuilder();
-					operationsSupported.append("Operations supported:");
+					operationsSupported.append(" Operations supported:");
 					for (short operation : info.operationsSupported)
 						operationsSupported.append(String.format(" %04x", operation));
 					Log.log(this, operationsSupported.toString());
 				}
 				{
 					StringBuilder eventsSupported = new StringBuilder();
-					eventsSupported.append("Events supported:");
+					eventsSupported.append(" Events supported:");
 					for (short event : info.eventsSupported)
 						eventsSupported.append(String.format(" %04x", event));
 					Log.log(this, eventsSupported.toString());
 				}
 				{
 					StringBuilder devicePropertiesSupported = new StringBuilder();
-					devicePropertiesSupported.append("Device properties supported:");
+					devicePropertiesSupported.append(" Device properties supported:");
 					for (short deviceProperty : info.devicePropertiesSupported)
 						devicePropertiesSupported.append(String.format(" %04x", deviceProperty));
 					Log.log(this, devicePropertiesSupported.toString());
 				}
 				{
 					StringBuilder captureFormatsSupported = new StringBuilder();
-					captureFormatsSupported.append("Capture formats supported:");
+					captureFormatsSupported.append(" Capture formats supported:");
 					for (short captureFormat : info.captureFormats)
 						captureFormatsSupported.append(String.format(" %04x", captureFormat));
 					Log.log(this, captureFormatsSupported.toString());
 				}
 				{
 					StringBuilder imageFormatsSupported = new StringBuilder();
-					imageFormatsSupported.append("Image formats supported:");
+					imageFormatsSupported.append(" Image formats supported:");
 					for (short imageFormat : info.captureFormats)
 						imageFormatsSupported.append(String.format(" %04x", imageFormat));
 					Log.log(this, imageFormatsSupported.toString());
 				}
-				Log.log(this, "%s %s %s %s", info.manufacturer, info.model, info.deviceVersion, info.serialNumber);
+				Log.log(this, " %s %s %s %s", info.manufacturer, info.model, info.deviceVersion, info.serialNumber);
 			}
 		}
 	}

@@ -1,8 +1,8 @@
 package bitwise.devices.usbptpcamera.responses;
 
 import bitwise.devices.usbptpcamera.BaseUsbPtpCamera;
-import bitwise.devices.usbptpcamera.UsbPtpBuffer;
-import bitwise.devices.usbptpcamera.UsbPtpDecoder;
+import bitwise.devices.usbptpcamera.coder.UsbPtpBuffer;
+import bitwise.devices.usbptpcamera.coder.UsbPtpDecoder;
 
 public class ResponseDecoder implements UsbPtpDecoder<Response> {
 	public ResponseDecoder() {

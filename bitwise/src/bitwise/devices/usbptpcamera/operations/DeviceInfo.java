@@ -1,6 +1,6 @@
 package bitwise.devices.usbptpcamera.operations;
 
-import bitwise.devices.usbptpcamera.UsbPtpBuffer;
+import bitwise.devices.usbptpcamera.coder.UsbPtpBuffer;
 
 public class DeviceInfo {
 	public final short standardVersion;

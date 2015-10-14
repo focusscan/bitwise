@@ -1,6 +1,6 @@
 package bitwise.devices.usbptpcamera.responses;
 
-import bitwise.devices.usbptpcamera.UsbPtpBuffer;
+import bitwise.devices.usbptpcamera.coder.UsbPtpBuffer;
 
 public class ResponseCode extends Response {
 	private final short responseCode;

@@ -37,16 +37,16 @@ public final class Log {
 	
 	public synchronized static void logException(BaseService<?> thing, Exception e) {
 		log(thing, "Exception: %s", e);
-		e.printStackTrace();
+		e.printStackTrace(System.out);
 	}
 	
 	public synchronized static void logServingException(BaseRequest<?, ?> thing, Exception e) {
 		log(thing, "Serving exception: %s", e);
-		e.printStackTrace();
+		e.printStackTrace(System.out);
 	}
 	
 	public synchronized static void logEpilogueException(BaseRequest<?, ?> thing, Exception e) {
 		log(thing, "Epilogue exception: %s", e);
-		e.printStackTrace();
+		e.printStackTrace(System.out);
 	}
 }

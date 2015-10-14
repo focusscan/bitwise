@@ -1,6 +1,6 @@
 package bitwise.devices.usbptpcamera.events;
 
-import bitwise.devices.usbptpcamera.UsbPtpBuffer;
+import bitwise.devices.usbptpcamera.coder.UsbPtpBuffer;
 
 public class Event {
 	private final short eventCode;
