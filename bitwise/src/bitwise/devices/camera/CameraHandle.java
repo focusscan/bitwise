@@ -20,4 +20,6 @@ public interface CameraHandle {
 	public SetPropertyRequest<ExposureTime> setExposureTime(SetPropertyRequester requester, ExposureTime in);
 	public SetPropertyRequest<FNumber> setFNumber(SetPropertyRequester requester, FNumber in);
 	public SetPropertyRequest<Iso> setIso(SetPropertyRequester requester, Iso in);
+	
+	public TakeImageRequest takeImage(TakeImageRequester requester, ImageFormat imageFormat, StorageDevice storageDevice);
 }

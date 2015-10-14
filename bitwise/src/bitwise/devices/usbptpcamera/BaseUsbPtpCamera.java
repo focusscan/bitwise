@@ -21,6 +21,7 @@ import bitwise.devices.usbptpcamera.events.Event;
 import bitwise.devices.usbptpcamera.events.EventCode;
 import bitwise.devices.usbptpcamera.events.EventDecoder;
 import bitwise.devices.usbptpcamera.operations.*;
+import bitwise.devices.usbptpcamera.requests.TakeImage;
 import bitwise.devices.usbptpcamera.responses.DevicePropDesc;
 import bitwise.devices.usbptpcamera.responses.DevicePropertyEnum;
 import bitwise.devices.usbptpcamera.responses.DevicePropertyRange;
@@ -361,6 +362,28 @@ public abstract class BaseUsbPtpCamera<H extends BaseUsbPtpCameraHandle<?>> exte
 		SetDevicePropValue request = new SetDevicePropValue(deviceProp, value);
 		runOperation(request);
 		return request.isSuccess();
+	}
+	
+	public void takeImage(TakeImage<?> takeImage) throws InterruptedException {
+		InitiateCapture request = new InitiateCapture(takeImage.getStorageDevice().getValue(), takeImage.getImageFormat().getValue());
+		runOperation(request);
+		takeImage.setObjectID(request.getObjectIDs());
+		try {
+			if (0 < takeImage.getObjectIDs().size()) {
+				int objectID = takeImage.getObjectIDs().get(0).value;
+				GetObject imageRequest = new GetObject(objectID);
+				runOperation(imageRequest);
+				if (null != imageRequest.getResponseData() && 0 < imageRequest.getResponseData().getDataSize()) {
+					UsbPtpBuffer imageBuf = imageRequest.getResponseData().getData();
+					byte[] image = new byte[imageRequest.getResponseData().getDataSize()];
+					for (int i = 0; i < image.length; i++)
+						image[i] = imageBuf.getByte();
+					takeImage.setImage(image);
+				}
+			}
+		} catch (UsbPtpCoderException e) {
+			Log.logException(this, e);
+		}
 	}
 	
 	public DeviceInfo getDeviceInfo() throws InterruptedException, UsbPtpException {

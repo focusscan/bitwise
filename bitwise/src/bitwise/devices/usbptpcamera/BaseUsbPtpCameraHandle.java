@@ -108,4 +108,12 @@ public abstract class BaseUsbPtpCameraHandle<A extends BaseUsbPtpCamera<?>> exte
 		this.enqueueRequest(r);
 		return r;
 	}
+
+	@Override
+	public TakeImageRequest takeImage(TakeImageRequester requester, ImageFormat imageFormat,
+			StorageDevice storageDevice) {
+		TakeImage<A> r = new TakeImage<A>(getService(), requester, imageFormat, storageDevice);
+		this.enqueueRequest(r);
+		return r;
+	}
 }

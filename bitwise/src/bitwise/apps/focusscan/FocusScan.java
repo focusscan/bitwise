@@ -1,6 +1,11 @@
 package bitwise.apps.focusscan;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 
 import bitwise.apps.BaseApp;
 import bitwise.apps.focusscan.gui.DeviceSelect;
@@ -14,11 +19,13 @@ import bitwise.engine.service.BaseRequest;
 import bitwise.engine.supervisor.Supervisor;
 import bitwise.log.Log;
 import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUsbDriverRequester, CameraListener, GetPropertyRequester, SetPropertyRequester {
+public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUsbDriverRequester, CameraListener, GetPropertyRequester, SetPropertyRequester, TakeImageRequester {
 	private final FocusScanHandle handle = new FocusScanHandle(this);
 	private Stage stage = null;
 	private CameraHandle cameraHandle = null;
@@ -91,6 +98,38 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 	public void fxdo_setIso(Iso in) {
 		if (null != cameraHandle && (null == currentIso || !in.equals(currentIso))) {
 			cameraHandle.setIso(this, in);
+		}
+	}
+	
+	public void fxdo_takeTestImage(ImageFormat format, StorageDevice device) {
+		if (null != cameraHandle) {
+			cameraHandle.takeImage(this, format, device);
+		}
+	}
+	
+	@Override
+	public void notifyRequestComplete(TakeImageRequest in) {
+		Log.log(this, "Image taken %s, %d images", in, in.getObjectIDs().size());
+		if (null != in.getImage()) {
+			Image image = null;
+			try {
+				ByteArrayInputStream imageStream = new ByteArrayInputStream(in.getImage());
+				BufferedImage imageBuffered;
+					imageBuffered = ImageIO.read(imageStream);
+				image = SwingFXUtils.toFXImage(imageBuffered, null);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if (null != image) {
+				final Image theImage = image;
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						scanSetup.setImage(theImage);
+					}
+				});
+			}
 		}
 	}
 

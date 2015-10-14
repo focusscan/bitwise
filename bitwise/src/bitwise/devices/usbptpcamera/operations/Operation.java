@@ -12,8 +12,8 @@ public abstract class Operation<T> {
 	private final short operationCode;
 	private final int[] arguments;
 	private final Encodable dataOut;
-	private ResponseCode responseCode = null;
-	private ResponseData responseData = null;
+	protected ResponseCode responseCode = null;
+	protected ResponseData responseData = null;
 	private final CountDownLatch finishedLatch = new CountDownLatch(1);
 	
 	protected Operation(short in_operationCode, int arity) {
