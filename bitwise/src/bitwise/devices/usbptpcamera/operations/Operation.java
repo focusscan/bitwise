@@ -3,6 +3,7 @@ package bitwise.devices.usbptpcamera.operations;
 import java.util.concurrent.CountDownLatch;
 
 import bitwise.devices.usbptpcamera.coder.Encodable;
+import bitwise.devices.usbptpcamera.coder.UsbPtpCoderException;
 import bitwise.devices.usbptpcamera.events.Event;
 import bitwise.devices.usbptpcamera.responses.ResponseCode;
 import bitwise.devices.usbptpcamera.responses.ResponseData;
@@ -51,6 +52,10 @@ public abstract class Operation<T> {
 		arguments[argNum] = val;
 	}
 	
+	public boolean isSuccess() {
+		return (null != responseCode && responseCode.getResponseCode() == ResponseCode.success);
+	}
+	
 	public final ResponseCode getResponseCode() {
 		return responseCode;
 	}
@@ -80,7 +85,7 @@ public abstract class Operation<T> {
 		
 	}
 	
-	public T getDecodedData() {
+	public T getDecodedData() throws UsbPtpCoderException {
 		return null;
 	}
 	

@@ -20,6 +20,12 @@ public final class UsbPtpBuffer {
 		buffer = ByteBuffer.wrap(in);
 	}
 	
+	public UsbPtpBuffer(UsbPtpBuffer that) {
+		measureMode = false;
+		length = 0;
+		buffer = that.buffer.slice();
+	}
+	
 	public boolean isMeasureMode() {
 		return measureMode;
 	}
@@ -28,8 +34,12 @@ public final class UsbPtpBuffer {
 		return length;
 	}
 	
-	public byte[] getArray() {
-		return buffer.array();
+	public byte[] getArray() throws UsbPtpCoderException {
+		try {
+			return buffer.array();
+		} catch (Exception e) {
+			throw new UsbPtpCoderException(e);
+		}
 	}
 	
 	public boolean disableMeasureMode() {
@@ -41,54 +51,70 @@ public final class UsbPtpBuffer {
 		return false;
 	}
 	
-	public void put(byte in) {
-		if (measureMode)
-			length++;
-		else
-			buffer.put(in);
-	}
-	
-	public void put(short in) {
-		if (measureMode)
-			length += 2;
-		else {
-			buffer.put((byte) (in));
-			buffer.put((byte) (in >> 8));
+	public void put(byte in) throws UsbPtpCoderException {
+		try {
+			if (measureMode)
+				length++;
+			else
+				buffer.put(in);
+		} catch (Exception e) {
+			throw new UsbPtpCoderException(e);
 		}
 	}
 	
-	public void put(int in) {
-		if (measureMode)
-			length += 4;
-		else {
-			buffer.put((byte) (in));
-			buffer.put((byte) (in >> 8));
-			buffer.put((byte) (in >> 16));
-			buffer.put((byte) (in >> 24));
+	public void put(short in) throws UsbPtpCoderException {
+		try {
+			if (measureMode)
+				length += 2;
+			else {
+				buffer.put((byte) (in));
+				buffer.put((byte) (in >> 8));
+			}
+		} catch (Exception e) {
+			throw new UsbPtpCoderException(e);
 		}
 	}
 	
-	public void put(long in) {
-		if (measureMode)
-			length += 8;
-		else {
-			buffer.put((byte) (in));
-			buffer.put((byte) (in >> 8));
-			buffer.put((byte) (in >> 16));
-			buffer.put((byte) (in >> 24));
-			buffer.put((byte) (in >> 32));
-			buffer.put((byte) (in >> 40));
-			buffer.put((byte) (in >> 48));
-			buffer.put((byte) (in >> 52));
+	public void put(int in) throws UsbPtpCoderException {
+		try {
+			if (measureMode)
+				length += 4;
+			else {
+				buffer.put((byte) (in));
+				buffer.put((byte) (in >> 8));
+				buffer.put((byte) (in >> 16));
+				buffer.put((byte) (in >> 24));
+			}
+		} catch (Exception e) {
+			throw new UsbPtpCoderException(e);
 		}
 	}
 	
-	public void put(Int128 in) {
+	public void put(long in) throws UsbPtpCoderException {
+		try {
+			if (measureMode)
+				length += 8;
+			else {
+				buffer.put((byte) (in));
+				buffer.put((byte) (in >> 8));
+				buffer.put((byte) (in >> 16));
+				buffer.put((byte) (in >> 24));
+				buffer.put((byte) (in >> 32));
+				buffer.put((byte) (in >> 40));
+				buffer.put((byte) (in >> 48));
+				buffer.put((byte) (in >> 52));
+			}
+		} catch (Exception e) {
+			throw new UsbPtpCoderException(e);
+		}
+	}
+	
+	public void put(Int128 in) throws UsbPtpCoderException {
 		put(in.value_lo);
 		put(in.value_hi);
 	}
 	
-	public void put(String in) {
+	public void put(String in) throws UsbPtpCoderException {
 		if (in.length() > 254)
 			return;	// TODO: should probably throw or something
 		byte length = (byte) in.length();
@@ -102,47 +128,51 @@ public final class UsbPtpBuffer {
 		}
 	}
 	
-	public void put(byte[] in) {
+	public void put(byte[] in) throws UsbPtpCoderException {
 		put(in.length);
 		for (byte b : in)
 			put(b);
 	}
 
-	public void put(short[] in) {
+	public void put(short[] in) throws UsbPtpCoderException {
 		put(in.length);
 		for (short b : in)
 			put(b);
 	}
 
-	public void put(int[] in) {
+	public void put(int[] in) throws UsbPtpCoderException {
 		put(in.length);
 		for (int b : in)
 			put(b);
 	}
 
-	public void put(long[] in) {
+	public void put(long[] in) throws UsbPtpCoderException {
 		put(in.length);
 		for (long b : in)
 			put(b);
 	}
 
-	public void put(Int128[] in) {
+	public void put(Int128[] in) throws UsbPtpCoderException {
 		put(in.length);
 		for (Int128 b : in)
 			put(b);
 	}
 	
-	public byte getByte() {
-		return buffer.get();
+	public byte getByte() throws UsbPtpCoderException {
+		try {
+			return buffer.get();
+		} catch (Exception e) {
+			throw new UsbPtpCoderException(e);
+		}
 	}
 	
-	public short getShort() {
+	public short getShort() throws UsbPtpCoderException {
 		int v0 = 0xff & (short) getByte();
 		int v1 = 0xff & (short) getByte();
 		return (short) (v0 | (v1 << 8));
 	}
 	
-	public int getInt() {
+	public int getInt() throws UsbPtpCoderException {
 		int v0 = 0xff & (int) getByte();
 		int v1 = 0xff & (int) getByte();
 		int v2 = 0xff & (int) getByte();
@@ -150,7 +180,7 @@ public final class UsbPtpBuffer {
 		return v0 | (v1 << 8) | (v2 << 16) | (v3 << 24);
 	}
 	
-	public long getLong() {
+	public long getLong() throws UsbPtpCoderException {
 		long v0 = 0xff & (long) getByte();
 		long v1 = 0xff & (long) getByte();
 		long v2 = 0xff & (long) getByte();
@@ -163,13 +193,13 @@ public final class UsbPtpBuffer {
 				| (v4 << 32) | (v5 << 40) | (v6 << 48) | (v7 << 52);
 	}
 	
-	public Int128 getVeryLong() {
+	public Int128 getVeryLong() throws UsbPtpCoderException {
 		long lo = getLong();
 		long hi = getLong();
 		return new Int128(lo, hi);
 	}
 	
-	public String getString() {
+	public String getString() throws UsbPtpCoderException {
 		int length = 0xff & (int) getByte();
 		if (0 == length)
 			return "";
@@ -182,7 +212,7 @@ public final class UsbPtpBuffer {
 		return ret;
 	}
 	
-	public byte[] getByteArray() {
+	public byte[] getByteArray() throws UsbPtpCoderException {
 		int length = getInt();
 		byte[] ret = new byte[length];
 		for (int i = 0; i < ret.length; i++)
@@ -190,7 +220,7 @@ public final class UsbPtpBuffer {
 		return ret;
 	}
 	
-	public short[] getShortArray() {
+	public short[] getShortArray() throws UsbPtpCoderException {
 		int length = getInt();
 		short[] ret = new short[length];
 		for (int i = 0; i < ret.length; i++)
@@ -198,7 +228,7 @@ public final class UsbPtpBuffer {
 		return ret;
 	}
 	
-	public int[] getIntArray() {
+	public int[] getIntArray() throws UsbPtpCoderException {
 		int length = getInt();
 		int [] ret = new int[length];
 		for (int i = 0; i < ret.length; i++)
@@ -206,7 +236,7 @@ public final class UsbPtpBuffer {
 		return ret;
 	}
 	
-	public long[] getLongArray() {
+	public long[] getLongArray() throws UsbPtpCoderException {
 		int length = getInt();
 		long [] ret = new long[length];
 		for (int i = 0; i < ret.length; i++)
@@ -214,7 +244,7 @@ public final class UsbPtpBuffer {
 		return ret;
 	}
 	
-	public Int128[] getVeryLongArray() {
+	public Int128[] getVeryLongArray() throws UsbPtpCoderException {
 		int length = getInt();
 		Int128[] ret = new Int128[length];
 		for (int i = 0; i < ret.length; i++)
@@ -222,7 +252,7 @@ public final class UsbPtpBuffer {
 		return ret;
 	}
 	
-	public UsbPtpPrimType getPrimType(short dataType) {
+	public UsbPtpPrimType getPrimType(short dataType) throws UsbPtpCoderException {
 		switch (dataType) {
 		case (short) 0x0001:
 		case (short) 0x0002:
@@ -254,6 +284,8 @@ public final class UsbPtpBuffer {
 		case (short) 0x4009:
 		case (short) 0x400a:
 			return new AInt128(getVeryLongArray());
+		case (short) 0xffff:
+			return new Str(getString());
 		default:
 			return null;
 		}

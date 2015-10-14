@@ -1,5 +1,7 @@
 package bitwise.devices.usbptpcamera.operations;
 
+import bitwise.devices.usbptpcamera.coder.UsbPtpCoderException;
+
 public class GetDeviceInfo extends Operation<DeviceInfo> {
 	public GetDeviceInfo() {
 		super((short) 0x1001, 0);
@@ -13,7 +15,7 @@ public class GetDeviceInfo extends Operation<DeviceInfo> {
 	private DeviceInfo decoded = null;
 	
 	@Override
-	public DeviceInfo getDecodedData() {
+	public DeviceInfo getDecodedData() throws UsbPtpCoderException {
 		if (null == decoded && null != getResponseData() && 0 < getResponseData().getDataSize()) {
 			decoded = new DeviceInfo(getResponseData().getData());
 		}

@@ -1,6 +1,7 @@
 package bitwise.devices.usbptpcamera.responses;
 
 import bitwise.devices.usbptpcamera.coder.UsbPtpBuffer;
+import bitwise.devices.usbptpcamera.coder.UsbPtpCoderException;
 import bitwise.devices.usbptpcamera.coder.UsbPtpPrimType;
 
 public class DevicePropDesc {
@@ -12,7 +13,7 @@ public class DevicePropDesc {
 	public final byte formFlag;
 	public final DevicePropertyForm form;
 	
-	public DevicePropDesc(UsbPtpBuffer buf) {
+	public DevicePropDesc(UsbPtpBuffer buf) throws UsbPtpCoderException {
 		devicePropertyCode = buf.getShort();
 		dataType = buf.getShort();
 		getSet = buf.getByte();
@@ -50,7 +51,7 @@ public class DevicePropDesc {
 		case (byte) 0x02:
 			return DevicePropertyForm.Form.Enum;
 		default:
-			return null;
+			return DevicePropertyForm.Form.None;
 		}
 	}
 }

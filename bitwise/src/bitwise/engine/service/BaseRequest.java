@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 import bitwise.engine.Thing;
 import bitwise.log.Log;
 
-public abstract class BaseRequest<S extends BaseService<?>, R extends BaseRequester> extends Thing<RequestID> {
+public abstract class BaseRequest<S extends BaseService<?>, R extends BaseRequester> extends Thing<RequestID> implements Request {
 	private final S service;
 	private final R requester;
 	private final RequestState requestState = new RequestState();
@@ -30,24 +30,29 @@ public abstract class BaseRequest<S extends BaseService<?>, R extends BaseReques
 		return requestState;
 	}
 	
+	@Override
 	public final boolean isCancelled() {
 		return requestState.getRequestStatus() == RequestStatus.Cancelled;
 	}
 	
+	@Override
 	public final void cancelRequest() {
 		Log.log(this, "Cancelled");
 		requestState.notifyCancelled();
 		servedLatch.countDown();
 	}
 	
+	@Override
 	public final ServiceID getServiceID() {
 		return service.getID();
 	}
 	
+	@Override
 	public final ServiceID getRequesterID() {
 		return requester.getID();
 	}
 	
+	@Override
 	public final RequestStatus getRequestStatus() {
 		return requestState.getRequestStatus();
 	}
@@ -120,10 +125,12 @@ public abstract class BaseRequest<S extends BaseService<?>, R extends BaseReques
 		}
 	}
 	
+	@Override
 	public final void awaitServed() throws InterruptedException {
 		servedLatch.await();
 	}
 	
+	@Override
 	public final void awaitServed(long timeout, TimeUnit unit) throws InterruptedException {
 		servedLatch.await(timeout, unit);
 	}

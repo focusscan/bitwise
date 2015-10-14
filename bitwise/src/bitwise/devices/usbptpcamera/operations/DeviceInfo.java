@@ -1,6 +1,7 @@
 package bitwise.devices.usbptpcamera.operations;
 
 import bitwise.devices.usbptpcamera.coder.UsbPtpBuffer;
+import bitwise.devices.usbptpcamera.coder.UsbPtpCoderException;
 
 public class DeviceInfo {
 	public final short standardVersion;
@@ -18,7 +19,7 @@ public class DeviceInfo {
 	public final String deviceVersion;
 	public final String serialNumber;
 	
-	public DeviceInfo(UsbPtpBuffer buf) {
+	public DeviceInfo(UsbPtpBuffer buf) throws UsbPtpCoderException {
 		standardVersion = buf.getShort();
 		vendorExtensionID = buf.getInt();
 		vendorExtensionVersion = buf.getShort();

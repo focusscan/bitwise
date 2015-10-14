@@ -67,10 +67,12 @@ public final class UsbTree {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
-				synchronized (ready) {
-					for (UsbDriverFactory<?> factory : factories) {
-						if (factory.isCompatibleWith(in))
-							ready.add(new UsbReady<>(in, factory));
+				if (in.isConnected()) {
+					synchronized (ready) {
+						for (UsbDriverFactory<?> factory : factories) {
+							if (factory.isCompatibleWith(in))
+								ready.add(new UsbReady<>(in, factory));
+						}
 					}
 				}
 			}

@@ -1,15 +1,15 @@
 package bitwise.devices.camera;
 
-public class StorageDevice {
+public class ExposureProgramMode {
 	private final String label;
-	private final int value;
+	private final short value;
 	
-	public StorageDevice(String in_label, int in_value) {
+	public ExposureProgramMode(String in_label, short in_value) {
 		label = in_label;
 		value = in_value;
 	}
 	
-	public int getValue() {
+	public short getValue() {
 		return value;
 	}
 	
@@ -17,15 +17,15 @@ public class StorageDevice {
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
-		if (!(o instanceof StorageDevice))
+		if (!(o instanceof ExposureProgramMode))
 			return false;
-		StorageDevice that = (StorageDevice) o;
+		ExposureProgramMode that = (ExposureProgramMode) o;
 		return this.value == that.value;
 	}
 	
 	@Override
 	public int hashCode() {
-		return Integer.hashCode(value);
+		return Short.hashCode(value);
 	}
 	
 	@Override

@@ -1,5 +1,8 @@
 package bitwise.devices.usbptpcamera;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.usb.UsbClaimException;
 import javax.usb.UsbDisconnectedException;
 import javax.usb.UsbException;
@@ -10,6 +13,7 @@ import javax.usb.UsbNotOpenException;
 
 import bitwise.devices.BaseDriver;
 import bitwise.devices.usbptpcamera.coder.UsbPtpBuffer;
+import bitwise.devices.usbptpcamera.coder.UsbPtpCoderException;
 import bitwise.devices.usbptpcamera.coder.UsbPtpPrimType;
 import bitwise.devices.usbptpcamera.events.Event;
 import bitwise.devices.usbptpcamera.events.EventDecoder;
@@ -86,11 +90,19 @@ public abstract class BaseUsbPtpCamera<H extends BaseUsbPtpCameraHandle<?>> exte
 			Log.log(this, "Starting PTP camera (interface=%02x, out=%02x, in=%02x, int=%02x)", interfaceNum, dataOutNum, dataInNum, intrptNum);
 			getEndpoints();
 			openSession();
-			getDeviceInfo();
+			/* DeviceInfo deviceInfo = */ getDeviceInfo();
+			/*
 			getStorageIDs();
+			if (null != deviceInfo) {
+				for (short prop : deviceInfo.devicePropertiesSupported)
+					getDevicePropDesc(prop);
+			}
+			*/
 			Log.log(this, "Camera started");
 			return true;
 		} catch (InterruptedException | UsbNotActiveException | UsbDisconnectedException | UsbException e) {
+			Log.logException(this, e);
+		} catch (UsbPtpException e) {
 			Log.logException(this, e);
 		}
 		return false;
@@ -214,23 +226,40 @@ public abstract class BaseUsbPtpCamera<H extends BaseUsbPtpCameraHandle<?>> exte
 			}
 		} catch (IllegalArgumentException | UsbNotActiveException | UsbNotOpenException | UsbDisconnectedException | UsbException e) {
 			Log.logException(this, e);
+		} catch (UsbPtpCoderException e) {
+			Log.logException(this, e.exception);
 		}
 		currentOperation = null;
 	}
 	
 	private int nextSessionID = 1;
 	
-	protected void openSession() throws InterruptedException {
-		runOperation(new OpenSession(nextSessionID));
+	protected boolean openSession() throws InterruptedException {
+		OpenSession request = new OpenSession(nextSessionID);
+		runOperation(request);
+		return request.isSuccess();
 	}
 	
-	protected void closeSession() throws InterruptedException {
-		runOperation(new CloseSession());
+	protected boolean closeSession() throws InterruptedException {
+		CloseSession request = new CloseSession();
+		runOperation(request);
+		return request.isSuccess();
 	}
 	
-	protected void getStorageIDs() throws InterruptedException {
+	public static final class StorageIDwInfo {
+		public final int storageID;
+		public final StorageInfo info;
+		
+		protected StorageIDwInfo(int in_storageID, StorageInfo in_info) {
+			storageID = in_storageID;
+			info = in_info;
+		}
+	}
+	
+	public List<StorageIDwInfo> getStorageIDs() throws InterruptedException, UsbPtpException {
 		GetStorageIDs request = new GetStorageIDs();
 		runOperation(request);
+		ArrayList<StorageIDwInfo> ret = null;
 		StringBuilder sb = new StringBuilder();
 		sb.append("Storage IDs:");
 		for (int value : request.getDecodedData().value)
@@ -243,6 +272,9 @@ public abstract class BaseUsbPtpCamera<H extends BaseUsbPtpCameraHandle<?>> exte
 			// if (0x2001 == infoRequest.getResponseCode().getResponseCode()) {
 			StorageInfo info = infoRequest.getDecodedData();
 			if (null != info) {
+				if (null == ret)
+					ret = new ArrayList<>();
+				ret.add(new StorageIDwInfo(value, info));
 				final long bytesPerMeg = 1024 * 1024;
 				Log.log(this, " Desc %s label %s", info.storageDescription, info.volumeLabel);
 				Log.log(this, " %s %s %s size %d megs (%d megs free)", info.getStorageTypeEnum(), info.getFilesystemTypeEnum(), info.getAccessCapabilityEnum(), info.maxCapacity/bytesPerMeg, info.freeSpaceInBytes/bytesPerMeg);
@@ -250,9 +282,10 @@ public abstract class BaseUsbPtpCamera<H extends BaseUsbPtpCameraHandle<?>> exte
 			else
 				Log.log(this, " (No info about this storage ID)");
 		}
+		return ret;
 	}
 	
-	protected void getDevicePropValue(short deviceProp) throws InterruptedException {
+	public DevicePropDesc getDevicePropDesc(short deviceProp) throws InterruptedException, UsbPtpException {
 		GetDevicePropDesc request = new GetDevicePropDesc(deviceProp);
 		runOperation(request);
 		DevicePropDesc desc = request.getDecodedData();
@@ -260,7 +293,7 @@ public abstract class BaseUsbPtpCamera<H extends BaseUsbPtpCameraHandle<?>> exte
 			synchronized(Log.class) {
 				Log.log(this, "Device prop desc: %04x", deviceProp);
 				Log.log(this, " Default %s current %s", desc.factoryDefaultValue, desc.currentValue);
-				Log.log(this, " Form %s", desc.getFormEnum());
+				Log.log(this, " Form %s %s", desc.supportsSet() ? "Set/Get" : "Get", desc.getFormEnum());
 				switch (desc.getFormEnum()) {
 				case Range:
 				{
@@ -284,13 +317,16 @@ public abstract class BaseUsbPtpCamera<H extends BaseUsbPtpCameraHandle<?>> exte
 				}
 			}
 		}
+		return desc;
 	}
 	
-	protected void setDevicePropValue(short deviceProp, UsbPtpPrimType value) throws InterruptedException {
-		runOperation(new SetDevicePropValue(deviceProp, value));
+	public boolean setDevicePropValue(short deviceProp, UsbPtpPrimType value) throws InterruptedException {
+		SetDevicePropValue request = new SetDevicePropValue(deviceProp, value);
+		runOperation(request);
+		return request.isSuccess();
 	}
 	
-	protected void getDeviceInfo() throws InterruptedException {
+	public DeviceInfo getDeviceInfo() throws InterruptedException, UsbPtpException {
 		GetDeviceInfo request = new GetDeviceInfo();
 		runOperation(request);
 		DeviceInfo info = request.getDecodedData();
@@ -337,5 +373,6 @@ public abstract class BaseUsbPtpCamera<H extends BaseUsbPtpCameraHandle<?>> exte
 				Log.log(this, " %s %s %s %s", info.manufacturer, info.model, info.deviceVersion, info.serialNumber);
 			}
 		}
+		return info;
 	}
 }

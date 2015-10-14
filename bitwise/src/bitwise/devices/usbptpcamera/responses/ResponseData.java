@@ -1,6 +1,7 @@
 package bitwise.devices.usbptpcamera.responses;
 
 import bitwise.devices.usbptpcamera.coder.UsbPtpBuffer;
+import bitwise.devices.usbptpcamera.coder.UsbPtpCoderException;
 
 public class ResponseData extends Response {
 	private final short operationCode;
@@ -8,7 +9,7 @@ public class ResponseData extends Response {
 	private final UsbPtpBuffer data;
 	private final int dataSize;
 	
-	public ResponseData(UsbPtpBuffer buf, int in_dataSize) {
+	public ResponseData(UsbPtpBuffer buf, int in_dataSize) throws UsbPtpCoderException {
 		operationCode = buf.getShort();
 		transactionID = buf.getInt();
 		data = buf;
@@ -24,7 +25,7 @@ public class ResponseData extends Response {
 	}
 	
 	public UsbPtpBuffer getData() {
-		return data;
+		return new UsbPtpBuffer(data);
 	}
 	
 	public int getDataSize() {

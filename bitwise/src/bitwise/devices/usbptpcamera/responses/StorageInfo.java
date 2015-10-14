@@ -1,6 +1,7 @@
 package bitwise.devices.usbptpcamera.responses;
 
 import bitwise.devices.usbptpcamera.coder.UsbPtpBuffer;
+import bitwise.devices.usbptpcamera.coder.UsbPtpCoderException;
 
 public class StorageInfo {
 	public static enum StorageType {
@@ -31,7 +32,7 @@ public class StorageInfo {
 	public final String storageDescription;
 	public final String volumeLabel;
 	
-	public StorageInfo(UsbPtpBuffer buf) {
+	public StorageInfo(UsbPtpBuffer buf) throws UsbPtpCoderException {
 		storageType = buf.getShort();
 		filesystemType = buf.getShort();
 		accessCapability = buf.getShort();

@@ -3,6 +3,8 @@ package bitwise.apps.focusscan;
 import bitwise.apps.BaseApp;
 import bitwise.apps.focusscan.gui.DeviceSelect;
 import bitwise.devices.camera.CameraHandle;
+import bitwise.devices.camera.GetPropertyRequest;
+import bitwise.devices.camera.GetPropertyRequester;
 import bitwise.devices.usbservice.UsbReady;
 import bitwise.devices.usbservice.UsbServiceHandle;
 import bitwise.devices.usbservice.requests.StartUsbDriver;
@@ -15,10 +17,10 @@ import javafx.event.EventHandler;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUsbDriverRequester {
+public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUsbDriverRequester, GetPropertyRequester {
 	private final FocusScanHandle handle = new FocusScanHandle(this);
 	private Stage stage = null;
-	private CameraHandle<?> cameraHandle = null;
+	private CameraHandle cameraHandle = null;
 	
 	protected FocusScan() {
 		super();
@@ -60,7 +62,7 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 		Log.log(this, "Focus Scan request complete");
 	}
 	
-	public CameraHandle<?> getCameraHandle() {
+	public CameraHandle getCameraHandle() {
 		return cameraHandle;
 	}
 	
@@ -71,6 +73,12 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 
 	@Override
 	public void notifyRequestComplete(StartUsbDriver<?> in) {
-		cameraHandle = (CameraHandle<?>) in.getHandle();
+		cameraHandle = (CameraHandle) in.getHandle();
+		cameraHandle.getBatteryLevel(this);
+	}
+
+	@Override
+	public void notifyRequestComplete(GetPropertyRequest<?> in) {
+		Log.log(this, "Property fetched: %s", in);
 	}
 }

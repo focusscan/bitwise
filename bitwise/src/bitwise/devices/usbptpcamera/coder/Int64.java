@@ -1,6 +1,6 @@
 package bitwise.devices.usbptpcamera.coder;
 
-public class Int64 implements UsbPtpPrimType {
+public class Int64 extends UsbPtpPrimType {
 	public final long value;
 	public Int64(long in) {
 		value = in;
@@ -27,7 +27,7 @@ public class Int64 implements UsbPtpPrimType {
 	}
 	
 	@Override
-	public void encode(UsbPtpBuffer buf) {
+	public void encode(UsbPtpBuffer buf) throws UsbPtpCoderException {
 		buf.put(value);
 	}
 }

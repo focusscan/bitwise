@@ -1,6 +1,6 @@
 package bitwise.devices.usbptpcamera.coder;
 
-public class Str implements UsbPtpPrimType {
+public class Str extends UsbPtpPrimType {
 	public final String value;
 	public Str(String in) {
 		value = (null == in) ? "" : in;
@@ -27,7 +27,7 @@ public class Str implements UsbPtpPrimType {
 	}
 
 	@Override
-	public void encode(UsbPtpBuffer buf) {
+	public void encode(UsbPtpBuffer buf) throws UsbPtpCoderException {
 		buf.put(value);
 	}
 }

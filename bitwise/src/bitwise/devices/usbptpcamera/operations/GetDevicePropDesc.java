@@ -1,5 +1,6 @@
 package bitwise.devices.usbptpcamera.operations;
 
+import bitwise.devices.usbptpcamera.coder.UsbPtpCoderException;
 import bitwise.devices.usbptpcamera.responses.DevicePropDesc;
 
 public class GetDevicePropDesc extends Operation<DevicePropDesc> {
@@ -18,7 +19,7 @@ public class GetDevicePropDesc extends Operation<DevicePropDesc> {
 	private DevicePropDesc decoded = null;
 	
 	@Override
-	public DevicePropDesc getDecodedData() {
+	public DevicePropDesc getDecodedData() throws UsbPtpCoderException {
 		if (null == decoded && null != getResponseData()) {
 			decoded = new DevicePropDesc(getResponseData().getData());
 		}

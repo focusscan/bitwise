@@ -1,15 +1,15 @@
 package bitwise.devices.camera;
 
-public class ExposureMode {
+public class FocalLength {
 	private final String label;
-	private final short value;
+	private final int value;
 	
-	public ExposureMode(String in_label, short in_value) {
+	public FocalLength(String in_label, int in_value) {
 		label = in_label;
 		value = in_value;
 	}
 	
-	public short getValue() {
+	public int getValue() {
 		return value;
 	}
 	
@@ -17,15 +17,15 @@ public class ExposureMode {
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
-		if (!(o instanceof ExposureMode))
+		if (!(o instanceof FocalLength))
 			return false;
-		ExposureMode that = (ExposureMode) o;
+		FocalLength that = (FocalLength) o;
 		return this.value == that.value;
 	}
 	
 	@Override
 	public int hashCode() {
-		return Short.hashCode(value);
+		return Integer.hashCode(value);
 	}
 	
 	@Override

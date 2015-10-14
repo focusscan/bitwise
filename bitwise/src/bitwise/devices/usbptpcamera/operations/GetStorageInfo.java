@@ -1,5 +1,6 @@
 package bitwise.devices.usbptpcamera.operations;
 
+import bitwise.devices.usbptpcamera.coder.UsbPtpCoderException;
 import bitwise.devices.usbptpcamera.responses.StorageInfo;
 
 public class GetStorageInfo extends Operation<StorageInfo> {
@@ -18,7 +19,7 @@ public class GetStorageInfo extends Operation<StorageInfo> {
 	private StorageInfo decoded = null;
 	
 	@Override
-	public StorageInfo getDecodedData() {
+	public StorageInfo getDecodedData() throws UsbPtpCoderException {
 		if (null == decoded && null != getResponseData() && 0 < getResponseData().getDataSize()) {
 			decoded = new StorageInfo(getResponseData().getData());
 		}

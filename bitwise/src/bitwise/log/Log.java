@@ -40,6 +40,11 @@ public final class Log {
 		e.printStackTrace(System.out);
 	}
 	
+	public synchronized static void logException(BaseRequest<?, ?> thing, Exception e) {
+		log(thing, "Exception: %s", e);
+		e.printStackTrace(System.out);
+	}
+	
 	public synchronized static void logServingException(BaseRequest<?, ?> thing, Exception e) {
 		log(thing, "Serving exception: %s", e);
 		e.printStackTrace(System.out);

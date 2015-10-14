@@ -47,6 +47,11 @@ public final class ServiceRequestHandler {
 					System.out.println("ServiceRequestHandler exception:");
 					e.printStackTrace();
 				}
+				try {
+					service.stopTasksAndDrivers(cert);
+				} catch (InterruptedException e) {
+					Log.logException(service, e);
+				}
 				Supervisor.getInstance().notifyServiceStopped(cert, service);
 				service.onStopService();
 				Log.log(service, "ServiceRequestHandler finished");

@@ -1,6 +1,7 @@
 package bitwise.devices.usbptpcamera.responses;
 
 import bitwise.devices.usbptpcamera.coder.UsbPtpBuffer;
+import bitwise.devices.usbptpcamera.coder.UsbPtpCoderException;
 import bitwise.devices.usbptpcamera.coder.UsbPtpPrimType;
 
 public class DevicePropertyRange implements DevicePropertyForm {
@@ -8,7 +9,7 @@ public class DevicePropertyRange implements DevicePropertyForm {
 	public final UsbPtpPrimType maximumValue;
 	public final UsbPtpPrimType stepSize;
 	
-	public DevicePropertyRange(UsbPtpBuffer buf, short dataType) {
+	public DevicePropertyRange(UsbPtpBuffer buf, short dataType) throws UsbPtpCoderException {
 		minimumValue = buf.getPrimType(dataType);
 		maximumValue = buf.getPrimType(dataType);
 		stepSize = buf.getPrimType(dataType);

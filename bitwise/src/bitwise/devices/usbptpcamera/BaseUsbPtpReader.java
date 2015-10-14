@@ -12,6 +12,7 @@ import javax.usb.event.UsbPipeDataEvent;
 import javax.usb.event.UsbPipeErrorEvent;
 
 import bitwise.devices.usbptpcamera.coder.UsbPtpBuffer;
+import bitwise.devices.usbptpcamera.coder.UsbPtpCoderException;
 import bitwise.devices.usbptpcamera.coder.UsbPtpDecoder;
 
 public class BaseUsbPtpReader<T> implements javax.usb.event.UsbPipeListener {
@@ -63,7 +64,7 @@ public class BaseUsbPtpReader<T> implements javax.usb.event.UsbPipeListener {
 		return v0 | (v1 << 8) | (v2 << 16) | (v3 << 24);
 	}
 	
-	private T doDecode(byte[] in) {
+	private T doDecode(byte[] in) throws UsbPtpCoderException {
 		/*
 		StringBuilder sb = new StringBuilder();
 		sb.append(String.format("Decoding %d bytes with %s: ", in.length, decoder.getClass().getSimpleName()));
@@ -76,31 +77,36 @@ public class BaseUsbPtpReader<T> implements javax.usb.event.UsbPipeListener {
 
 	@Override
 	public void dataEventOccurred(UsbPipeDataEvent event) {
-		if (4 <= event.getActualLength()) {
-			T d = null;
-			byte[] eventData = event.getData();
-			
-			if (null == contBuf) {
-				int length = peekInt(eventData);
-				if (length <= event.getActualLength()) {
-					d = doDecode(eventData);
+		try {
+			if (4 <= event.getActualLength()) {
+				T d = null;
+				byte[] eventData = event.getData();
+				
+				if (null == contBuf) {
+					int length = peekInt(eventData);
+					if (length <= event.getActualLength()) {
+						d = doDecode(eventData);
+					}
+					else {
+						contBuf = new byte[length];
+						contPos = 0;
+					}
 				}
-				else {
-					contBuf = new byte[length];
-					contPos = 0;
+				if (null != contBuf) {
+					for (int i = 0; i < event.getActualLength(); i++)
+						contBuf[contPos++] = eventData[i];
+					if (contBuf.length == contPos) {
+						d = doDecode(contBuf);
+						contBuf = null;
+						contPos = 0;
+					}
 				}
+				if (null != d)
+					decoded.add(d);
 			}
-			if (null != contBuf) {
-				for (int i = 0; i < event.getActualLength(); i++)
-					contBuf[contPos++] = eventData[i];
-				if (contBuf.length == contPos) {
-					d = doDecode(contBuf);
-					contBuf = null;
-					contPos = 0;
-				}
-			}
-			if (null != d)
-				decoded.add(d);
+		} catch(UsbPtpCoderException e) {
+			// TODO
+			e.printStackTrace();
 		}
 		
 		submitNextBuffer();
