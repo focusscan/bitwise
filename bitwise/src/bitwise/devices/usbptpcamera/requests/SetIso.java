@@ -20,7 +20,7 @@ public class SetIso <A extends BaseUsbPtpCamera<?>> extends BaseUsbPtpCameraRequ
 
 	@Override
 	public CameraProperty getProperty() {
-		return CameraProperty.FNumber;
+		return CameraProperty.Iso;
 	}
 
 	@Override
