@@ -188,34 +188,5 @@ public class CanonDevicePropTables {
 	FocusMode.put((short)0x00, "One Shot");
 	FocusMode.put((short)0x01, "AI Focus");
 	FocusMode.put((short)0x02, "AI Servo");
-
-    ImageFormat.put((short)0x0400, "RAW");
-    ImageFormat.put((short)0x1400, "mRAW");
-    ImageFormat.put((short)0x2400, "sRAW");
-    ImageFormat.put((short)0x0300, "Large Fine JPEG");
-    ImageFormat.put((short)0x0200, "Large Normal JPEG");
-    ImageFormat.put((short)0x1300, "Medium Fine JPEG");
-    ImageFormat.put((short)0x1200, "Medium Normal JPEG");
-    ImageFormat.put((short)0x2300, "Small Fine JPEG");
-    ImageFormat.put((short)0x2200, "Small Normal JPEG");
-    ImageFormat.put((short)0x0403, "RAW + Large Fine JPEG");
-    ImageFormat.put((short)0x1403, "mRAW + Large Fine JPEG");
-    ImageFormat.put((short)0x2403, "sRAW + Large Fine JPEG");
-    ImageFormat.put((short)0x0413, "RAW + Medium Fine JPEG");
-    ImageFormat.put((short)0x1413, "mRAW + Medium Fine JPEG");
-    ImageFormat.put((short)0x2413, "sRAW + Medium Fine JPEG");
-    ImageFormat.put((short)0x0423, "RAW + Small Fine JPEG");
-    ImageFormat.put((short)0x1423, "mRAW + Small Fine JPEG");
-    ImageFormat.put((short)0x2423, "sRAW + Small Fine JPEG");
-    ImageFormat.put((short)0x0402, "RAW + Large Normal JPEG");
-    ImageFormat.put((short)0x1402, "mRAW + Large Normal JPEG");
-    ImageFormat.put((short)0x2402, "sRAW + Large Normal JPEG");
-    ImageFormat.put((short)0x0412, "RAW + Medium Normal JPEG");
-    ImageFormat.put((short)0x1412, "mRAW + Medium Normal JPEG");
-    ImageFormat.put((short)0x2412, "sRAW + Medium Normal JPEG");
-    ImageFormat.put((short)0x0422, "RAW + Small Normal JPEG");
-    ImageFormat.put((short)0x1422, "mRAW + Small Normal JPEG");
-    ImageFormat.put((short)0x2422, "sRAW + Small Normal JPEG");
-
 	}
 }

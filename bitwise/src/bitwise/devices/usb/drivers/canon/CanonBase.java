@@ -27,7 +27,9 @@ import bitwise.devices.usb.drivers.canon.operations.SetEventMode;
 import bitwise.devices.usb.drivers.canon.operations.SetRemoteMode;
 import bitwise.devices.usb.drivers.canon.responses.CanonEventResponse;
 import bitwise.devices.usb.drivers.ptp.PtpCamera;
+import bitwise.devices.usb.drivers.ptp.types.ObjectFormatCode;
 import bitwise.devices.usb.drivers.ptp.types.events.Event;
+import bitwise.devices.usb.drivers.ptp.types.prim.Arr;
 import bitwise.devices.usb.drivers.ptp.types.prim.UInt32;
 
 public abstract class CanonBase extends PtpCamera implements FullCamera {
@@ -112,22 +114,104 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 	
 	@Override
 	protected void cmd_fetchAllCameraProperties() {
+		updateStorageDevices();
 		CanonEventResponse evtData = parseCameraEvent();
 		updateExposureIndex(evtData);
 		updateExposureTime(evtData);
 		updateExposureMode(evtData);
 		updateFNumber(evtData);
 		updateFocusMode(evtData);
-//		updateImageFormat(evtData);
 	}
 	
 	private ImageFormat decode_imageFormat(short in) {
 		String name = null;
-		if (CanonDevicePropTables.ImageFormat.containsKey(in)) {
-			name = CanonDevicePropTables.ImageFormat.get(in);
-		}
-		else {
-			name = String.format("[code %04x]", in);
+		switch (in) {
+			case (short) 0x3000:
+				name = "Nikon RAW";
+				break;
+			case (short) 0x3001:
+				name = "Association";
+				break;
+			case (short) 0x3002:
+				name = "Script";
+				break;
+			case (short) 0x3003:
+				name = "Executable";
+				break;
+			case (short) 0x3004:
+				name = "Text";
+				break;
+			case (short) 0x3005:
+				name = "HTML";
+				break;
+			case (short) 0x3006:
+				name = "DPOF";
+				break;
+			case (short) 0x3007:
+				name = "AIFF";
+				break;
+			case (short) 0x3008:
+				name = "WAV";
+				break;
+			case (short) 0x3009:
+				name = "MP3";
+				break;
+			case (short) 0x300a:
+				name = "AVI";
+				break;
+			case (short) 0x300b:
+				name = "MPEG";
+				break;
+			case (short) 0x300c:
+				name = "ASF";
+				break;
+			case (short) 0x3801:
+				name = "EXIF/JPEG";
+				break;
+			case (short) 0x3802:
+				name = "TIFF/EP";
+				break;
+			case (short) 0x3803:
+				name = "FlashPix";
+				break;
+			case (short) 0x3804:
+				name = "Windows BMP";
+				break;
+			case (short) 0x3805:
+				name = "Canon CIFF";
+				break;
+			case (short) 0x3807:
+				name = "GIF";
+				break;
+			case (short) 0x3808:
+				name = "JFIF";
+				break;
+			case (short) 0x3809:
+				name = "PCD";
+				break;
+			case (short) 0x380a:
+				name = "Quickdraw PICT";
+				break;
+			case (short) 0x380b:
+				name = "PNG";
+				break;
+			case (short) 0x380d:
+				name = "TIFF";
+				break;
+			case (short) 0x380e:
+				name = "TIFF/IT";
+				break;
+			case (short) 0x380f:
+				name = "JP2";
+				break;
+			case (short) 0x3810:
+				name = "JPX";
+				break;
+			case (short) 0xb101:
+				name = "Canon RAW (CRW)";
+				break;
+			default:
+				name = String.format("[code %04x]", in);
 		}
 		return new ImageFormat(name, in);
 	}
@@ -142,19 +226,19 @@ public abstract class CanonBase extends PtpCamera implements FullCamera {
 		}
 	}
 	
-	@Override
+/*	@Override
 	public List<ImageFormat> getImageFormats() {
 		return prop_imageFormatValid;
-	}
-	
-/*	protected void updateImageFormats(CanonEventResponse evtData)
-	{
-		if (evtData.imageFormatChanged()) {
-			exposureIndexChanged(evtData.getImageFormat(), evtData.getValidImageFormats());
-		} else {
-			bitwise.engine.supervisor.Supervisor.getEventBus().publishEventToBus(new ImageFormatChanged(this, prop_imageFormat, prop_imageFormatValid));
-		}
 	}*/
+	
+	@Override
+	public List<ImageFormat> getImageFormats() {
+		Arr<ObjectFormatCode> formats = getDeviceInfo().getCaptureFormats();
+		ArrayList<ImageFormat> ret = new ArrayList<>(formats.getValue().size());
+		for (ObjectFormatCode code : getDeviceInfo().getImageFormats().getValue())
+			ret.add(decode_imageFormat(code.getValue()));
+		return ret;
+	}
 	
 	@Override
 	public ExposureMode getExposureMode() {

@@ -372,8 +372,11 @@ public abstract class PtpCamera extends UsbDriver {
 					GetStorageInfo getStorageInfo = new GetStorageInfo(storageID);
 					runOperation(getStorageInfo);
 					StorageInfo info = getStorageInfo.getResponseData();
-					if (null != info)
-						storageDevices.add(new StorageDevice(info.getVolumeLabel().getValue(), storageID.getValue()));
+					if (null != info) {
+						String name = info.getVolumeLabel().getValue().isEmpty() ? info.getStorageDescription().getValue() :
+								info.getVolumeLabel().getValue();
+						storageDevices.add(new StorageDevice(name, storageID.getValue()));
+					}
 				}
 				storageDevicesChanged(storageDevices);
 				return true;
