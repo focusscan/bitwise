@@ -5,13 +5,17 @@ import java.util.List;
 
 import bitwise.apps.focusscan.FocusScan;
 import bitwise.devices.camera.*;
+import bitwise.log.Log;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -39,8 +43,10 @@ public class ScanSetup extends BorderPane {
 	@FXML private ComboBox<Iso> cbIso;
 	@FXML private ComboBox<FNumber> cbAperture;
 	@FXML private ComboBox<ExposureTime> cbExposure;
-	@FXML private ComboBox<ImageFormat> cbFormat;
-	@FXML private ComboBox<StorageDevice> cbStorage;
+	@FXML private TextField focusSteps;
+	@FXML private TextField focusStepsPerImage;
+	@FXML private Button btnScan;
+	@FXML private Label imageCount;
 	@FXML private Pane centerPane;
 	@FXML private ImageView imageView;
 	private final FocusScan app;
@@ -74,6 +80,18 @@ public class ScanSetup extends BorderPane {
 			public void changed(ObservableValue<? extends ExposureTime> obs, ExposureTime oldV, ExposureTime newV) {
 				if (null != newV && null != oldV)
 					app.fxdo_setExposureTime(newV);
+			}
+		});
+		focusSteps.textProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				updateImageCount();
+			}
+		});
+		focusStepsPerImage.textProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				updateImageCount();
 			}
 		});
 		
@@ -118,41 +136,52 @@ public class ScanSetup extends BorderPane {
 		cbIso.setValue(value);
 	}
 	
-	public void setStorageDevices(List<StorageDevice> values) {
-		cbStorage.itemsProperty().get().clear();
-		cbStorage.itemsProperty().get().addAll(values);
-		if (values.size() > 0)
-			cbStorage.setValue(values.get(0));
-		else
-			cbStorage.setValue(null);
-	}
-	
-	public void setImageFormats(List<ImageFormat> values) {
-		cbFormat.itemsProperty().get().clear();
-		cbFormat.itemsProperty().get().addAll(values);
-		if (values.size() > 0)
-			cbFormat.setValue(values.get(0));
-		else
-			cbFormat.setValue(null);
-	}
-	
 	public void setImage(Image image) {
 		imageView.setImage(image);
 	}
 	
-	@FXML protected void toggleLiveView(ActionEvent event) {
-		app.fxdo_liveViewToggle();
-	}
-	
 	@FXML protected void focusNear(ActionEvent event) {
-		app.fxdo_focusNear();
+		try {
+			int steps = Integer.parseInt(focusSteps.getText());
+			app.fxdo_focusNear(steps);
+		} catch (Exception e) {
+			Log.log(app, "cannot parse %s", focusSteps.getText());
+		}
 	}
 	
 	@FXML protected void focusFar(ActionEvent event) {
-		app.fxdo_focusFar();
+		try {
+			int steps = Integer.parseInt(focusSteps.getText());
+			app.fxdo_focusFar(steps);
+		} catch (Exception e) {
+			Log.log(app, "cannot parse %s", focusSteps.getText());
+		}
 	}
 	
 	@FXML protected void takeTestImage(ActionEvent event) {
-		app.fxdo_takeTestImage(cbFormat.getValue(), cbStorage.getValue());
+		app.fxdo_takeTestImage();
+	}
+	
+	private void updateImageCount() {
+		try {
+			int steps = Integer.parseInt(focusSteps.getText());
+			int stepsPerImage = Integer.parseInt(focusStepsPerImage.getText());
+			int images = steps / stepsPerImage;
+			imageCount.setText(String.format("%d", images));
+			btnScan.setDisable(false);
+		} catch (Exception e) {
+			imageCount.setText("N/A");
+			btnScan.setDisable(true);
+		}
+	}
+	
+	@FXML protected void scanNearToFar(ActionEvent event) {
+		try {
+			int steps = Integer.parseInt(focusSteps.getText());
+			int stepsPerImage = Integer.parseInt(focusStepsPerImage.getText());
+			app.fxdo_scanNearToFar(steps, stepsPerImage);
+		} catch (Exception e) {
+			Log.log(app, "cannot parse %s %s", focusSteps.getText(), focusStepsPerImage.getText());
+		}
 	}
 }

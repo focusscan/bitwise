@@ -10,6 +10,7 @@ import javax.imageio.ImageIO;
 import bitwise.apps.BaseApp;
 import bitwise.apps.focusscan.gui.DeviceSelect;
 import bitwise.apps.focusscan.gui.ScanSetup;
+import bitwise.apps.focusscan.gui.TestImage;
 import bitwise.devices.camera.*;
 import bitwise.devices.usbservice.UsbReady;
 import bitwise.devices.usbservice.UsbServiceHandle;
@@ -25,7 +26,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUsbDriverRequester, CameraListener, GetPropertyRequester, SetPropertyRequester, TakeImageRequester, LiveViewOnRequester, LiveViewOffRequester, GetLiveViewImageRequester, DriveFocusRequester, TakeImageLVRequester {
+public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUsbDriverRequester, CameraListener, GetPropertyRequester, SetPropertyRequester, LiveViewOnRequester, LiveViewOffRequester, GetLiveViewImageRequester, DriveFocusRequester, TakeImageLVRequester {
 	private final FocusScanHandle handle = new FocusScanHandle(this);
 	private Stage stage = null;
 	private CameraHandle cameraHandle = null;
@@ -88,17 +89,6 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 			});
 			break;
 		}
-		case ExposureProgramMode:
-		{
-			Platform.runLater(new Runnable() {
-				@Override
-				public void run() {
-					if (null != scanSetup)
-						scanSetup.setExposureProgramMode((ExposureProgramMode) in.getValue());
-				}
-			});
-			break;
-		}
 		case ExposureTime:
 		{
 			currentExposureTime = (ExposureTime) in.getValue();
@@ -108,17 +98,6 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 				public void run() {
 					if (null != scanSetup)
 						scanSetup.setExposureTime((ExposureTime) in.getValue(), (List<ExposureTime>) in.getLegalValues());
-				}
-			});
-			break;
-		}
-		case FlashMode:
-		{
-			Platform.runLater(new Runnable() {
-				@Override
-				public void run() {
-					if (null != scanSetup)
-						scanSetup.setFlashMode((FlashMode) in.getValue());
 				}
 			});
 			break;
@@ -147,17 +126,6 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 			});
 			break;
 		}
-		case FocusMode:
-		{
-			Platform.runLater(new Runnable() {
-				@Override
-				public void run() {
-					if (null != scanSetup)
-						scanSetup.setFocusMode((FocusMode) in.getValue());
-				}
-			});
-			break;
-		}
 		case Iso:
 		{
 			currentIso = (Iso) in.getValue();
@@ -171,30 +139,11 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 			});
 			break;
 		}
+		case ExposureProgramMode:
+		case FlashMode:
+		case FocusMode:
 		case StorageDevices:
-		{
-			Platform.runLater(new Runnable() {
-				@SuppressWarnings("unchecked")
-				@Override
-				public void run() {
-					if (null != scanSetup)
-						scanSetup.setStorageDevices((List<StorageDevice>) in.getValue());
-				}
-			});
-			break;
-		}
 		case ImageFormats:
-		{
-			Platform.runLater(new Runnable() {
-				@SuppressWarnings("unchecked")
-				@Override
-				public void run() {
-					if (null != scanSetup)
-						scanSetup.setImageFormats((List<ImageFormat>) in.getValue());
-				}
-			});
-			break;
-		}
 		default:
 			Log.log(this, "I sent this request but I don't know what to do with it: %s", in);
 		}
@@ -206,14 +155,8 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 		case BatteryLevel:
 			camera.getBatteryLevel(this);
 			break;
-		case ExposureProgramMode:
-			camera.getExposureProgramMode(this);
-			break;
 		case ExposureTime:
 			camera.getExposureTime(this);
-			break;
-		case FlashMode:
-			camera.getFlashMode(this);
 			break;
 		case FNumber:
 			camera.getFNumber(this);
@@ -221,18 +164,14 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 		case FocalLength:
 			camera.getFocalLength(this);
 			break;
-		case FocusMode:
-			camera.getFocusMode(this);
-			break;
 		case Iso:
 			camera.getIso(this);
 			break;
+		case ExposureProgramMode:
+		case FlashMode:
+		case FocusMode:
 		case StorageDevices:
-			camera.getStorageDevices(this);
-			break;
 		case ImageFormats:
-			camera.getImageFormats(this);
-			break;
 		default:
 			Log.log(this, "Property %s - %s changed, ignoring", camera, property);
 		}
@@ -265,39 +204,6 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 		}
 	}
 	
-	public void fxdo_takeTestImage(ImageFormat format, StorageDevice device) {
-		if (null != cameraHandle) {
-			// cameraHandle.takeImage(this, format, device);
-			cameraHandle.takeImageInSdram(this);
-		}
-	}
-	
-	@Override
-	public void notifyRequestComplete(TakeImageRequest in) {
-		Log.log(this, "Image taken %s", in);
-		if (null != in.getImage()) {
-			Image image = null;
-			try {
-				ByteArrayInputStream imageStream = new ByteArrayInputStream(in.getImage());
-				BufferedImage imageBuffered;
-					imageBuffered = ImageIO.read(imageStream);
-				image = SwingFXUtils.toFXImage(imageBuffered, null);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			if (null != image) {
-				final Image theImage = image;
-				Platform.runLater(new Runnable() {
-					@Override
-					public void run() {
-						scanSetup.setImage(theImage);
-					}
-				});
-			}
-		}
-	}
-
 	@Override
 	public void notifyRequestComplete(SetPropertyRequest<?> in) {
 		switch (in.getProperty()) {
@@ -315,23 +221,6 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 		}
 	}
 	
-	private volatile ScanSetup scanSetup = null;
-	
-	public void fxdo_Hello(ScanSetup in) {
-		scanSetup = in;
-		
-		cameraHandle.getBatteryLevel(this);
-		cameraHandle.getExposureProgramMode(this);
-		cameraHandle.getExposureTime(this);
-		cameraHandle.getFlashMode(this);
-		cameraHandle.getFNumber(this);
-		cameraHandle.getFocalLength(this);
-		cameraHandle.getFocusMode(this);
-		cameraHandle.getIso(this);
-		cameraHandle.getStorageDevices(this);
-		cameraHandle.getImageFormats(this);
-	}
-
 	@Override
 	public void notifyRequestComplete(StartUsbDriver<?> in) {
 		cameraHandle = (CameraHandle) in.getHandle();
@@ -346,17 +235,24 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 		});
 	}
 	
-	private volatile LiveViewTask liveViewTask = null;
+	private volatile ScanSetup scanSetup = null;
 	
-	public boolean liveViewOn() {
-		return (null != liveViewTask && liveViewTask.isRunning());
+	public void fxdo_Hello(ScanSetup in) {
+		scanSetup = in;
+		
+		cameraHandle.getBatteryLevel(this);
+		cameraHandle.getExposureTime(this);
+		cameraHandle.getFNumber(this);
+		cameraHandle.getFocalLength(this);
+		cameraHandle.getIso(this);
+		
+		fxdo_liveViewOn();
 	}
 	
-	public void fxdo_liveViewToggle() {
-		if (liveViewOn())
-			fxdo_liveViewOff();
-		else
-			fxdo_liveViewOn();
+	private volatile LiveViewTask liveViewTask = null;
+	
+	public boolean liveViewIsOn() {
+		return (null != liveViewTask && liveViewTask.isRunning());
 	}
 	
 	public void fxdo_liveViewOn() {
@@ -409,6 +305,12 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 		}
 	}
 	
+	public void fxdo_takeTestImage() {
+		if (null != cameraHandle) {
+			cameraHandle.takeImageLV(this);
+		}
+	}
+	
 	@Override
 	public void notifyRequestComplete(TakeImageLVRequest in) {
 		Log.log(this, "Image taken from sdram %s", in);
@@ -428,24 +330,30 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 				Platform.runLater(new Runnable() {
 					@Override
 					public void run() {
-						scanSetup.setImage(theImage);
+						TestImage.showTestImage(theImage, new Stage());
 					}
 				});
 			}
 		}
 	}
 
-	public void fxdo_focusNear() {
-		cameraHandle.driveFocus(this, DriveFocusRequest.Direction.TowardsNear, 1000);
+	public void fxdo_focusNear(int steps) {
+		cameraHandle.driveFocus(this, DriveFocusRequest.Direction.TowardsNear, steps);
 	}
 	
-	public void fxdo_focusFar() {
-		cameraHandle.driveFocus(this, DriveFocusRequest.Direction.TowardsFar, 1000);
+	public void fxdo_focusFar(int steps) {
+		cameraHandle.driveFocus(this, DriveFocusRequest.Direction.TowardsFar, steps);
 	}
 
 	@Override
 	public void notifyRequestComplete(DriveFocusRequest in) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public void fxdo_scanNearToFar(int steps, int stepsPerImage) {
+		// TODO: kill the live view task,
+		// switch to the scanning scene,
+		// start the scanning task
 	}
 }

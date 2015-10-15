@@ -4,6 +4,7 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.BorderPane?>
@@ -11,7 +12,7 @@
 <?import javafx.scene.layout.Region?>
 
 <fx:root type="javafx.scene.layout.BorderPane" xmlns:fx="http://javafx.com/fxml"
-	prefWidth="550" prefHeight="600">
+	prefWidth="800" prefHeight="630">
 	<top>
 		<VBox>
 			<ToolBar>
@@ -42,22 +43,7 @@
 			</ToolBar>
 			<ToolBar>
 				<items>
-					<Region styleClass="spacer" />
-					<VBox alignment="bottom_center">
-						<Label text="Format" />
-						<ComboBox fx:id="cbFormat" promptText="--">
-							<items />
-
-						</ComboBox>
-					</VBox>
-					<Region styleClass="spacer" />
-					<VBox alignment="bottom_center">
-						<Label text="Storage" />
-						<ComboBox fx:id="cbStorage" promptText="--">
-							<items />
-
-						</ComboBox>
-					</VBox>
+					
 				</items>
 			</ToolBar>
 		</VBox>
@@ -70,10 +56,14 @@
 	<bottom>
 		<ToolBar>
 			<items>
-				<Button fx:id="btnToggleLiveView" onAction="#toggleLiveView" text="Toggle live view" />
-				<Button fx:id="btnFocusNear" onAction="#focusNear" text="Focus near" />
-				<Button fx:id="btnFocusFar" onAction="#focusFar" text="Focus far" />
-				<Button fx:id="btnTestImage" onAction="#takeTestImage" text="Take test image" />
+				<Button onAction="#focusNear" text="Focus near" />
+				<TextField fx:id="focusSteps" promptText="Steps" prefWidth="90"/>
+				<Button onAction="#focusFar" text="Focus far" />
+				<Button onAction="#takeTestImage" text="Take test image" />
+				<TextField fx:id="focusStepsPerImage" promptText="Steps per image" prefWidth="90"/>
+				<Label text="Image count: " />
+				<Label fx:id="imageCount" text="N/A" />
+				<Button fx:id="btnScan" onAction="#scanNearToFar" text="Scan near-to-far" disable="true" />
 			</items>
 		</ToolBar>
 	</bottom>

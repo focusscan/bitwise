@@ -78,7 +78,11 @@ public class BaseUsbPtpReader<T> implements javax.usb.event.UsbPipeListener {
 	@Override
 	public void dataEventOccurred(UsbPipeDataEvent event) {
 		try {
-			if (4 <= event.getActualLength()) {
+			if (4 >= event.getActualLength()) {
+				contBuf = null;
+				contPos = 0;
+			}
+			else {
 				T d = null;
 				byte[] eventData = event.getData();
 				
@@ -93,7 +97,7 @@ public class BaseUsbPtpReader<T> implements javax.usb.event.UsbPipeListener {
 					}
 				}
 				if (null != contBuf) {
-					for (int i = 0; i < event.getActualLength(); i++)
+					for (int i = 0; i < event.getActualLength() && contPos < contBuf.length; i++)
 						contBuf[contPos++] = eventData[i];
 					if (contBuf.length == contPos) {
 						d = doDecode(contBuf);

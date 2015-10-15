@@ -27,5 +27,5 @@ public interface CameraHandle {
 	public SetPropertyRequest<Iso> setIso(SetPropertyRequester requester, Iso in);
 	
 	public TakeImageRequest takeImage(TakeImageRequester requester, ImageFormat imageFormat, StorageDevice storageDevice);
-	public TakeImageLVRequest takeImageInSdram(TakeImageLVRequester requester);
+	public TakeImageLVRequest takeImageLV(TakeImageLVRequester requester);
 }

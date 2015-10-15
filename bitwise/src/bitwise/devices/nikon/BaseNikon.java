@@ -49,7 +49,7 @@ public abstract class BaseNikon extends BaseUsbPtpCamera<NikonHandle> {
 		deviceBusy();
 		deviceBusy();
 		while (deviceBusy())
-			Thread.sleep(10);
+			Thread.sleep(100);
 		return (null != request.getResponseCode() && request.getResponseCode().getResponseCode() == ResponseCode.success);
 	}
 	
@@ -76,8 +76,6 @@ public abstract class BaseNikon extends BaseUsbPtpCamera<NikonHandle> {
 		runOperation(request);
 		deviceBusy();
 		deviceBusy();
-		while (deviceBusy())
-			Thread.sleep(10);
 		return (null != request.getResponseCode() && request.getResponseCode().getResponseCode() == ResponseCode.success);
 	}
 	
@@ -102,7 +100,7 @@ public abstract class BaseNikon extends BaseUsbPtpCamera<NikonHandle> {
 		deviceBusy();
 		deviceBusy();
 		while (deviceBusy())
-			Thread.sleep(10);
+			Thread.sleep(100);
 		try {
 			if (0 < request.getObjectIDs().size()) {
 				int objectID = request.getObjectIDs().get(0).value;
