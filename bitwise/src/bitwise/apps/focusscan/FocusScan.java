@@ -25,7 +25,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUsbDriverRequester, CameraListener, GetPropertyRequester, SetPropertyRequester, TakeImageRequester, LiveViewOnRequester, LiveViewOffRequester, GetLiveViewImageRequester, DriveFocusRequester {
+public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUsbDriverRequester, CameraListener, GetPropertyRequester, SetPropertyRequester, TakeImageRequester, LiveViewOnRequester, LiveViewOffRequester, GetLiveViewImageRequester, DriveFocusRequester, TakeImageLVRequester {
 	private final FocusScanHandle handle = new FocusScanHandle(this);
 	private Stage stage = null;
 	private CameraHandle cameraHandle = null;
@@ -267,7 +267,8 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 	
 	public void fxdo_takeTestImage(ImageFormat format, StorageDevice device) {
 		if (null != cameraHandle) {
-			cameraHandle.takeImage(this, format, device);
+			// cameraHandle.takeImage(this, format, device);
+			cameraHandle.takeImageInSdram(this);
 		}
 	}
 	
@@ -408,6 +409,32 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 		}
 	}
 	
+	@Override
+	public void notifyRequestComplete(TakeImageLVRequest in) {
+		Log.log(this, "Image taken from sdram %s", in);
+		if (null != in.getImage()) {
+			Image image = null;
+			try {
+				ByteArrayInputStream imageStream = new ByteArrayInputStream(in.getImage());
+				BufferedImage imageBuffered;
+					imageBuffered = ImageIO.read(imageStream);
+				image = SwingFXUtils.toFXImage(imageBuffered, null);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if (null != image) {
+				final Image theImage = image;
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						scanSetup.setImage(theImage);
+					}
+				});
+			}
+		}
+	}
+
 	public void fxdo_focusNear() {
 		cameraHandle.driveFocus(this, DriveFocusRequest.Direction.TowardsNear, 1000);
 	}

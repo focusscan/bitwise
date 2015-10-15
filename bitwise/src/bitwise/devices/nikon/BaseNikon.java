@@ -5,6 +5,7 @@ import bitwise.devices.nikon.operations.*;
 import bitwise.devices.nikon.reponses.LiveViewObject;
 import bitwise.devices.usbptpcamera.BaseUsbPtpCamera;
 import bitwise.devices.usbptpcamera.coder.UsbPtpCoderException;
+import bitwise.devices.usbptpcamera.operations.GetObject;
 import bitwise.devices.usbptpcamera.responses.ResponseCode;
 import bitwise.devices.usbservice.UsbDevice;
 import bitwise.log.Log;
@@ -45,6 +46,8 @@ public abstract class BaseNikon extends BaseUsbPtpCamera<NikonHandle> {
 	public boolean startLiveView() throws InterruptedException {
 		StartLiveView request = new StartLiveView();
 		runOperation(request);
+		deviceBusy();
+		deviceBusy();
 		while (deviceBusy())
 			Thread.sleep(10);
 		return (null != request.getResponseCode() && request.getResponseCode().getResponseCode() == ResponseCode.success);
@@ -53,6 +56,8 @@ public abstract class BaseNikon extends BaseUsbPtpCamera<NikonHandle> {
 	public boolean endLiveView() throws InterruptedException {
 		EndLiveView request = new EndLiveView();
 		runOperation(request);
+		deviceBusy();
+		deviceBusy();
 		return (null != request.getResponseCode() && request.getResponseCode().getResponseCode() == ResponseCode.success);
 	}
 	
@@ -69,6 +74,8 @@ public abstract class BaseNikon extends BaseUsbPtpCamera<NikonHandle> {
 		}
 		FocusDrive request = new FocusDrive(idirection, steps);
 		runOperation(request);
+		deviceBusy();
+		deviceBusy();
 		while (deviceBusy())
 			Thread.sleep(10);
 		return (null != request.getResponseCode() && request.getResponseCode().getResponseCode() == ResponseCode.success);
@@ -84,6 +91,28 @@ public abstract class BaseNikon extends BaseUsbPtpCamera<NikonHandle> {
 			} catch (UsbPtpCoderException e) {
 				Log.logException(this, e);
 			}
+		}
+	}
+	
+	public void takeImageLV(bitwise.devices.nikon.requests.TakeImageLV r) throws InterruptedException {
+		InitiateCaptureLV request = new InitiateCaptureLV();
+		runOperation(request);
+		if (!request.isSuccess())
+			return;
+		deviceBusy();
+		deviceBusy();
+		while (deviceBusy())
+			Thread.sleep(10);
+		try {
+			if (0 < request.getObjectIDs().size()) {
+				int objectID = request.getObjectIDs().get(0).value;
+				GetObject imageRequest = new GetObject(objectID);
+				runOperation(imageRequest);
+				if (null != imageRequest.getResponseData() && 0 < imageRequest.getResponseData().getDataSize())
+					r.setImage(imageRequest.getResponseData().getData().getRemainingArray());
+			}
+		} catch (UsbPtpCoderException e) {
+			Log.logException(this, e);
 		}
 	}
 }

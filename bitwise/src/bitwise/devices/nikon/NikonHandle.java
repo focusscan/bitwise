@@ -44,4 +44,11 @@ public class NikonHandle extends BaseUsbPtpCameraHandle<BaseNikon> {
 		this.enqueueRequest(r);
 		return r;
 	}
+
+	@Override
+	public TakeImageLVRequest takeImageInSdram(TakeImageLVRequester requester) {
+		TakeImageLV r = new TakeImageLV(getService(), requester);
+		this.enqueueRequest(r);
+		return r;
+	}
 }

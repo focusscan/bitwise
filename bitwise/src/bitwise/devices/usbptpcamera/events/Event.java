@@ -16,6 +16,12 @@ public class Event {
 			arguments[i] = buf.getInt();
 	}
 	
+	public Event(short in_eventCode, int[] in_arguments) {
+		eventCode = in_eventCode;
+		transactionID = -1;
+		arguments = in_arguments;
+	}
+	
 	public short getEventCode() {
 		return eventCode;
 	}
