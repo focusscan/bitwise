@@ -70,6 +70,9 @@
 	<bottom>
 		<ToolBar>
 			<items>
+				<Button fx:id="btnToggleLiveView" onAction="#toggleLiveView" text="Toggle live view" />
+				<Button fx:id="btnFocusNear" onAction="#focusNear" text="Focus near" />
+				<Button fx:id="btnFocusFar" onAction="#focusFar" text="Focus far" />
 				<Button fx:id="btnTestImage" onAction="#takeTestImage" text="Take test image" />
 			</items>
 		</ToolBar>

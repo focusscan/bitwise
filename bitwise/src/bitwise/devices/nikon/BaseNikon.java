@@ -1,7 +1,13 @@
 package bitwise.devices.nikon;
 
+import bitwise.devices.camera.DriveFocusRequest;
+import bitwise.devices.nikon.operations.*;
+import bitwise.devices.nikon.reponses.LiveViewObject;
 import bitwise.devices.usbptpcamera.BaseUsbPtpCamera;
+import bitwise.devices.usbptpcamera.coder.UsbPtpCoderException;
+import bitwise.devices.usbptpcamera.responses.ResponseCode;
 import bitwise.devices.usbservice.UsbDevice;
+import bitwise.log.Log;
 
 public abstract class BaseNikon extends BaseUsbPtpCamera<NikonHandle> {
 	private static final byte interfaceNum = (byte)0x00;
@@ -28,5 +34,56 @@ public abstract class BaseNikon extends BaseUsbPtpCamera<NikonHandle> {
 	@Override
 	public NikonHandle getServiceHandle() {
 		return handle;
+	}
+	
+	public boolean deviceBusy() throws InterruptedException {
+		DeviceReady request = new DeviceReady();
+		runOperation(request);
+		return (null != request.getResponseCode() && request.getResponseCode().getResponseCode() == ResponseCode.deviceBusy);
+	}
+	
+	public boolean startLiveView() throws InterruptedException {
+		StartLiveView request = new StartLiveView();
+		runOperation(request);
+		while (deviceBusy())
+			Thread.sleep(10);
+		return (null != request.getResponseCode() && request.getResponseCode().getResponseCode() == ResponseCode.success);
+	}
+	
+	public boolean endLiveView() throws InterruptedException {
+		EndLiveView request = new EndLiveView();
+		runOperation(request);
+		return (null != request.getResponseCode() && request.getResponseCode().getResponseCode() == ResponseCode.success);
+	}
+	
+	public boolean driveFocus(DriveFocusRequest.Direction direction, int steps) throws InterruptedException {
+		int idirection;
+		switch (direction) {
+		case TowardsFar:
+			idirection = 2;
+			break;
+		case TowardsNear:
+		default:
+			idirection = 1;
+			break;
+		}
+		FocusDrive request = new FocusDrive(idirection, steps);
+		runOperation(request);
+		while (deviceBusy())
+			Thread.sleep(10);
+		return (null != request.getResponseCode() && request.getResponseCode().getResponseCode() == ResponseCode.success);
+	}
+	
+	public void getLiveViewImage(bitwise.devices.nikon.requests.GetLiveViewImage r) throws InterruptedException {
+		GetLiveViewImage request = new GetLiveViewImage();
+		runOperation(request);
+		if (request.getResponseCode().getResponseCode() == ResponseCode.success) {
+			try {
+				LiveViewObject image = request.getDecodedData();
+				r.setImage(image.jpeg);
+			} catch (UsbPtpCoderException e) {
+				Log.logException(this, e);
+			}
+		}
 	}
 }

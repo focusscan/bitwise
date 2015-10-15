@@ -22,8 +22,8 @@ public class NikonPropertyFactory implements CameraPropertyFactory {
 	
 	@Override
 	public FocalLength getFocalLength(UsbPtpPrimType in) throws UsbPtpTypeCastException {
-		Int32 raw = in.castTo(Int32.class);
-		return new FocalLength(raw.toString(), raw.value);
+		int v = in.castTo(Int32.class).value;
+		return new FocalLength(String.format("%.2fmm", ((double) v) / 100), v);
 	}
 	
 	@Override
@@ -34,8 +34,8 @@ public class NikonPropertyFactory implements CameraPropertyFactory {
 	
 	@Override
 	public ExposureTime getExposureTime(UsbPtpPrimType in) throws UsbPtpTypeCastException {
-		Int32 raw = in.castTo(Int32.class);
-		return new ExposureTime(raw.toString(), raw.value);
+		int v = in.castTo(Int32.class).value;
+		return new ExposureTime(String.format("%fs", ((double) v) / 10000), v);
 	}
 	
 	@Override
@@ -46,8 +46,8 @@ public class NikonPropertyFactory implements CameraPropertyFactory {
 	
 	@Override
 	public FNumber getFNumber(UsbPtpPrimType in) throws UsbPtpTypeCastException {
-		Int16 raw = in.castTo(Int16.class);
-		return new FNumber(raw.toString(), raw.value);
+		short v = in.castTo(Int16.class).value;
+		return new FNumber(String.format("%.2f", ((double) v) / 100), v);
 	}
 	
 	@Override
@@ -63,8 +63,8 @@ public class NikonPropertyFactory implements CameraPropertyFactory {
 	
 	@Override
 	public Iso getIso(UsbPtpPrimType in) throws UsbPtpTypeCastException {
-		Int16 raw = in.castTo(Int16.class);
-		return new Iso(raw.toString(), raw.value);
+		short v = in.castTo(Int16.class).value;
+		return new Iso(String.format("%d", v), v);
 	}
 	
 	@Override

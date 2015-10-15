@@ -94,14 +94,7 @@ public abstract class BaseUsbPtpCamera<H extends BaseUsbPtpCameraHandle<?>> exte
 			Log.log(this, "Starting PTP camera (interface=%02x, out=%02x, in=%02x, int=%02x)", interfaceNum, dataOutNum, dataInNum, intrptNum);
 			getEndpoints();
 			openSession();
-			/* DeviceInfo deviceInfo = */ getDeviceInfo();
-			/*
-			getStorageIDs();
-			if (null != deviceInfo) {
-				for (short prop : deviceInfo.devicePropertiesSupported)
-					getDevicePropDesc(prop);
-			}
-			*/
+			getDeviceInfo();
 			Log.log(this, "Camera started");
 			return true;
 		} catch (InterruptedException | UsbNotActiveException | UsbDisconnectedException | UsbException e) {
@@ -257,7 +250,10 @@ public abstract class BaseUsbPtpCamera<H extends BaseUsbPtpCameraHandle<?>> exte
 			}
 			if (responseCodeFound) {
 				operation.awaitFinished();
-				Log.log(this, "Operation %04x finished, code %04x, txid %08x", operation.getOperationCode(), operation.getResponseCode().getResponseCode(), operation.getResponseCode().getTransactionID());
+				int dataSize = 0;
+				if (null != operation.getResponseData())
+					dataSize = operation.getResponseData().getDataSize();
+				Log.log(this, "Operation %04x finished, code %04x, txid %08x, %d bytes data", operation.getOperationCode(), operation.getResponseCode().getResponseCode(), operation.getResponseCode().getTransactionID(), dataSize);
 			}
 			else {
 				Log.log(this, "Never got a response code for operation %04x txid %08x", operation.getOperationCode(), transactionID);

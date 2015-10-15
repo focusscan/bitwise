@@ -5,6 +5,7 @@ import bitwise.devices.usbptpcamera.coder.UsbPtpCoderException;
 
 public class ResponseCode extends Response {
 	public static final int success = (short) 0x2001;
+	public static final int deviceBusy = (short) 0x2019;
 	
 	private final short responseCode;
 	private final int transactionID;

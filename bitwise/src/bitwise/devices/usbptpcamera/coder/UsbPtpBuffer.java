@@ -42,6 +42,17 @@ public final class UsbPtpBuffer {
 		}
 	}
 	
+	public byte[] getRemainingArray() throws UsbPtpCoderException {
+		try {
+			byte[] ret = new byte[buffer.remaining()];
+			for (int i = 0; i < ret.length; i++)
+				ret[i] = buffer.get();
+			return ret;
+		} catch (Exception e) {
+			throw new UsbPtpCoderException(e);
+		}
+	}
+	
 	public boolean disableMeasureMode() {
 		if (measureMode) {
 			buffer = ByteBuffer.allocate(length);

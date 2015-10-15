@@ -52,6 +52,6 @@ public class DeviceSelect extends BorderPane {
 	@FXML private void handleUseDevice(ActionEvent event) {
 		UsbReady<?> ready = deviceList.getSelectionModel().getSelectedItem();
 		if (null != ready)
-			app.selectDevice(ready);
+			app.fxdo_selectDevice(ready);
 	}
 }

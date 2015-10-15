@@ -140,6 +140,18 @@ public class ScanSetup extends BorderPane {
 		imageView.setImage(image);
 	}
 	
+	@FXML protected void toggleLiveView(ActionEvent event) {
+		app.fxdo_liveViewToggle();
+	}
+	
+	@FXML protected void focusNear(ActionEvent event) {
+		app.fxdo_focusNear();
+	}
+	
+	@FXML protected void focusFar(ActionEvent event) {
+		app.fxdo_focusFar();
+	}
+	
 	@FXML protected void takeTestImage(ActionEvent event) {
 		app.fxdo_takeTestImage(cbFormat.getValue(), cbStorage.getValue());
 	}
