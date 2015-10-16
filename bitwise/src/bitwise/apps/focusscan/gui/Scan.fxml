@@ -14,9 +14,9 @@
 <fx:root type="javafx.scene.layout.BorderPane" xmlns:fx="http://javafx.com/fxml"
 	prefWidth="1000" prefHeight="480">
 	<center>
-		<HBox>
-			<AspectImageView fx:id="imageViewLV" prefWidth="490" />
-			<AspectImageView fx:id="imageViewSI" prefWidth="490" />
+		<HBox fx:id="border">
+			<AspectImageView fx:id="imageViewLV" />
+			<AspectImageView fx:id="imageViewSI" />
 		</HBox>
 	</center>
 	<bottom>

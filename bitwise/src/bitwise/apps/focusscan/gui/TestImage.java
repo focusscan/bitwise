@@ -36,6 +36,8 @@ public class TestImage extends BorderPane {
 		fxmlLoader.setRoot(this);
 		fxmlLoader.setController(this);
 		fxmlLoader.load();
+		
+		imageView.setFitDimensions(this.widthProperty(), this.heightProperty());
 	}
 	
 	public void setImage(Image in) {

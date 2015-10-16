@@ -5,6 +5,7 @@ import java.io.IOException;
 import bitwise.Main;
 import bitwise.apps.BaseAppFactory;
 import bitwise.engine.supervisor.Supervisor;
+import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -20,6 +21,15 @@ public class AppsMenu extends Menu {
 		
 		for (BaseAppFactory<?> factory : Supervisor.getInstance().getAppServiceHandle().getAppFactoryList())
 			addAppFactory(factory);
+		Supervisor.getInstance().getAppServiceHandle().getAppFactoryList().addListener(new ListChangeListener<BaseAppFactory<?>>() {
+			@Override
+			public void onChanged(javafx.collections.ListChangeListener.Change<? extends BaseAppFactory<?>> change) {
+				while(change.next()) {
+					for (BaseAppFactory<?> factory : change.getAddedSubList())
+						addAppFactory(factory);
+				}
+			}
+		});
 	}
 	
 	private void addAppFactory(BaseAppFactory<?> factory) {

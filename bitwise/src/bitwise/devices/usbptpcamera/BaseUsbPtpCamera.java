@@ -87,7 +87,7 @@ public abstract class BaseUsbPtpCamera<H extends BaseUsbPtpCameraHandle<?>> exte
 	protected abstract boolean onStartPtpDriver();
 	
 	@Override
-	protected boolean onStartDriver() {
+	protected boolean onStartDriver() throws InterruptedException {
 		if (!onStartPtpDriver())
 			return false;
 		try {
@@ -97,7 +97,7 @@ public abstract class BaseUsbPtpCamera<H extends BaseUsbPtpCameraHandle<?>> exte
 			getDeviceInfo();
 			Log.log(this, "Camera started");
 			return true;
-		} catch (InterruptedException | UsbNotActiveException | UsbDisconnectedException | UsbException e) {
+		} catch (UsbNotActiveException | UsbDisconnectedException | UsbException e) {
 			Log.logException(this, e);
 		} catch (UsbPtpException e) {
 			Log.logException(this, e);

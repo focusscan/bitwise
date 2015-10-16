@@ -15,7 +15,7 @@ public abstract class BaseDriver<V extends Device, H extends BaseDriverHandle<?,
 		return device;
 	}
 	
-	protected abstract boolean onStartDriver();
+	protected abstract boolean onStartDriver() throws InterruptedException;
 	
 	protected final void deviceRequestsStopDriver(DeviceCertificate deviceCert) {
 		if (null == deviceCert)
@@ -24,7 +24,7 @@ public abstract class BaseDriver<V extends Device, H extends BaseDriverHandle<?,
 	}
 
 	@Override
-	protected final boolean onStartService() {
+	protected final boolean onStartService() throws InterruptedException {
 		if (!device.setDriver(cert, this))
 			return false;
 		if (!onStartDriver()) {

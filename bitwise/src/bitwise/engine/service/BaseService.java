@@ -32,7 +32,7 @@ public abstract class BaseService<H extends BaseServiceHandle<?, ?>> extends Thi
 	
 	public abstract H getServiceHandle();
 	
-	protected abstract boolean onStartService();
+	protected abstract boolean onStartService() throws InterruptedException;
 	
 	public final void startService(SupervisorCertificate supervisorCert) {
 		if (null == supervisorCert)

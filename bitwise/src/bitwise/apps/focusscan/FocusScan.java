@@ -175,7 +175,7 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 	}
 	
 	@Override
-	public void notifyRequestComplete(StartUsbDriver<?> in) {
+	public synchronized void notifyRequestComplete(StartUsbDriver<?> in) {
 		final FocusScan thing = this;
 		try {
 			state = state.startUsbComplete(in);
@@ -190,7 +190,7 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 		}
 	}
 	
-	public void fxdo_Hello(ScanSetup in) {
+	public synchronized void fxdo_Hello(ScanSetup in) {
 		try {
 			state = state.scanSetupHello(in);
 		} catch (FocusScanException e) {
@@ -198,7 +198,7 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 		}
 	}
 	
-	public void fxdo_Hello(Scan in) {
+	public synchronized void fxdo_Hello(Scan in) {
 		try {
 			state = state.scanHello(in);
 		} catch (FocusScanException e) {
@@ -206,7 +206,7 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 		}
 	}
 	
-	public void fxdo_Hello(Completed in) {
+	public synchronized void fxdo_Hello(Completed in) {
 		try {
 			state = state.completedHello(in);
 		} catch (FocusScanException e) {
@@ -276,7 +276,7 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 		
 	}
 
-	public void fxdo_scanNearToFar(Path scanName, int steps, int stepsPerImage) {
+	public synchronized void fxdo_scanNearToFar(Path scanName, int steps, int stepsPerImage) {
 		final FocusScan thing = this;
 		try {
 			state = state.startScan(scanName, steps, stepsPerImage);
@@ -291,7 +291,7 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 		}
 	}
 	
-	public void fxdo_scanCancelled() {
+	public synchronized void fxdo_scanCancelled() {
 		final FocusScan thing = this;
 		try {
 			state = state.scanCancelled();
@@ -306,7 +306,7 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 		}
 	}
 
-	public void notifyScanComplete() {
+	public synchronized void notifyScanComplete() {
 		final FocusScan thing = this;
 		try {
 			state = state.scanComplete();

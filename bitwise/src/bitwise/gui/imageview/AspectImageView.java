@@ -2,6 +2,9 @@ package bitwise.gui.imageview;
 
 import java.io.IOException;
 
+import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.image.Image;
@@ -18,9 +21,34 @@ public class AspectImageView extends Pane {
 		fxmlLoader.load();
 	}
 	
+	private ReadOnlyDoubleProperty fitWidth = this.widthProperty();
+	private ReadOnlyDoubleProperty fitHeight = this.heightProperty();
+	
+	public void setFitDimensions(ReadOnlyDoubleProperty in_fitWidth, ReadOnlyDoubleProperty in_fitHeight) {
+		fitWidth = in_fitWidth;
+		fitWidth.addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> arg0, Number arg1, Number arg2) {
+				if (null != image)
+					setImage(image);
+			}
+		});
+		fitHeight = in_fitHeight;
+		fitHeight.addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> arg0, Number arg1, Number arg2) {
+				if (null != image)
+					setImage(image);
+			}
+		});
+	}
+	
+	private Image image = null;
+	
 	public void setImage(Image in) {
-		double tw = this.getWidth();
-		double th = this.getHeight();
+		image = in;
+		double tw = fitWidth.doubleValue();
+		double th = fitHeight.doubleValue();
 		double iw = in.getWidth();
 		double ih = in.getHeight();
 		
@@ -34,6 +62,8 @@ public class AspectImageView extends Pane {
 				scaleBy = tw / iw;
 			else
 				scaleBy = th / ih;
+			if (scaleBy > 1)
+				scaleBy = 1;
 			imageView.fitWidthProperty().set(iw * scaleBy);
 			imageView.fitHeightProperty().set(ih * scaleBy);
 		}

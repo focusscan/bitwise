@@ -64,6 +64,10 @@ public class Workbench extends BorderPane {
 		deviceList.setItems(Supervisor.getInstance().getUsbServiceHandle().getDeviceList());
 	}
 	
+	public TabPane getOpenTabs() {
+		return openTabs;
+	}
+	
 	public void addTab(Tab in) {
 		openTabs.getTabs().add(in);
 		openTabs.getSelectionModel().select(in);

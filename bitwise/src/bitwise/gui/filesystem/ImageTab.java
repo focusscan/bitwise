@@ -7,8 +7,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Tab;
 import javafx.scene.image.Image;
+import javafx.scene.layout.BorderPane;
 
 public class ImageTab extends Tab {
+	@FXML private BorderPane border;
 	@FXML private AspectImageView imageView;
 	
 	public ImageTab() throws IOException {
@@ -17,6 +19,8 @@ public class ImageTab extends Tab {
 		fxmlLoader.setRoot(this);
 		fxmlLoader.setController(this);
 		fxmlLoader.load();
+		
+		imageView.setFitDimensions(border.widthProperty(), border.heightProperty());
 	}
 	
 	public void setImage(Image in) {

@@ -6,6 +6,7 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
 <?import bitwise.gui.filesystem.FileSystem?>
 <?import bitwise.gui.menubar.WorkbenchMenuBar?>
 
@@ -13,43 +14,41 @@
 	<top>
 		<WorkbenchMenuBar />
 	</top>
+	<left>
+		<StackPane>
+			<Accordion fx:id="leftAccordion" prefWidth="300">
+				<panes>
+					<TitledPane fx:id="tpProject" text="Project">
+						<content>
+							<FileSystem fx:id="fileSystem" />
+						</content>
+					</TitledPane>
+					<TitledPane fx:id="tpTasks" text="Tasks">
+						<content>
+							<ListView fx:id="taskList">
+								<items>
+								</items>
+							</ListView>
+						</content>
+					</TitledPane>
+					<TitledPane fx:id="tpDevices" text="Devices">
+						<content>
+							<ListView fx:id="deviceList">
+								<items>
+								</items>
+							</ListView>
+						</content>
+					</TitledPane>
+				</panes>
+			</Accordion>
+		</StackPane>
+	</left>
 	<center>
-		<SplitPane orientation="HORIZONTAL">
-			<items>
-				<Accordion fx:id="leftAccordion" minWidth="375" maxWidth="500">
-					<panes>
-						<TitledPane fx:id="tpProject" text="Project">
-							<content>
-								<FileSystem fx:id="fileSystem" />
-							</content>
-						</TitledPane>
-						<TitledPane fx:id="tpTasks" text="Tasks">
-							<content>
-								<ListView fx:id="taskList">
-									<items>
-									</items>
-								</ListView>
-							</content>
-						</TitledPane>
-						<TitledPane fx:id="tpDevices" text="Devices">
-							<content>
-								<ListView fx:id="deviceList">
-									<items>
-									</items>
-								</ListView>
-							</content>
-						</TitledPane>
-					</panes>
-				</Accordion>
-				<BorderPane>
-					<center>
-						<TabPane fx:id="openTabs">
-							<tabs />
-		
-						</TabPane>
-					</center>
-				</BorderPane>
-			</items>
-		</SplitPane>
+		<StackPane>
+			<TabPane fx:id="openTabs">
+				<tabs />
+
+			</TabPane>
+		</StackPane>
 	</center>
 </fx:root>
