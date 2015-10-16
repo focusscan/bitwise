@@ -3,6 +3,7 @@ package bitwise.apps.focusscan;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -37,7 +38,7 @@ public class FocusScanStateScanSetup extends FocusScanState {
 	}
 	
 	@Override
-	public FocusScanState updateBatteryLevel(BatteryLevel in) {
+	public void updateBatteryLevel(BatteryLevel in) {
 		if (null != scanSetup) {
 			Platform.runLater(new Runnable() {
 				@Override
@@ -46,11 +47,10 @@ public class FocusScanStateScanSetup extends FocusScanState {
 				}
 			});
 		}
-		return this;
 	}
 
 	@Override
-	public FocusScanState updateExposureTime(ExposureTime in, List<ExposureTime> values) {
+	public void updateExposureTime(ExposureTime in, List<ExposureTime> values) {
 		if (null != scanSetup) {
 			Platform.runLater(new Runnable() {
 				@Override
@@ -59,11 +59,10 @@ public class FocusScanStateScanSetup extends FocusScanState {
 				}
 			});
 		}
-		return this;
 	}
 
 	@Override
-	public FocusScanState updateFNumber(FNumber in, List<FNumber> values) {
+	public void updateFNumber(FNumber in, List<FNumber> values) {
 		if (null != scanSetup) {
 			Platform.runLater(new Runnable() {
 				@Override
@@ -72,11 +71,10 @@ public class FocusScanStateScanSetup extends FocusScanState {
 				}
 			});
 		}
-		return this;
 	}
 
 	@Override
-	public FocusScanState updateFocalLength(FocalLength in) {
+	public void updateFocalLength(FocalLength in) {
 		if (null != scanSetup) {
 			Platform.runLater(new Runnable() {
 				@Override
@@ -85,11 +83,10 @@ public class FocusScanStateScanSetup extends FocusScanState {
 				}
 			});
 		}
-		return this;
 	}
 
 	@Override
-	public FocusScanState updateIso(Iso in, List<Iso> values) {
+	public void updateIso(Iso in, List<Iso> values) {
 		if (null != scanSetup) {
 			Platform.runLater(new Runnable() {
 				@Override
@@ -98,7 +95,6 @@ public class FocusScanStateScanSetup extends FocusScanState {
 				}
 			});
 		}
-		return this;
 	}
 	
 	@Override
@@ -130,15 +126,9 @@ public class FocusScanStateScanSetup extends FocusScanState {
 	}
 	
 	@Override
-	public FocusScanState startScan(int steps, int stepsPerImage) throws FocusScanException {
+	public FocusScanState startScan(Path scanPath, int steps, int stepsPerImage) throws FocusScanException {
 		liveViewTask.cancel();
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				Scan.showScan(getApp(), getApp().stage);
-			}
-		});
-		return new FocusScanStateScan(getApp(), steps, stepsPerImage);
+		return new FocusScanStateScan(getApp(), scanPath, steps, stepsPerImage);
 	}
 	
 	@Override

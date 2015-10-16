@@ -66,5 +66,6 @@ public class Workbench extends BorderPane {
 	
 	public void addTab(Tab in) {
 		openTabs.getTabs().add(in);
+		openTabs.getSelectionModel().select(in);
 	}
 }

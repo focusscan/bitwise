@@ -1,5 +1,6 @@
 package bitwise.apps.focusscan;
 
+import java.nio.file.Path;
 import java.util.List;
 
 import bitwise.apps.focusscan.gui.Completed;
@@ -19,7 +20,6 @@ import bitwise.devices.usbservice.UsbReady;
 import bitwise.devices.usbservice.UsbServiceHandle;
 import bitwise.devices.usbservice.requests.StartUsbDriver;
 import bitwise.engine.supervisor.Supervisor;
-import javafx.application.Platform;
 
 public class FocusScanStateDeviceSelect extends FocusScanState {
 	public FocusScanStateDeviceSelect(FocusScan in_app) {
@@ -27,28 +27,23 @@ public class FocusScanStateDeviceSelect extends FocusScanState {
 	}
 	
 	@Override
-	public FocusScanState updateBatteryLevel(BatteryLevel in) {
-		return this;
+	public void updateBatteryLevel(BatteryLevel in) {
 	}
 
 	@Override
-	public FocusScanState updateExposureTime(ExposureTime in, List<ExposureTime> values) {
-		return this;
+	public void updateExposureTime(ExposureTime in, List<ExposureTime> values) {
 	}
 
 	@Override
-	public FocusScanState updateFNumber(FNumber in, List<FNumber> values) {
-		return this;
+	public void updateFNumber(FNumber in, List<FNumber> values) {
 	}
 
 	@Override
-	public FocusScanState updateFocalLength(FocalLength in) {
-		return this;
+	public void updateFocalLength(FocalLength in) {
 	}
 
 	@Override
-	public FocusScanState updateIso(Iso in, List<Iso> values) {
-		return this;
+	public void updateIso(Iso in, List<Iso> values) {
 	}
 	
 	@Override
@@ -62,12 +57,6 @@ public class FocusScanStateDeviceSelect extends FocusScanState {
 	public FocusScanState startUsbComplete(StartUsbDriver<?> in) throws FocusScanException {
 		getApp().cameraHandle = (CameraHandle) in.getHandle();
 		getApp().cameraHandle.setCameraEventListener(getApp());
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				ScanSetup.showScanSetup(getApp(), getApp().stage);
-			}
-		});
 		return new FocusScanStateScanSetup(getApp());
 	}
 
@@ -82,7 +71,7 @@ public class FocusScanStateDeviceSelect extends FocusScanState {
 	}
 	
 	@Override
-	public FocusScanState startScan(int steps, int stepsPerImage) throws FocusScanException {
+	public FocusScanState startScan(Path scanPath, int steps, int stepsPerImage) throws FocusScanException {
 		throw new FocusScanException();
 	}
 

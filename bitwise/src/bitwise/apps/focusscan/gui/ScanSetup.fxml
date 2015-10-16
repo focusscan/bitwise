@@ -38,6 +38,7 @@
 
 					</ComboBox>
 				</VBox>
+				<Button onAction="#takeTestImage" text="Take test image" />
 			</items>
 		</ToolBar>
 	</top>
@@ -50,10 +51,13 @@
 				<Button onAction="#focusNear" text="Focus near" />
 				<TextField fx:id="focusSteps" promptText="Steps" prefWidth="90"/>
 				<Button onAction="#focusFar" text="Focus far" />
-				<Button onAction="#takeTestImage" text="Take test image" />
 				<TextField fx:id="focusStepsPerImage" promptText="Steps per image" prefWidth="90"/>
 				<Label text="Image count: " />
 				<Label fx:id="imageCount" text="N/A" />
+				<VBox alignment="bottom_center">
+					<Label text="Scan name" />
+					<TextField fx:id="scanName" promptText="Scan name" />
+				</VBox>
 				<Button fx:id="btnScan" onAction="#scanNearToFar" text="Scan near-to-far" disable="true" />
 			</items>
 		</ToolBar>

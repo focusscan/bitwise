@@ -1,5 +1,6 @@
 package bitwise.apps.focusscan;
 
+import java.nio.file.Path;
 import java.util.List;
 
 import bitwise.apps.BaseApp;
@@ -175,8 +176,15 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 	
 	@Override
 	public void notifyRequestComplete(StartUsbDriver<?> in) {
+		final FocusScan thing = this;
 		try {
 			state = state.startUsbComplete(in);
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					ScanSetup.showScanSetup(thing, stage);
+				}
+			});
 		} catch (FocusScanException e) {
 			Log.logException(this, e);
 		}
@@ -268,25 +276,46 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 		
 	}
 
-	public void fxdo_scanNearToFar(int steps, int stepsPerImage) {
+	public void fxdo_scanNearToFar(Path scanName, int steps, int stepsPerImage) {
+		final FocusScan thing = this;
 		try {
-			state = state.startScan(steps, stepsPerImage);
+			state = state.startScan(scanName, steps, stepsPerImage);
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					Scan.showScan(thing, stage);
+				}
+			});
 		} catch (FocusScanException e) {
 			Log.logException(this, e);
 		}
 	}
 	
 	public void fxdo_scanCancelled() {
+		final FocusScan thing = this;
 		try {
 			state = state.scanCancelled();
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					Completed.showCompleted(thing, stage);
+				}
+			});
 		} catch (FocusScanException e) {
 			Log.logException(this, e);
 		}
 	}
 
 	public void notifyScanComplete() {
+		final FocusScan thing = this;
 		try {
 			state = state.scanComplete();
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					Completed.showCompleted(thing, stage);
+				}
+			});
 		} catch (FocusScanException e) {
 			Log.logException(this, e);
 		}

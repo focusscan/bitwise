@@ -1,10 +1,14 @@
 package bitwise.apps.focusscan.gui;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import bitwise.apps.focusscan.FocusScan;
 import bitwise.devices.camera.*;
+import bitwise.engine.supervisor.Supervisor;
+import bitwise.filesystem.Directory;
 import bitwise.gui.imageview.AspectImageView;
 import bitwise.log.Log;
 import javafx.beans.value.ChangeListener;
@@ -42,6 +46,7 @@ public class ScanSetup extends BorderPane {
 	@FXML private ComboBox<Iso> cbIso;
 	@FXML private ComboBox<FNumber> cbAperture;
 	@FXML private ComboBox<ExposureTime> cbExposure;
+	@FXML private TextField scanName;
 	@FXML private TextField focusSteps;
 	@FXML private TextField focusStepsPerImage;
 	@FXML private Button btnScan;
@@ -172,9 +177,13 @@ public class ScanSetup extends BorderPane {
 	
 	@FXML protected void scanNearToFar(ActionEvent event) {
 		try {
+			Directory workpath = Supervisor.getInstance().getFileSystemServiceHandle().getWorkpath();
+			Path scanPath = workpath.getPath().resolve(scanName.getText());
+			if (Files.exists(scanPath))
+				return;
 			int steps = Integer.parseInt(focusSteps.getText());
 			int stepsPerImage = Integer.parseInt(focusStepsPerImage.getText());
-			app.fxdo_scanNearToFar(steps, stepsPerImage);
+			app.fxdo_scanNearToFar(scanPath, steps, stepsPerImage);
 		} catch (Exception e) {
 			Log.log(app, "cannot parse %s %s", focusSteps.getText(), focusStepsPerImage.getText());
 		}
