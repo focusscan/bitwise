@@ -5,11 +5,11 @@
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.Region?>
+
+<?import bitwise.gui.imageview.AspectImageView?>
 
 <fx:root type="javafx.scene.layout.BorderPane" xmlns:fx="http://javafx.com/fxml"
 	prefWidth="800" prefHeight="630">
@@ -49,9 +49,7 @@
 		</VBox>
 	</top>
 	<center>
-		<Pane fx:id="centerPane">
-			<ImageView fx:id="imageView" />
-		</Pane>
+		<AspectImageView fx:id="imageView" />
 	</center>
 	<bottom>
 		<ToolBar>

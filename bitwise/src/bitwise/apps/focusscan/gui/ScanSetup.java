@@ -5,6 +5,7 @@ import java.util.List;
 
 import bitwise.apps.focusscan.FocusScan;
 import bitwise.devices.camera.*;
+import bitwise.gui.imageview.AspectImageView;
 import bitwise.log.Log;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -17,9 +18,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 public class ScanSetup extends BorderPane {
@@ -47,8 +46,7 @@ public class ScanSetup extends BorderPane {
 	@FXML private TextField focusStepsPerImage;
 	@FXML private Button btnScan;
 	@FXML private Label imageCount;
-	@FXML private Pane centerPane;
-	@FXML private ImageView imageView;
+	@FXML private AspectImageView imageView;
 	private final FocusScan app;
 	
 	private ScanSetup(FocusScan in_app) throws IOException {
@@ -57,9 +55,6 @@ public class ScanSetup extends BorderPane {
 		fxmlLoader.setRoot(this);
 		fxmlLoader.setController(this);
 		fxmlLoader.load();
-		
-		imageView.fitHeightProperty().bind(centerPane.heightProperty());
-		imageView.fitWidthProperty().bind(centerPane.widthProperty());
 		
 		cbIso.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Iso>() {
 			@Override

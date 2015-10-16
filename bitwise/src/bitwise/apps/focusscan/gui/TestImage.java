@@ -6,15 +6,15 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
+import bitwise.gui.imageview.AspectImageView;
+
 public class TestImage extends BorderPane {
-	public static TestImage showTestImage(Image image, Stage primaryStage) {
+	public static TestImage showTestImage(Stage primaryStage) {
 		try {
-			TestImage view = new TestImage(image);
+			TestImage view = new TestImage();
 			Scene scene = new Scene(view);
 			primaryStage.hide();
 			primaryStage.setScene(scene);
@@ -29,18 +29,16 @@ public class TestImage extends BorderPane {
 		return null;
 	}
 	
-	@FXML private Pane centerPane;
-	@FXML private ImageView imageView;
+	@FXML private AspectImageView imageView;
 	
-	private TestImage(Image image) throws IOException {
+	private TestImage() throws IOException {
 		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("TestImage.fxml"));
 		fxmlLoader.setRoot(this);
 		fxmlLoader.setController(this);
 		fxmlLoader.load();
-		
-		imageView.setImage(image);
-		
-		imageView.fitHeightProperty().bind(centerPane.heightProperty());
-		imageView.fitWidthProperty().bind(centerPane.widthProperty());
+	}
+	
+	public void setImage(Image in) {
+		imageView.setImage(in);
 	}
 }

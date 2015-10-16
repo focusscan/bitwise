@@ -17,7 +17,7 @@ public class LiveViewTask extends BaseServiceTask<FocusScan> {
 		while (!isCancelled()) {
 			Request r = cameraHandle.getLiveViewImage(getService());
 			r.awaitServed();
-			Thread.sleep(100);
+			Thread.sleep(30);
 		}
 	}
 }

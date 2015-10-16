@@ -78,7 +78,7 @@ public class BaseUsbPtpReader<T> implements javax.usb.event.UsbPipeListener {
 	@Override
 	public void dataEventOccurred(UsbPipeDataEvent event) {
 		try {
-			if (4 >= event.getActualLength()) {
+			if (0 == event.getActualLength()) {
 				contBuf = null;
 				contPos = 0;
 			}
