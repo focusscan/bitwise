@@ -20,7 +20,7 @@
 					<panes>
 						<TitledPane fx:id="tpProject" text="Project">
 							<content>
-								<FileSystem />
+								<FileSystem fx:id="fileSystem" />
 							</content>
 						</TitledPane>
 						<TitledPane fx:id="tpTasks" text="Tasks">
@@ -43,7 +43,7 @@
 				</Accordion>
 				<BorderPane>
 					<center>
-						<TabPane>
+						<TabPane fx:id="openTabs">
 							<tabs />
 		
 						</TabPane>

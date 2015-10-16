@@ -46,7 +46,7 @@ public class Directory extends Thing<DirectoryID> implements Node {
 	public void addSubDirectory(FileSystemServiceCertificate fsCert, Directory in) {
 		if (null == fsCert)
 			throw new IllegalArgumentException("FileSystemServiceCertificate");
-		Log.log(this, "%s adding subdir %s", this, in.toString());
+		Log.log(this, "%s adding subdir %s (%s)", getPath(), in, in.getPath());
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
@@ -58,7 +58,7 @@ public class Directory extends Thing<DirectoryID> implements Node {
 	public void addFile(FileSystemServiceCertificate fsCert, File in) {
 		if (null == fsCert)
 			throw new IllegalArgumentException("FileSystemServiceCertificate");
-		Log.log(this, "%s adding file %s", this, in.toString());
+		Log.log(this, "%s adding file %s (%s)", getPath(), in, in.getPath());
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
@@ -70,7 +70,7 @@ public class Directory extends Thing<DirectoryID> implements Node {
 	public void removeChild(FileSystemServiceCertificate fsCert, Path in) {
 		if (null == fsCert)
 			throw new IllegalArgumentException("FileSystemServiceCertificate");
-		Log.log(this, "%s removing subdir %s", this, in.toString());
+		Log.log(this, "%s removing %s", getPath(), in);
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
