@@ -39,8 +39,8 @@ public class NikonHandle extends BaseUsbPtpCameraHandle<BaseNikon> {
 	}
 	
 	@Override
-	public DriveFocusRequest driveFocus(DriveFocusRequester requester, DriveFocusRequest.Direction direction, int steps) {
-		DriveFocus r = new DriveFocus(getService(), requester, direction, steps);
+	public DriveFocusRequest driveFocus(DriveFocusRequester requester, DriveFocusRequest.Direction direction, int steps, boolean blocking) {
+		DriveFocus r = new DriveFocus(getService(), requester, direction, steps, blocking);
 		this.enqueueRequest(r);
 		return r;
 	}

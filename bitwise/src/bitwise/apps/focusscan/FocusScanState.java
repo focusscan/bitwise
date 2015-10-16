@@ -2,6 +2,7 @@ package bitwise.apps.focusscan;
 
 import java.util.List;
 
+import bitwise.apps.focusscan.gui.Completed;
 import bitwise.apps.focusscan.gui.Scan;
 import bitwise.apps.focusscan.gui.ScanSetup;
 import bitwise.devices.camera.*;
@@ -33,6 +34,11 @@ public abstract class FocusScanState {
 	public abstract FocusScanState startScan(int steps, int stepsPerImage) throws FocusScanException;
 	
 	public abstract FocusScanState scanHello(Scan in) throws FocusScanException;
+	public abstract FocusScanState scanNewImage(byte[] lv, byte[] si) throws FocusScanException;
+	public abstract FocusScanState scanCancelled() throws FocusScanException;
+	public abstract FocusScanState scanComplete() throws FocusScanException;
+	
+	public abstract FocusScanState completedHello(Completed in) throws FocusScanException;
 	
 	public abstract FocusScanState notifyLiveViewOn(LiveViewOnRequest in) throws FocusScanException;
 	public abstract FocusScanState notifyLiveViewOff(LiveViewOffRequest in) throws FocusScanException;

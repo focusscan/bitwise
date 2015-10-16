@@ -8,7 +8,7 @@ public interface CameraHandle {
 	public LiveViewOnRequest liveViewOn(LiveViewOnRequester requester);
 	public LiveViewOffRequest liveViewOff(LiveViewOffRequester requester);
 	public GetLiveViewImageRequest getLiveViewImage(GetLiveViewImageRequester requester);
-	public DriveFocusRequest driveFocus(DriveFocusRequester requester, DriveFocusRequest.Direction direction, int steps);
+	public DriveFocusRequest driveFocus(DriveFocusRequester requester, DriveFocusRequest.Direction direction, int steps, boolean blocking);
 	
 	public GetPropertyRequest<List<ImageFormat>> getImageFormats(GetPropertyRequester requester);
 	public GetPropertyRequest<List<StorageDevice>> getStorageDevices(GetPropertyRequester requester);

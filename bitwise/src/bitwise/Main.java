@@ -39,7 +39,7 @@ public class Main extends Application {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("Bitwise exiting");
+		System.out.println("Bitwise exited");
 	}
 	
 	@Override

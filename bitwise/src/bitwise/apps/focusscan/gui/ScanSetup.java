@@ -161,7 +161,7 @@ public class ScanSetup extends BorderPane {
 		try {
 			int steps = Integer.parseInt(focusSteps.getText());
 			int stepsPerImage = Integer.parseInt(focusStepsPerImage.getText());
-			int images = steps / stepsPerImage;
+			int images = 1 + (steps / stepsPerImage);
 			imageCount.setText(String.format("%d", images));
 			btnScan.setDisable(false);
 		} catch (Exception e) {

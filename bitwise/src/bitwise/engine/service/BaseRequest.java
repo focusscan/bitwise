@@ -10,7 +10,7 @@ public abstract class BaseRequest<S extends BaseService<?>, R extends BaseReques
 	private final S service;
 	private final R requester;
 	private final RequestState requestState = new RequestState();
-	private CountDownLatch servedLatch = new CountDownLatch(1);
+	private CountDownLatch epiloguedLatch = new CountDownLatch(1);
 	
 	protected BaseRequest(S in_service, R in_requester) {
 		super(new RequestID());
@@ -39,7 +39,7 @@ public abstract class BaseRequest<S extends BaseService<?>, R extends BaseReques
 	public final void cancelRequest() {
 		Log.log(this, "Cancelled");
 		requestState.notifyCancelled();
-		servedLatch.countDown();
+		epiloguedLatch.countDown();
 	}
 	
 	@Override
@@ -96,7 +96,6 @@ public abstract class BaseRequest<S extends BaseService<?>, R extends BaseReques
 		else {
 			Log.log(this, "Could not serve");
 		}
-		servedLatch.countDown();
 	}
 	
 	protected abstract void onEpilogueRequest(RequestContext ctx) throws InterruptedException;
@@ -123,15 +122,16 @@ public abstract class BaseRequest<S extends BaseService<?>, R extends BaseReques
 		else {
 			Log.log(this, "Could not epilogue");
 		}
+		epiloguedLatch.countDown();
 	}
 	
 	@Override
-	public final void awaitServed() throws InterruptedException {
-		servedLatch.await();
+	public final void awaitEpilogued() throws InterruptedException {
+		epiloguedLatch.await();
 	}
 	
 	@Override
-	public final void awaitServed(long timeout, TimeUnit unit) throws InterruptedException {
-		servedLatch.await(timeout, unit);
+	public final void awaitEpilogued(long timeout, TimeUnit unit) throws InterruptedException {
+		epiloguedLatch.await(timeout, unit);
 	}
 }

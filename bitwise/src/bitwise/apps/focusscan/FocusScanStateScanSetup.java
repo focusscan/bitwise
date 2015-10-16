@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import bitwise.apps.focusscan.gui.Completed;
 import bitwise.apps.focusscan.gui.Scan;
 import bitwise.apps.focusscan.gui.ScanSetup;
 import bitwise.apps.focusscan.gui.TestImage;
@@ -144,7 +145,27 @@ public class FocusScanStateScanSetup extends FocusScanState {
 	public FocusScanState scanHello(Scan in) throws FocusScanException {
 		throw new FocusScanException();
 	}
+	
+	@Override
+	public FocusScanState scanNewImage(byte[] lv, byte[] si) throws FocusScanException {
+		throw new FocusScanException();
+	}
 
+	@Override
+	public FocusScanState scanCancelled() throws FocusScanException{
+		throw new FocusScanException();
+	}
+	
+	@Override
+	public FocusScanState scanComplete() throws FocusScanException {
+		throw new FocusScanException();
+	}
+	
+	@Override
+	public FocusScanState completedHello(Completed in) throws FocusScanException {
+		throw new FocusScanException();
+	}
+	
 	@Override
 	public FocusScanState notifyLiveViewOn(LiveViewOnRequest in) throws FocusScanException {
 		liveViewTask = new LiveViewTask(getApp(), getApp().cameraHandle);
@@ -154,8 +175,7 @@ public class FocusScanStateScanSetup extends FocusScanState {
 
 	@Override
 	public FocusScanState notifyLiveViewOff(LiveViewOffRequest in) throws FocusScanException {
-		liveViewTask.cancel();
-		return this;
+		throw new FocusScanException();
 	}
 
 	@Override

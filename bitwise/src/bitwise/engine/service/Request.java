@@ -8,6 +8,6 @@ public interface Request {
 	public ServiceID getServiceID();
 	public ServiceID getRequesterID();
 	public RequestStatus getRequestStatus();
-	public void awaitServed() throws InterruptedException;
-	public void awaitServed(long timeout, TimeUnit unit) throws InterruptedException;
+	public void awaitEpilogued() throws InterruptedException;
+	public void awaitEpilogued(long timeout, TimeUnit unit) throws InterruptedException;
 }

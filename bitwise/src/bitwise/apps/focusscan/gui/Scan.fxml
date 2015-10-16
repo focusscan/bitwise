@@ -6,22 +6,24 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 
 <?import bitwise.gui.imageview.AspectImageView?>
 
 <fx:root type="javafx.scene.layout.BorderPane" xmlns:fx="http://javafx.com/fxml"
-	prefWidth="800" prefHeight="630">
-	<top>
-		<VBox>
-			<ToolBar>
-				<items>
-				</items>
-			</ToolBar>
-		</VBox>
-	</top>
+	prefWidth="1000" prefHeight="480">
 	<center>
-		<AspectImageView fx:id="imageView" />
+		<HBox>
+			<AspectImageView fx:id="imageViewLV" prefWidth="490" />
+			<AspectImageView fx:id="imageViewSI" prefWidth="490" />
+		</HBox>
 	</center>
+	<bottom>
+		<ToolBar>
+			<items>
+				<Button onAction="#cancelScan" text="Cancel scan" />
+			</items>
+		</ToolBar>
+	</bottom>
 </fx:root>

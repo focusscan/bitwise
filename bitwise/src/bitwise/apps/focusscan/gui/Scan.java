@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import bitwise.apps.focusscan.FocusScan;
 import bitwise.gui.imageview.AspectImageView;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -29,7 +30,8 @@ public class Scan extends BorderPane {
 		return null;
 	}
 	
-	@FXML private AspectImageView imageView;
+	@FXML private AspectImageView imageViewLV;
+	@FXML private AspectImageView imageViewSI;
 	private final FocusScan app;
 	
 	private Scan(FocusScan in_app) throws IOException {
@@ -42,7 +44,15 @@ public class Scan extends BorderPane {
 		app.fxdo_Hello(this);
 	}
 	
-	public void setImage(Image image) {
-		imageView.setImage(image);
+	public void setImageLV(Image image) {
+		imageViewLV.setImage(image);
+	}
+	
+	public void setImageSI(Image image) {
+		imageViewSI.setImage(image);
+	}
+	
+	@FXML protected void cancelScan(ActionEvent event) {
+		app.fxdo_scanCancelled();
 	}
 }

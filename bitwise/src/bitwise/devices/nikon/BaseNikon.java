@@ -61,7 +61,7 @@ public abstract class BaseNikon extends BaseUsbPtpCamera<NikonHandle> {
 		return (null != request.getResponseCode() && request.getResponseCode().getResponseCode() == ResponseCode.success);
 	}
 	
-	public boolean driveFocus(DriveFocusRequest.Direction direction, int steps) throws InterruptedException {
+	public boolean driveFocus(DriveFocusRequest.Direction direction, int steps, boolean blocking) throws InterruptedException {
 		int idirection;
 		switch (direction) {
 		case TowardsFar:
@@ -76,6 +76,10 @@ public abstract class BaseNikon extends BaseUsbPtpCamera<NikonHandle> {
 		runOperation(request);
 		deviceBusy();
 		deviceBusy();
+		if (blocking) {
+			while(deviceBusy())
+				Thread.sleep(100);
+		}
 		return (null != request.getResponseCode() && request.getResponseCode().getResponseCode() == ResponseCode.success);
 	}
 	

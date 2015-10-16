@@ -3,6 +3,7 @@ package bitwise.apps.focusscan;
 import java.util.List;
 
 import bitwise.apps.BaseApp;
+import bitwise.apps.focusscan.gui.Completed;
 import bitwise.apps.focusscan.gui.DeviceSelect;
 import bitwise.apps.focusscan.gui.Scan;
 import bitwise.apps.focusscan.gui.ScanSetup;
@@ -197,6 +198,14 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 		}
 	}
 	
+	public void fxdo_Hello(Completed in) {
+		try {
+			state = state.completedHello(in);
+		} catch (FocusScanException e) {
+			Log.logException(this, e);
+		}
+	}
+	
 	protected void statedo_addServiceTask(BaseServiceTask<FocusScan> in) {
 		this.addServiceTask(in);
 	}
@@ -246,11 +255,11 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 	}
 
 	public void fxdo_focusNear(int steps) {
-		cameraHandle.driveFocus(this, DriveFocusRequest.Direction.TowardsNear, steps);
+		cameraHandle.driveFocus(this, DriveFocusRequest.Direction.TowardsNear, steps, false);
 	}
 	
 	public void fxdo_focusFar(int steps) {
-		cameraHandle.driveFocus(this, DriveFocusRequest.Direction.TowardsFar, steps);
+		cameraHandle.driveFocus(this, DriveFocusRequest.Direction.TowardsFar, steps, false);
 	}
 
 	@Override
@@ -262,6 +271,30 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 	public void fxdo_scanNearToFar(int steps, int stepsPerImage) {
 		try {
 			state = state.startScan(steps, stepsPerImage);
+		} catch (FocusScanException e) {
+			Log.logException(this, e);
+		}
+	}
+	
+	public void fxdo_scanCancelled() {
+		try {
+			state = state.scanCancelled();
+		} catch (FocusScanException e) {
+			Log.logException(this, e);
+		}
+	}
+
+	public void notifyScanComplete() {
+		try {
+			state = state.scanComplete();
+		} catch (FocusScanException e) {
+			Log.logException(this, e);
+		}
+	}
+	
+	public void notifyScannedImage(byte[] lv, byte[] si) {
+		try {
+			state = state.scanNewImage(lv, si);
 		} catch (FocusScanException e) {
 			Log.logException(this, e);
 		}
