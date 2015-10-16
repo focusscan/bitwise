@@ -14,39 +14,32 @@
 <fx:root type="javafx.scene.layout.BorderPane" xmlns:fx="http://javafx.com/fxml"
 	prefWidth="800" prefHeight="630">
 	<top>
-		<VBox>
-			<ToolBar>
-				<items>
-					<Region styleClass="spacer" />
-					<VBox alignment="bottom_center">
-						<Label text="ISO" />
-						<ComboBox fx:id="cbIso" promptText="--">
-							<items />
+		<ToolBar>
+			<items>
+				<Region styleClass="spacer" />
+				<VBox alignment="bottom_center">
+					<Label text="ISO" />
+					<ComboBox fx:id="cbIso" promptText="--">
+						<items />
 
-						</ComboBox>
-					</VBox>
-					<VBox alignment="bottom_center">
-						<Label text="Aperture" />
-						<ComboBox fx:id="cbAperture" promptText="--">
-							<items />
+					</ComboBox>
+				</VBox>
+				<VBox alignment="bottom_center">
+					<Label text="Aperture" />
+					<ComboBox fx:id="cbAperture" promptText="--">
+						<items />
 
-						</ComboBox>
-					</VBox>
-					<VBox alignment="bottom_center">
-						<Label text="Exposure" />
-						<ComboBox fx:id="cbExposure" promptText="--">
-							<items />
+					</ComboBox>
+				</VBox>
+				<VBox alignment="bottom_center">
+					<Label text="Exposure" />
+					<ComboBox fx:id="cbExposure" promptText="--">
+						<items />
 
-						</ComboBox>
-					</VBox>
-				</items>
-			</ToolBar>
-			<ToolBar>
-				<items>
-					
-				</items>
-			</ToolBar>
-		</VBox>
+					</ComboBox>
+				</VBox>
+			</items>
+		</ToolBar>
 	</top>
 	<center>
 		<AspectImageView fx:id="imageView" />

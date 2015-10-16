@@ -4,6 +4,7 @@ import java.util.List;
 
 import bitwise.apps.BaseApp;
 import bitwise.apps.focusscan.gui.DeviceSelect;
+import bitwise.apps.focusscan.gui.Scan;
 import bitwise.apps.focusscan.gui.ScanSetup;
 import bitwise.devices.camera.*;
 import bitwise.devices.usbservice.UsbReady;
@@ -63,81 +64,29 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 		Log.log(this, "Focus Scan request complete");
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void notifyRequestComplete(GetPropertyRequest<?> in) {
 		if (!in.gotValues()) {
 			Log.log(this, "Failed to get values: %s", in);
 			return;
 		}
-		ScanSetup scanSetup;
-		try {
-			scanSetup = state.getScanSetup();
-		} catch (FocusScanException e) {
-			Log.logException(this, e);
-			return;
-		}
 		switch (in.getProperty()) {
 		case BatteryLevel:
-		{
-			Platform.runLater(new Runnable() {
-				@Override
-				public void run() {
-					if (null != scanSetup)
-						scanSetup.setBatteryLevel((BatteryLevel) in.getValue());
-				}
-			});
+			state.updateBatteryLevel((BatteryLevel) in.getValue());
 			break;
-		}
 		case ExposureTime:
-		{
-			currentExposureTime = (ExposureTime) in.getValue();
-			Platform.runLater(new Runnable() {
-				@SuppressWarnings("unchecked")
-				@Override
-				public void run() {
-					if (null != scanSetup)
-						scanSetup.setExposureTime((ExposureTime) in.getValue(), (List<ExposureTime>) in.getLegalValues());
-				}
-			});
+			state.updateExposureTime((ExposureTime) in.getValue(), (List<ExposureTime>) in.getLegalValues());
 			break;
-		}
 		case FNumber:
-		{
-			currentFNumber = (FNumber) in.getValue();
-			Platform.runLater(new Runnable() {
-				@SuppressWarnings("unchecked")
-				@Override
-				public void run() {
-					if (null != scanSetup)
-						scanSetup.setFNumber((FNumber) in.getValue(), (List<FNumber>) in.getLegalValues());
-				}
-			});
+			state.updateFNumber((FNumber) in.getValue(), (List<FNumber>) in.getLegalValues());
 			break;
-		}
 		case FocalLength:
-		{
-			Platform.runLater(new Runnable() {
-				@Override
-				public void run() {
-					if (null != scanSetup)
-						scanSetup.setFocalLength((FocalLength) in.getValue());
-				}
-			});
+			state.updateFocalLength((FocalLength) in.getValue());
 			break;
-		}
 		case Iso:
-		{
-			currentIso = (Iso) in.getValue();
-			Platform.runLater(new Runnable() {
-				@SuppressWarnings("unchecked")
-				@Override
-				public void run() {
-					if (null != scanSetup)
-						scanSetup.setIso((Iso) in.getValue(), (List<Iso>) in.getLegalValues());
-				}
-			});
+			state.updateIso((Iso) in.getValue(), (List<Iso>) in.getLegalValues());
 			break;
-		}
 		case ExposureProgramMode:
 		case FlashMode:
 		case FocusMode:
@@ -240,6 +189,14 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 		}
 	}
 	
+	public void fxdo_Hello(Scan in) {
+		try {
+			state = state.scanHello(in);
+		} catch (FocusScanException e) {
+			Log.logException(this, e);
+		}
+	}
+	
 	protected void statedo_addServiceTask(BaseServiceTask<FocusScan> in) {
 		this.addServiceTask(in);
 	}
@@ -303,8 +260,10 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 	}
 
 	public void fxdo_scanNearToFar(int steps, int stepsPerImage) {
-		// TODO: kill the live view task,
-		// switch to the scanning scene,
-		// start the scanning task
+		try {
+			state = state.startScan(steps, stepsPerImage);
+		} catch (FocusScanException e) {
+			Log.logException(this, e);
+		}
 	}
 }

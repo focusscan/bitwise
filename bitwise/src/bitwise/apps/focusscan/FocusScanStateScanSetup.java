@@ -3,12 +3,19 @@ package bitwise.apps.focusscan;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import bitwise.apps.focusscan.gui.Scan;
 import bitwise.apps.focusscan.gui.ScanSetup;
 import bitwise.apps.focusscan.gui.TestImage;
+import bitwise.devices.camera.BatteryLevel;
+import bitwise.devices.camera.ExposureTime;
+import bitwise.devices.camera.FNumber;
+import bitwise.devices.camera.FocalLength;
 import bitwise.devices.camera.GetLiveViewImageRequest;
+import bitwise.devices.camera.Iso;
 import bitwise.devices.camera.LiveViewOffRequest;
 import bitwise.devices.camera.LiveViewOnRequest;
 import bitwise.devices.camera.TakeImageLVRequest;
@@ -29,10 +36,70 @@ public class FocusScanStateScanSetup extends FocusScanState {
 	}
 	
 	@Override
-	public ScanSetup getScanSetup() throws FocusScanException {
-		return scanSetup;
+	public FocusScanState updateBatteryLevel(BatteryLevel in) {
+		if (null != scanSetup) {
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					scanSetup.setBatteryLevel(in);
+				}
+			});
+		}
+		return this;
 	}
 
+	@Override
+	public FocusScanState updateExposureTime(ExposureTime in, List<ExposureTime> values) {
+		if (null != scanSetup) {
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					scanSetup.setExposureTime(in, values);
+				}
+			});
+		}
+		return this;
+	}
+
+	@Override
+	public FocusScanState updateFNumber(FNumber in, List<FNumber> values) {
+		if (null != scanSetup) {
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					scanSetup.setFNumber(in, values);
+				}
+			});
+		}
+		return this;
+	}
+
+	@Override
+	public FocusScanState updateFocalLength(FocalLength in) {
+		if (null != scanSetup) {
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					scanSetup.setFocalLength(in);
+				}
+			});
+		}
+		return this;
+	}
+
+	@Override
+	public FocusScanState updateIso(Iso in, List<Iso> values) {
+		if (null != scanSetup) {
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					scanSetup.setIso(in, values);
+				}
+			});
+		}
+		return this;
+	}
+	
 	@Override
 	public FocusScanState selectDevice(UsbReady<?> ready) throws FocusScanException {
 		throw new FocusScanException();
@@ -59,6 +126,23 @@ public class FocusScanStateScanSetup extends FocusScanState {
 	public FocusScanState takeTestImage() throws FocusScanException {
 		getApp().cameraHandle.takeImageLV(getApp());
 		return this;
+	}
+	
+	@Override
+	public FocusScanState startScan(int steps, int stepsPerImage) throws FocusScanException {
+		liveViewTask.cancel();
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				Scan.showScan(getApp(), getApp().stage);
+			}
+		});
+		return new FocusScanStateScan(getApp(), steps, stepsPerImage);
+	}
+	
+	@Override
+	public FocusScanState scanHello(Scan in) throws FocusScanException {
+		throw new FocusScanException();
 	}
 
 	@Override
