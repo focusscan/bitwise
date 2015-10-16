@@ -48,16 +48,7 @@ public class PathChooser extends BorderPane {
 		fxmlLoader.load();
 	}
 	
-	@FXML private void browse(ActionEvent event) {
-		DirectoryChooser directoryChooser = new DirectoryChooser();
-		directoryChooser.setTitle("Bitwise workspace");
-		File file = directoryChooser.showDialog(stage);
-		if (file != null) {
-			path.setText(file.getAbsolutePath());
-		}
-	}
-	
-	@FXML private void open(ActionEvent event) {
+	private void doOpen() {
 		Thread initialize = new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -73,5 +64,19 @@ public class PathChooser extends BorderPane {
 		});
 		initialize.setName("Bitwise initialize thread");
 		initialize.start();
+	}
+	
+	@FXML private void browse(ActionEvent event) {
+		DirectoryChooser directoryChooser = new DirectoryChooser();
+		directoryChooser.setTitle("Bitwise workspace");
+		File file = directoryChooser.showDialog(stage);
+		if (file != null) {
+			path.setText(file.getAbsolutePath());
+			doOpen();
+		}
+	}
+	
+	@FXML private void open(ActionEvent event) {
+		doOpen();
 	}
 }
