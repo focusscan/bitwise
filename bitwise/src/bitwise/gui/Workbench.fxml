@@ -6,6 +6,7 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import bitwise.gui.filesystem.FileSystem?>
 <?import bitwise.gui.menubar.WorkbenchMenuBar?>
 
 <fx:root type="javafx.scene.layout.BorderPane" xmlns:fx="http://javafx.com/fxml">
@@ -19,7 +20,7 @@
 					<panes>
 						<TitledPane fx:id="tpProject" text="Project">
 							<content>
-								<!-- TODO -->
+								<FileSystem />
 							</content>
 						</TitledPane>
 						<TitledPane fx:id="tpTasks" text="Tasks">

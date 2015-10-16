@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import bitwise.engine.Thing;
 import bitwise.filesystem.filesystemservice.FileSystemServiceCertificate;
 
-public class File extends Thing<FileID> {
+public class File extends Thing<FileID> implements Node {
 	private final Path path;
 	
 	public File(FileSystemServiceCertificate fsCert, Path in_path) {
@@ -18,12 +18,18 @@ public class File extends Thing<FileID> {
 		path = in_path;
 	}
 	
-	public Path getJavaPath() {
+	@Override
+	public Path getPath() {
 		return path;
 	}
 	
 	@Override
-	public String toString() {
-		return path.toString();
+	public Directory asDirectory() {
+		return null;
+	}
+	
+	@Override
+	public File asFile() {
+		return this;
 	}
 }

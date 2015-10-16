@@ -29,9 +29,9 @@ public class FileSystemTask extends BaseServiceTask<FileSystemService> {
 
 	private void initializeDirectory(WatchService watcher, Directory in) throws IOException {
 		// Enumerate the directory's contents
-		DirectoryStream<Path> stream = Files.newDirectoryStream(in.getJavaPath());
+		DirectoryStream<Path> stream = Files.newDirectoryStream(in.getPath());
 		for (Path preChild : stream) {
-			Path child = in.getJavaPath().resolve(preChild);
+			Path child = in.getPath().resolve(preChild);
 			if (Files.isDirectory(child)) {
 				Directory newDir = new Directory(cert, child);
 				in.addSubDirectory(cert, newDir);
@@ -43,7 +43,7 @@ public class FileSystemTask extends BaseServiceTask<FileSystemService> {
 		}
 		
 		// Track its changes
-		WatchKey workpathKey = in.getJavaPath().register(watcher,
+		WatchKey workpathKey = in.getPath().register(watcher,
 				StandardWatchEventKinds.ENTRY_CREATE,
 				StandardWatchEventKinds.ENTRY_DELETE);
 		directories.put(workpathKey, in);
@@ -70,7 +70,7 @@ public class FileSystemTask extends BaseServiceTask<FileSystemService> {
 						WatchEvent<Path> event = (WatchEvent<Path>) preEvent;
 						
 						if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
-							Path path = dir.getJavaPath().resolve(event.context());
+							Path path = dir.getPath().resolve(event.context());
 							Log.log(getService(), "Create path %s", path);
 							if (Files.isDirectory(path)) {
 								Directory newDir = new Directory(cert, path);
@@ -82,13 +82,9 @@ public class FileSystemTask extends BaseServiceTask<FileSystemService> {
 							}
 						}
 						else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE) {
-							Path path = dir.getJavaPath().resolve(event.context());							Log.log(getService(), "Delete path %s", path);
-							if (Files.isDirectory(path)) {
-								dir.removeSubDirectory(cert, path);
-							}
-							else if (Files.isRegularFile(path)) {
-								dir.removeFile(cert, path);
-							}
+							Path path = dir.getPath().resolve(event.context());
+							Log.log(getService(), "Delete path %s", path);
+							dir.removeChild(cert, path);
 						}
 					}
 				}

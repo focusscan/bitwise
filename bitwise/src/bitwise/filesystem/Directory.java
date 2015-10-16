@@ -11,10 +11,9 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-public class Directory extends Thing<DirectoryID> {
+public class Directory extends Thing<DirectoryID> implements Node {
 	private final Path path;
-	private final ObservableList<Directory> subDirectories = FXCollections.observableArrayList();
-	private final ObservableList<File> files = FXCollections.observableArrayList();
+	private final ObservableList<Node> children = FXCollections.observableArrayList();
 	
 	public Directory(FileSystemServiceCertificate fsCert, Path in_path) {
 		super(new DirectoryID());
@@ -25,16 +24,23 @@ public class Directory extends Thing<DirectoryID> {
 		path = in_path;
 	}
 	
-	public Path getJavaPath() {
+	@Override
+	public Path getPath() {
 		return path;
 	}
 	
-	public ObservableList<Directory> getSubDirectories() {
-		return subDirectories;
+	@Override
+	public Directory asDirectory() {
+		return this;
 	}
 	
-	public ObservableList<File> getFiles() {
-		return files;
+	@Override
+	public File asFile() {
+		return null;
+	}
+	
+	public ObservableList<Node> getChildren() {
+		return children;
 	}
 	
 	public void addSubDirectory(FileSystemServiceCertificate fsCert, Directory in) {
@@ -44,24 +50,7 @@ public class Directory extends Thing<DirectoryID> {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
-				subDirectories.add(in);
-			}
-		});
-	}
-	
-	public void removeSubDirectory(FileSystemServiceCertificate fsCert, Path in) {
-		if (null == fsCert)
-			throw new IllegalArgumentException("FileSystemServiceCertificate");
-		Log.log(this, "%s removing subdir %s", this, in.toString());
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				subDirectories.removeIf(new Predicate<Directory>() {
-					@Override
-					public boolean test(Directory t) {
-						return t.getJavaPath().equals(in);
-					}
-				});
+				children.add(in);
 			}
 		});
 	}
@@ -73,30 +62,25 @@ public class Directory extends Thing<DirectoryID> {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
-				files.add(in);
+				children.add(in);
 			}
 		});
 	}
 	
-	public void removeFile(FileSystemServiceCertificate fsCert, Path in) {
+	public void removeChild(FileSystemServiceCertificate fsCert, Path in) {
 		if (null == fsCert)
 			throw new IllegalArgumentException("FileSystemServiceCertificate");
-		Log.log(this, "%s removing file %s", this, in.toString());
+		Log.log(this, "%s removing subdir %s", this, in.toString());
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
-				files.removeIf(new Predicate<File>() {
+				children.removeIf(new Predicate<Node>() {
 					@Override
-					public boolean test(File t) {
-						return t.getJavaPath().equals(in);
+					public boolean test(Node t) {
+						return t.getPath().equals(in);
 					}
 				});
 			}
 		});
-	}
-	
-	@Override
-	public String toString() {
-		return path.toString();
 	}
 }
