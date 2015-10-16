@@ -15,14 +15,14 @@
 	<center>
 		<SplitPane orientation="HORIZONTAL">
 			<items>
-				<Accordion minWidth="375" maxWidth="500">
+				<Accordion fx:id="leftAccordion" minWidth="375" maxWidth="500">
 					<panes>
-						<TitledPane text="Project">
+						<TitledPane fx:id="tpProject" text="Project">
 							<content>
 								<!-- TODO -->
 							</content>
 						</TitledPane>
-						<TitledPane text="Tasks">
+						<TitledPane fx:id="tpTasks" text="Tasks">
 							<content>
 								<ListView fx:id="taskList">
 									<items>
@@ -30,7 +30,7 @@
 								</ListView>
 							</content>
 						</TitledPane>
-						<TitledPane text="Devices">
+						<TitledPane fx:id="tpDevices" text="Devices">
 							<content>
 								<ListView fx:id="deviceList">
 									<items>

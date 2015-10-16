@@ -63,6 +63,8 @@ public abstract class BaseServiceTask<S extends BaseService<?>> extends Thing<Se
 			try {
 				taskMain();
 			} catch (InterruptedException e) {
+			} catch (Exception e) {
+				Log.logException(this, e);
 			}
 			running = false;
 			Log.log(this, "Task finished");

@@ -3,6 +3,8 @@ package bitwise.gui;
 import java.io.File;
 import java.io.IOException;
 
+import bitwise.Main;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -19,7 +21,7 @@ public class PathChooser extends BorderPane {
 		try {
 			PathChooser view = new PathChooser(primaryStage);
 			Scene scene = new Scene(view);
-			primaryStage.setTitle("Bitwise - Choose Path");
+			primaryStage.setTitle("Bitwise - Choose work path");
 			primaryStage.setScene(scene);
 			primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
 				@Override
@@ -56,6 +58,20 @@ public class PathChooser extends BorderPane {
 	}
 	
 	@FXML private void open(ActionEvent event) {
-		Workbench.showNewWindow(stage);
+		Thread initialize = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				final boolean initialized = Main.startBitwise(path.getText());
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						if (initialized)
+							Workbench.showNewWindow(stage);
+					}
+				});
+			}
+		});
+		initialize.setName("Bitwise initialize thread");
+		initialize.start();
 	}
 }

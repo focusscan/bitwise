@@ -9,7 +9,9 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Accordion;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TitledPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -35,6 +37,10 @@ public class Workbench extends BorderPane {
 		}
 	}
 	
+	@FXML private Accordion leftAccordion;
+	@FXML private TitledPane tpProject;
+	@FXML private TitledPane tpTasks;
+	@FXML private TitledPane tpDevices;
 	@FXML private ListView<BaseService<?>> taskList;
 	@FXML private ListView<UsbDevice> deviceList;
 	
@@ -44,6 +50,8 @@ public class Workbench extends BorderPane {
 		fxmlLoader.setRoot(this);
 		fxmlLoader.setController(this);
 		fxmlLoader.load();
+		
+		leftAccordion.setExpandedPane(tpProject);
 		
 		taskList.setItems(Supervisor.getInstance().getServicesList());
 		deviceList.setItems(Supervisor.getInstance().getUsbServiceHandle().getDeviceList());

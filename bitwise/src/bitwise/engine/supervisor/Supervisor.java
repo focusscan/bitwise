@@ -1,5 +1,7 @@
 package bitwise.engine.supervisor;
 
+import java.nio.file.Path;
+
 import bitwise.MainCertificate;
 import bitwise.apps.BaseAppFactory;
 import bitwise.appservice.AppService;
@@ -16,6 +18,8 @@ import bitwise.devices.usbservice.requests.AddUsbDriverFactoryRequester;
 import bitwise.engine.service.BaseRequest;
 import bitwise.engine.service.BaseService;
 import bitwise.engine.service.ServiceRequestHandlerCertificate;
+import bitwise.filesystem.filesystemservice.FileSystemService;
+import bitwise.filesystem.filesystemservice.FileSystemServiceHandle;
 import bitwise.log.Log;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -23,11 +27,15 @@ import javafx.collections.ObservableList;
 
 public final class Supervisor extends BaseService<SupervisorHandle> implements AddAppFactoryRequester, StartAppRequester, AddUsbDriverFactoryRequester {
 	private static Supervisor instance = null;
-	public static Supervisor getInstance() {
+	public static void buildSupervisor(MainCertificate mainCert, Path path) {
+		if (null == mainCert)
+			throw new IllegalArgumentException("MainCertificate");
 		if (null == instance) {
-			instance = new Supervisor();
-			Log.log(instance, "Instance created");
+			instance = new Supervisor(path);
 		}
+	}
+	
+	public static Supervisor getInstance() {
 		return instance;
 	}
 	
@@ -36,13 +44,27 @@ public final class Supervisor extends BaseService<SupervisorHandle> implements A
 	private final ObservableList<BaseService<?>> services = FXCollections.observableArrayList();
 	private final AppService appService;
 	private final UsbService usbService;
+	private final FileSystemService fsService;
 	private boolean initialized = false;
 	
-	protected Supervisor() {
+	protected Supervisor(Path in_workpath) {
 		super();
 		handle = new SupervisorHandle(this);
 		appService = new AppService(cert);
 		usbService = new UsbService(cert);
+		fsService = new FileSystemService(cert, in_workpath);
+	}
+	
+	public AppServiceHandle getAppServiceHandle() {
+		return appService.getServiceHandle();
+	}
+	
+	public UsbServiceHandle getUsbServiceHandle() {
+		return usbService.getServiceHandle();
+	}
+	
+	public FileSystemServiceHandle getFileSystemServiceHandle() {
+		return fsService.getServiceHandle();
 	}
 	
 	public ObservableList<BaseService<?>> getServicesList() {
@@ -56,6 +78,7 @@ public final class Supervisor extends BaseService<SupervisorHandle> implements A
 			Log.log(this, "Initializing");
 			addService(appService);
 			addService(usbService);
+			addService(fsService);
 			initialized = true;
 			this.startService(cert);
 			Log.log(this, "Initialized");
@@ -75,14 +98,6 @@ public final class Supervisor extends BaseService<SupervisorHandle> implements A
 	public void addUsbDriverFactory(MainCertificate mainCert, UsbDriverFactory<?> factory) {
 		UsbServiceHandle usbService = getUsbServiceHandle();
 		usbService.addUsbDriverFactory(this, factory);
-	}
-	
-	public AppServiceHandle getAppServiceHandle() {
-		return appService.getServiceHandle();
-	}
-	
-	public UsbServiceHandle getUsbServiceHandle() {
-		return usbService.getServiceHandle();
 	}
 	
 	public void addService(BaseService<?> service) {

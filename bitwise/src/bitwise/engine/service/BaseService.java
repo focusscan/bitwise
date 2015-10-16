@@ -49,12 +49,12 @@ public abstract class BaseService<H extends BaseServiceHandle<?, ?>> extends Thi
 	protected final void stopTasksAndDrivers(ServiceRequestHandlerCertificate handlerCert) throws InterruptedException {
 		if (null == handlerCert)
 			throw new IllegalArgumentException("ServiceRequestHandlerCertificate");
-		Log.log(this, "Stopping service tasks");
-		for (BaseServiceTask<?> serviceTask : serviceTasks)
-			serviceTask.stopTask(cert);
 		Log.log(this,  "Stopping drivers");
 		for (BaseDriver<?, ?> driver : childDrivers)
 			Supervisor.getInstance().stopService(driver);
+		Log.log(this, "Stopping service tasks");
+		for (BaseServiceTask<?> serviceTask : serviceTasks)
+			serviceTask.stopTask(cert);
 		Log.log(this, "Service stopped");
 	}
 	
