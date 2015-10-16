@@ -19,8 +19,6 @@ public class Workbench extends BorderPane {
 		try {
 			Workbench view = new Workbench();
 			Scene scene = new Scene(view);
-			if (null == primaryStage)
-				primaryStage = new Stage();
 			primaryStage.setTitle("Bitwise");
 			primaryStage.setMaximized(true);
 			primaryStage.setScene(scene);

@@ -4,7 +4,7 @@ import bitwise.apps.focusscan.FocusScanFactory;
 import bitwise.devices.nikon.d7200.NikonD7200Factory;
 import bitwise.devices.nikon.d810.NikonD810Factory;
 import bitwise.engine.supervisor.Supervisor;
-import bitwise.gui.Workbench;
+import bitwise.gui.PathChooser;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -44,6 +44,6 @@ public class Main extends Application {
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		Workbench.showNewWindow(primaryStage);
+		PathChooser.showNewWindow(primaryStage);
 	}
 }
