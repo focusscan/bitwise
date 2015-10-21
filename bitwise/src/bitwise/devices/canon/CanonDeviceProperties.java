@@ -12,6 +12,7 @@ public class CanonDeviceProperties {
 	public static final int ExposureMode = 0xd105;
 	public static final int FocusMode = 0xd108;
 	public static final int BatteryLevel = 0xd111;
+	public static final int EVFOutputDevice = 0xd1b0;
 	
 	public static short toPtpPropCode(int canonCode) {
 		switch (canonCode) {
@@ -21,6 +22,10 @@ public class CanonDeviceProperties {
 		case ExposureMode: return DevicePropCode.exposureProgramMode;
 		case FocusMode: return DevicePropCode.focusMode;
 		case BatteryLevel: return DevicePropCode.batteryLevel;
+		
+		/* Canon-specific properties just map to themselves */
+		case EVFOutputDevice: return (short)EVFOutputDevice;
+		
 		default: return (short)0xffff;
 		}
 	}
@@ -33,6 +38,10 @@ public class CanonDeviceProperties {
 		case DevicePropCode.exposureProgramMode: return ExposureMode;
 		case DevicePropCode.focusMode: return FocusMode;
 		case DevicePropCode.batteryLevel: return BatteryLevel;
+		
+		/* Canon-specific properties just map to themselves */
+		case (short)EVFOutputDevice: return EVFOutputDevice;
+		
 		default: return -1;
 		}
 	}

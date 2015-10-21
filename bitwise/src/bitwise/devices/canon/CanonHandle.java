@@ -2,6 +2,7 @@ package bitwise.devices.canon;
 
 import bitwise.devices.camera.*;
 import bitwise.devices.camera.DriveFocusRequest.Direction;
+import bitwise.devices.canon.requests.*;
 import bitwise.devices.usbptpcamera.BaseUsbPtpCameraHandle;
 import bitwise.devices.usbptpcamera.CameraPropertyFactory;
 
@@ -19,20 +20,23 @@ public class CanonHandle extends BaseUsbPtpCameraHandle<BaseCanon> {
 
 	@Override
 	public LiveViewOnRequest liveViewOn(LiveViewOnRequester requester) {
-		// TODO Auto-generated method stub
-		return null;
+		LiveViewOn r = new LiveViewOn(getService(), requester);
+		this.enqueueRequest(r);
+		return r;
 	}
 
 	@Override
 	public LiveViewOffRequest liveViewOff(LiveViewOffRequester requester) {
-		// TODO Auto-generated method stub
-		return null;
+		LiveViewOff r = new LiveViewOff(getService(), requester);
+		this.enqueueRequest(r);
+		return r;
 	}
-
+	
 	@Override
 	public GetLiveViewImageRequest getLiveViewImage(GetLiveViewImageRequester requester) {
-		// TODO Auto-generated method stub
-		return null;
+		GetLiveViewImage r = new GetLiveViewImage(getService(), requester);
+		this.enqueueRequest(r);
+		return r;
 	}
 
 	@Override
@@ -48,28 +52,9 @@ public class CanonHandle extends BaseUsbPtpCameraHandle<BaseCanon> {
 		return null;
 	}
 
-/*	@Override
-	public LiveViewOnRequest liveViewOn(LiveViewOnRequester requester) {
-		LiveViewOn r = new LiveViewOn(getService(), requester);
-		this.enqueueRequest(r);
-		return r;
-	}
 
-	@Override
-	public LiveViewOffRequest liveViewOff(LiveViewOffRequester requester) {
-		LiveViewOff r = new LiveViewOff(getService(), requester);
-		this.enqueueRequest(r);
-		return r;
-	}
-
-	@Override
-	public GetLiveViewImageRequest getLiveViewImage(GetLiveViewImageRequester requester) {
-		GetLiveViewImage r = new GetLiveViewImage(getService(), requester);
-		this.enqueueRequest(r);
-		return r;
-	}
 	
-	@Override
+/*	@Override
 	public DriveFocusRequest driveFocus(DriveFocusRequester requester, DriveFocusRequest.Direction direction, int steps, boolean blocking) {
 		DriveFocus r = new DriveFocus(getService(), requester, direction, steps, blocking);
 		this.enqueueRequest(r);

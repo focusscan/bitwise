@@ -4,11 +4,12 @@ import java.util.Hashtable;
 
 import bitwise.devices.canon.CanonHandle;
 import bitwise.devices.canon.operations.*;
-import bitwise.devices.canon.responses.CanonDevicePropertyDesc;
+import bitwise.devices.canon.responses.*;
 import bitwise.devices.usbptpcamera.BaseUsbPtpCamera;
 import bitwise.devices.usbptpcamera.coder.UsbPtpCoderException;
 import bitwise.devices.usbptpcamera.coder.UsbPtpPrimType;
 import bitwise.devices.usbptpcamera.responses.DevicePropDesc;
+import bitwise.devices.usbptpcamera.responses.ResponseCode;
 import bitwise.devices.usbservice.UsbDevice;
 import bitwise.log.Log;
 
@@ -54,12 +55,12 @@ public abstract class BaseCanon extends BaseUsbPtpCamera<CanonHandle> {
 	}
 	
 	public boolean checkForCameraEvents() throws InterruptedException {
-		GetEvent getEvent = new GetEvent();
-		runOperation(getEvent);
+		GetEvent request = new GetEvent();
+		runOperation(request);
 		
 		Hashtable<Short, CanonDevicePropertyDesc> props = null;
 		try {
-			props = getEvent.getDecodedData();
+			props = request.getDecodedData();
 		} catch (UsbPtpCoderException e) {
 			Log.logException(this, e);
 		}
@@ -83,10 +84,23 @@ public abstract class BaseCanon extends BaseUsbPtpCamera<CanonHandle> {
 	
 	@Override
 	public boolean setDevicePropValue(short deviceProp, UsbPtpPrimType value) throws InterruptedException {
-		SetDevicePropValueEx request;
-		request = new SetDevicePropValueEx(deviceProp, value);
+		SetDevicePropValueEx request = new SetDevicePropValueEx(deviceProp, value);
 		runOperation(request);
 		checkForCameraEvents();
 		return request.isSuccess();
+	}
+	
+	public void getLiveViewImage(bitwise.devices.canon.requests.GetLiveViewImage getLiveViewImage) throws InterruptedException {
+		checkForCameraEvents();
+		GetLiveViewImage request = new GetLiveViewImage();
+		runOperation(request);
+		if (request.getResponseCode().getResponseCode() == ResponseCode.success) {
+			try {
+				LiveViewObject image = request.getDecodedData();
+				getLiveViewImage.setImage(image.jpeg);
+			} catch (UsbPtpCoderException e) {
+				Log.logException(this, e);
+			}
+		}
 	}
 }
