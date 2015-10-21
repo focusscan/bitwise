@@ -1,14 +1,14 @@
-package bitwise.apps;
+package bitwise.filesystem;
 
 import bitwise.engine.ID;
 
-public final class AppFactoryID extends ID {
+public final class FileID extends ID {
 	private static int nextID = 1;
 	private static synchronized int getNextID() {
 		return nextID++;
 	}
 	
-	protected AppFactoryID() {
+	protected FileID() {
 		super(getNextID());
 	}
 }

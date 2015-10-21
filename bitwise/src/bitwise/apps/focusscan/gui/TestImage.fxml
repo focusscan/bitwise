@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+
+<?import bitwise.gui.imageview.AspectImageView?>
+
+<fx:root type="javafx.scene.layout.BorderPane" xmlns:fx="http://javafx.com/fxml"
+	prefWidth="800" prefHeight="600">
+	<top>
+	</top>
+	<center>
+		<AspectImageView fx:id="imageView" />
+	</center>
+	<bottom>
+	</bottom>
+</fx:root>

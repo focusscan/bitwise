@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.layout.BorderPane?>
+<?import bitwise.gui.imageview.AspectImageView?>
+
+<fx:root type="javafx.scene.control.Tab" xmlns:fx="http://javafx.com/fxml">
+	<BorderPane fx:id="border">
+		<center>
+			<AspectImageView fx:id="imageView" />
+		</center>
+	</BorderPane>
+</fx:root>

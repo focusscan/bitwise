@@ -1,14 +1,14 @@
-package bitwise.apps;
+package bitwise.devices;
 
 import bitwise.engine.ID;
 
-public final class AppFactoryID extends ID {
+public final class DeviceID extends ID {
 	private static int nextID = 1;
 	private static synchronized int getNextID() {
 		return nextID++;
 	}
 	
-	protected AppFactoryID() {
+	protected DeviceID() {
 		super(getNextID());
 	}
 }

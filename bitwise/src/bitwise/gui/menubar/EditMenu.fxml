@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+
+<fx:root type="javafx.scene.control.Menu" xmlns:fx="http://javafx.com/fxml" text="Edit">
+	<items>
+		<MenuItem text="Copy" disable="true" />
+		<MenuItem text="Cut" disable="true" />
+		<MenuItem text="Paste" disable="true" />
+	</items>
+</fx:root>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<fx:root type="javafx.scene.layout.BorderPane" xmlns:fx="http://javafx.com/fxml" prefWidth="600" prefHeight="100">
+	<padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+	<center>
+		<VBox alignment="center" spacing="10">
+			<TextField fx:id="path" promptText="Workspace path" />
+			<HBox alignment="center_right" spacing="10">
+				<Button onAction="#browse" text="Browse" />
+				<Button onAction="#open" text="Open" />
+			</HBox>
+		</VBox>
+	</center>
+</fx:root>
