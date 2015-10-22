@@ -91,6 +91,7 @@ public abstract class BaseCanon extends BaseUsbPtpCamera<CanonHandle> {
 	}
 	
 	public void getLiveViewImage(bitwise.devices.canon.requests.GetLiveViewImage getLiveViewImage) throws InterruptedException {
+
 		checkForCameraEvents();
 		GetLiveViewImage request = new GetLiveViewImage();
 		runOperation(request);

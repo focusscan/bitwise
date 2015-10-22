@@ -24,16 +24,11 @@ public class CanonDevicePropertyDesc extends DevicePropDesc {
 		form = null;
 		
 		int lenInBytes = buf.getInt();
-		if (lenInBytes == 8)
-			System.out.println("ding!");
 		
 		// Most Canon property arrays use 32-bit ints, but a few properties 
 		// (that we don't care about) don't, so just stuff the remainder into a 32-bit int.
 		int rem32 = lenInBytes % 4;
 		int len32 = lenInBytes / 4 - 1;
-		
-		if (rem32 > 0)
-			System.out.println("ding!");
 		
 		if (len32 == 1) {
 			buf.getInt();

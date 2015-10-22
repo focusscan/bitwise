@@ -174,7 +174,7 @@ public final class UsbPtpBuffer {
 	}
 	
 	public void put(ByteLenAInt32 in) throws UsbPtpCoderException {
-		put(in.value.length * 4);
+		put((in.value.length + 1) * 4);
 		for (int b : in.value)
 			put(b);
 	}

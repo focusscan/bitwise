@@ -8,6 +8,6 @@ public class ByteLenAInt32 extends UsbPtpPrimType {
 	
 	@Override
 	public void encode(UsbPtpBuffer buf) throws UsbPtpCoderException {
-		buf.put(value);
+		buf.put(this);
 	}
 }

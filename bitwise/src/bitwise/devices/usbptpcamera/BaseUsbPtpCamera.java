@@ -88,16 +88,17 @@ public abstract class BaseUsbPtpCamera<H extends BaseUsbPtpCameraHandle<?>> exte
 	
 	@Override
 	protected boolean onStartDriver() throws InterruptedException {
-		// TODO DRM - think this needs to be after open session for Canon?
-
 		try {
 			Log.log(this, "Starting PTP camera (interface=%02x, out=%02x, in=%02x, int=%02x)", interfaceNum, dataOutNum, dataInNum, intrptNum);
 			getEndpoints();
 			openSession();
 			getDeviceInfo();
 			Log.log(this, "Camera started");
+			
+			// This needs to happen after everything else for Canon to work.
 			if (!onStartPtpDriver())
 				return false;
+			
 			return true;
 		} catch (UsbNotActiveException | UsbDisconnectedException | UsbException e) {
 			Log.logException(this, e);
