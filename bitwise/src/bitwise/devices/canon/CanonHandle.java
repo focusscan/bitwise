@@ -45,19 +45,11 @@ public class CanonHandle extends BaseUsbPtpCameraHandle<BaseCanon> {
 		this.enqueueRequest(r);
 		return r;
 	}
-
-	@Override
-	public DriveFocusRequest driveFocus(DriveFocusRequester requester, Direction direction, int steps,
-			boolean blocking) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	
-/*	@Override
+	@Override
 	public DriveFocusRequest driveFocus(DriveFocusRequester requester, DriveFocusRequest.Direction direction, int steps, boolean blocking) {
 		DriveFocus r = new DriveFocus(getService(), requester, direction, steps, blocking);
 		this.enqueueRequest(r);
 		return r;
-	}*/
+	}
 }

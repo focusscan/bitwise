@@ -2,9 +2,11 @@ package bitwise.devices.canon;
 
 import java.util.Hashtable;
 
+import bitwise.devices.camera.DriveFocusRequest;
 import bitwise.devices.canon.CanonHandle;
 import bitwise.devices.canon.operations.*;
 import bitwise.devices.canon.responses.*;
+import bitwise.devices.nikon.operations.FocusDrive;
 import bitwise.devices.nikon.operations.InitiateCaptureLV;
 import bitwise.devices.usbptpcamera.BaseUsbPtpCamera;
 import bitwise.devices.usbptpcamera.coder.Int32;
@@ -156,5 +158,20 @@ public abstract class BaseCanon extends BaseUsbPtpCamera<CanonHandle> {
 		}
 		
 		r.setImage(imageData);
+	}
+	
+	public boolean driveFocus(DriveFocusRequest.Direction direction, int steps, boolean blocking) throws InterruptedException {
+		int focus = 0;
+		if (direction == DriveFocusRequest.Direction.TowardsFar)
+			focus |= 0x8000;
+		
+		if (steps > 3 || steps < 1) return false;
+		else focus += steps;
+		
+		SetFocusDrive request = new SetFocusDrive(focus);
+		runOperation(request);
+		checkForCameraEvents();
+
+		return (null != request.getResponseCode() && request.getResponseCode().getResponseCode() == ResponseCode.success);
 	}
 }
