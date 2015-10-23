@@ -12,10 +12,11 @@ public class CanonDeviceProperties {
 	public static final int ExposureMode = 0xd105;
 	public static final int FocusMode = 0xd108;
 	public static final int BatteryLevel = 0xd111;
+	public static final int CaptureTarget = 0xd11c;
 	public static final int EVFOutputDevice = 0xd1b0;
 	
 	/* This is hack-ish... Not a real "property" */
-	public static final int NewObjectReady = 0xc186;
+	public static final int NewObjectReady = 0xffffc186;
 	
 	public enum ShutterState { 
 		HalfPress(0x01), FullPress(0x02);

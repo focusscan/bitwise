@@ -37,11 +37,14 @@ public abstract class BaseCanon extends BaseUsbPtpCamera<CanonHandle> {
 	protected boolean onStartPtpDriver() {
 		SetRemoteMode setRemoteMode = new SetRemoteMode();
 		SetEventMode setEventMode = new SetEventMode();
+		UpdateStorageSpace updateStorageSpace = new UpdateStorageSpace();
 	
 		try {
 			runOperation(setRemoteMode);
 			runOperation(setEventMode);
-			checkForCameraEvents(null);
+			setDevicePropValue((short)CanonDeviceProperties.CaptureTarget, new Int32(0x4));		// Capture to RAM (TODO)
+			runOperation(updateStorageSpace);
+			checkForCameraEvents();
 			return true;
 		} catch (InterruptedException e) {
 			Log.logException(this, e);
@@ -59,7 +62,7 @@ public abstract class BaseCanon extends BaseUsbPtpCamera<CanonHandle> {
 		return handle;
 	}
 	
-	public boolean checkForCameraEvents(bitwise.devices.canon.requests.TakeImageLV r) throws InterruptedException {
+	public byte[] checkForCameraEvents() throws InterruptedException {
 		GetEvent request = new GetEvent();
 		runOperation(request);
 		
@@ -70,38 +73,39 @@ public abstract class BaseCanon extends BaseUsbPtpCamera<CanonHandle> {
 			Log.logException(this, e);
 		}
 		
-		if (null == props || props.isEmpty()) return false;
+		if (null == props || props.isEmpty()) return null;
 		
 		for (short key : props.keySet()) {
 			CanonDevicePropertyDesc curr = currentDeviceProperties.get(key);
 			if (key == CanonDeviceProperties.NewObjectReady) {
 				try {
-					int objectID = ((DevicePropertyEnum)curr.getValidValues()).supportedValues[0].castTo(Int32.class).value;
-					int objectSize = ((DevicePropertyEnum)curr.getValidValues()).supportedValues[3].castTo(Int32.class).value;
+					int objectID = ((DevicePropertyEnum)props.get(key).getValidValues()).supportedValues[0].castTo(Int32.class).value;
+					int objectSize = ((DevicePropertyEnum)props.get(key).getValidValues()).supportedValues[3].castTo(Int32.class).value;
 					GetPartialObject imageRequest = new GetPartialObject(objectID, objectSize);
 					runOperation(imageRequest);
 					
+					byte[] imageData = null;
 					if (null != imageRequest.getResponseData() && 0 < imageRequest.getResponseData().getDataSize())
-						r.setImage(imageRequest.getResponseData().getData().getRemainingArray());
-					return true;
+						imageData = imageRequest.getResponseData().getData().getRemainingArray(); 
+					TransferComplete imageComplete = new TransferComplete(objectID);
+					runOperation(imageComplete);
+					return imageData;
 					
 				} catch (UsbPtpTypeCastException | UsbPtpCoderException e) {
 					Log.logException(this, e);
-					return false;
+					return null;
 				}
-						
-				
 			} else {
 				if (null != curr) curr.update(props.get(key));
 				else currentDeviceProperties.put(key, props.get(key));			
 			}
 		}
-		return true;
+		return null;
 	}
 	
 	@Override
 	public DevicePropDesc getDevicePropDesc(short deviceProp) throws InterruptedException, UsbPtpCoderException {
-		checkForCameraEvents(null);
+		checkForCameraEvents();
 		return currentDeviceProperties.get(deviceProp);
 		
 	}
@@ -111,13 +115,13 @@ public abstract class BaseCanon extends BaseUsbPtpCamera<CanonHandle> {
 		SetDevicePropValueEx request = new SetDevicePropValueEx(deviceProp, value);
 		runOperation(request);
 		Thread.sleep(100);
-		checkForCameraEvents(null);
+		checkForCameraEvents();
 		return request.isSuccess();
 	}
 	
 	public void getLiveViewImage(bitwise.devices.canon.requests.GetLiveViewImage getLiveViewImage) throws InterruptedException {
 
-		checkForCameraEvents(null);
+		checkForCameraEvents();
 		GetLiveViewImage request = new GetLiveViewImage();
 		runOperation(request);
 		if (request.getResponseCode().getResponseCode() == ResponseCode.success) {
@@ -144,8 +148,13 @@ public abstract class BaseCanon extends BaseUsbPtpCamera<CanonHandle> {
 		if (!requestFullRelease.isSuccess()) return;
 		runOperation(requestHalfRelease);
 		if (!requestHalfRelease.isSuccess()) return;
-		
-		while (!checkForCameraEvents(r))
+	
+		byte[] imageData = checkForCameraEvents();
+		while (null == imageData) {
 			Thread.sleep(100);
+			imageData = checkForCameraEvents();
+		}
+		
+		r.setImage(imageData);
 	}
 }

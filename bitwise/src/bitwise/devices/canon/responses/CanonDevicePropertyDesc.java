@@ -11,9 +11,8 @@ public class CanonDevicePropertyDesc extends DevicePropDesc {
 	private static final int NewObjectReady = 0xc186;
 	private static final int CurrentValue = 0xc189;
 	private static final int ValidRange = 0xc18a;
-	private static final int Sentinel = 0x80000000;
 	
-	private int valueType = Sentinel;
+	private int valueType = -1;
 	
 	protected CanonDevicePropertyDesc(UsbPtpBuffer buf) throws UsbPtpCoderException {
 		
@@ -32,7 +31,7 @@ public class CanonDevicePropertyDesc extends DevicePropDesc {
 		
 		valueType = buf.getInt(); --len32;
 		if (valueType == NewObjectReady) {
-			devicePropertyCode = (short)valueType;
+			devicePropertyCode = (short)(0xffff & (short)valueType);
 			form = new DevicePropertyEnum(readEntry(len32, rem32, buf));
 		} else {
 			devicePropertyCode = CanonDeviceProperties.toPtpPropCode(buf.getInt()); --len32;
