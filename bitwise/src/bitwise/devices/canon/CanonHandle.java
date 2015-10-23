@@ -38,6 +38,13 @@ public class CanonHandle extends BaseUsbPtpCameraHandle<BaseCanon> {
 		this.enqueueRequest(r);
 		return r;
 	}
+	
+	@Override
+	public TakeImageLVRequest takeImageLV(TakeImageLVRequester requester) {
+		TakeImageLV r = new TakeImageLV(getService(), requester);
+		this.enqueueRequest(r);
+		return r;
+	}
 
 	@Override
 	public DriveFocusRequest driveFocus(DriveFocusRequester requester, Direction direction, int steps,
@@ -46,24 +53,10 @@ public class CanonHandle extends BaseUsbPtpCameraHandle<BaseCanon> {
 		return null;
 	}
 
-	@Override
-	public TakeImageLVRequest takeImageLV(TakeImageLVRequester requester) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
 	
 /*	@Override
 	public DriveFocusRequest driveFocus(DriveFocusRequester requester, DriveFocusRequest.Direction direction, int steps, boolean blocking) {
 		DriveFocus r = new DriveFocus(getService(), requester, direction, steps, blocking);
-		this.enqueueRequest(r);
-		return r;
-	}
-
-	@Override
-	public TakeImageLVRequest takeImageLV(TakeImageLVRequester requester) {
-		TakeImageLV r = new TakeImageLV(getService(), requester);
 		this.enqueueRequest(r);
 		return r;
 	}*/

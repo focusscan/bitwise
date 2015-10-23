@@ -14,6 +14,20 @@ public class CanonDeviceProperties {
 	public static final int BatteryLevel = 0xd111;
 	public static final int EVFOutputDevice = 0xd1b0;
 	
+	/* This is hack-ish... Not a real "property" */
+	public static final int NewObjectReady = 0xc186;
+	
+	public enum ShutterState { 
+		HalfPress(0x01), FullPress(0x02);
+		private final int value;
+		ShutterState(int v) {
+			value = v;
+		}
+		public int getInt() {
+			return value;
+		}
+	}
+	
 	public static short toPtpPropCode(int canonCode) {
 		switch (canonCode) {
 		case FNumber: return DevicePropCode.fNumber;
@@ -23,10 +37,8 @@ public class CanonDeviceProperties {
 		case FocusMode: return DevicePropCode.focusMode;
 		case BatteryLevel: return DevicePropCode.batteryLevel;
 		
-		/* Canon-specific properties just map to themselves */
-		case EVFOutputDevice: return (short)EVFOutputDevice;
-		
-		default: return (short)0xffff;
+		/* Canon-specific properties just map to themselves */		
+		default: return (short)canonCode;
 		}
 	}
 	
@@ -40,9 +52,7 @@ public class CanonDeviceProperties {
 		case DevicePropCode.batteryLevel: return BatteryLevel;
 		
 		/* Canon-specific properties just map to themselves */
-		case (short)EVFOutputDevice: return EVFOutputDevice;
-		
-		default: return -1;
+		default: return 0xffff & ptpCode;
 		}
 	}
 	

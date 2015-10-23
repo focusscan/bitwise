@@ -1,5 +1,6 @@
 package bitwise.devices.usbptpcamera.responses;
 
+import bitwise.devices.usbptpcamera.coder.Int32;
 import bitwise.devices.usbptpcamera.coder.UsbPtpBuffer;
 import bitwise.devices.usbptpcamera.coder.UsbPtpCoderException;
 import bitwise.devices.usbptpcamera.coder.UsbPtpPrimType;
@@ -14,7 +15,13 @@ public class DevicePropDesc {
 	protected DevicePropertyForm form;
 	
 	public DevicePropDesc() {
-
+		devicePropertyCode = (short)0xffff;
+		dataType = (short)0x0006;              // Int32
+		getSet = (byte) 0x01;                  // All properties are "settable" for now
+		factoryDefaultValue = new Int32(-1);   // currently not collected
+		formFlag = (byte) 0x02;                // All properties are enums
+		currentValue = null;
+		form = null;
 	}
 	
 	public DevicePropDesc(UsbPtpBuffer buf) throws UsbPtpCoderException {
