@@ -103,21 +103,25 @@ public class FocusScanStateScan extends FocusScanState {
 	public FocusScanState scanNewImage(byte[] lv, byte[] si) throws FocusScanException {
 		Image imageLV = null;
 		Image imageSI = null;
-		try {
-			ByteArrayInputStream imageStream = new ByteArrayInputStream(lv);
-			BufferedImage imageBuffered;
-				imageBuffered = ImageIO.read(imageStream);
-			imageLV = SwingFXUtils.toFXImage(imageBuffered, null);
-		} catch (IOException e) {
-			Log.logException(getApp(), e);
+		if (null != lv) {
+			try {
+				ByteArrayInputStream imageStream = new ByteArrayInputStream(lv);
+				BufferedImage imageBuffered;
+					imageBuffered = ImageIO.read(imageStream);
+				imageLV = SwingFXUtils.toFXImage(imageBuffered, null);
+			} catch (IOException e) {
+				Log.logException(getApp(), e);
+			}
 		}
-		try {
-			ByteArrayInputStream imageStream = new ByteArrayInputStream(si);
-			BufferedImage imageBuffered;
-				imageBuffered = ImageIO.read(imageStream);
-			imageSI = SwingFXUtils.toFXImage(imageBuffered, null);
-		} catch (IOException e) {
-			Log.logException(getApp(), e);
+		if (null != si) {
+			try {
+				ByteArrayInputStream imageStream = new ByteArrayInputStream(si);
+				BufferedImage imageBuffered;
+					imageBuffered = ImageIO.read(imageStream);
+				imageSI = SwingFXUtils.toFXImage(imageBuffered, null);
+			} catch (IOException e) {
+				Log.logException(getApp(), e);
+			}
 		}
 		final Image theLV = imageLV;
 		final Image theSI = imageSI;
