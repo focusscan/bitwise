@@ -25,7 +25,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
-public class ScanSetup extends BorderPane {
+public class ScanSetup extends BorderPane implements CameraPropListener {
 	public static ScanSetup showScanSetup(FocusScan app, Stage primaryStage) {
 		try {
 			ScanSetup view = new ScanSetup(app);
@@ -94,46 +94,6 @@ public class ScanSetup extends BorderPane {
 				updateImageCount();
 			}
 		});
-		
-		app.fxdo_Hello(this);
-	}
-	
-	public void setBatteryLevel(BatteryLevel value) {
-		
-	}
-	
-	public void setExposureProgramMode(ExposureProgramMode value) {
-		
-	}
-	
-	public void setExposureTime(ExposureTime value, List<ExposureTime> values) {
-		cbExposure.itemsProperty().get().clear();
-		cbExposure.itemsProperty().get().addAll(values);
-		cbExposure.setValue(value);
-	}
-	
-	public void setFlashMode(FlashMode value) {
-		
-	}
-	
-	public void setFNumber(FNumber value, List<FNumber> values) {
-		cbAperture.itemsProperty().get().clear();
-		cbAperture.itemsProperty().get().addAll(values);
-		cbAperture.setValue(value);
-	}
-	
-	public void setFocalLength(FocalLength value) {
-		
-	}
-	
-	public void setFocusMode(FocusMode value) {
-		
-	}
-	
-	public void setIso(Iso value, List<Iso> values) {
-		cbIso.itemsProperty().get().clear();
-		cbIso.itemsProperty().get().addAll(values);
-		cbIso.setValue(value);
 	}
 	
 	public void setImage(Image image) {
@@ -187,5 +147,38 @@ public class ScanSetup extends BorderPane {
 		} catch (Exception e) {
 			Log.log(app, "cannot parse %s %s", focusSteps.getText(), focusStepsPerImage.getText());
 		}
+	}
+
+	@Override
+	public void updateBatteryLevel(BatteryLevel in) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void updateExposureTime(ExposureTime in, List<ExposureTime> values) {
+		cbExposure.itemsProperty().get().clear();
+		cbExposure.itemsProperty().get().addAll(values);
+		cbExposure.setValue(in);
+	}
+
+	@Override
+	public void updateFNumber(FNumber in, List<FNumber> values) {
+		cbAperture.itemsProperty().get().clear();
+		cbAperture.itemsProperty().get().addAll(values);
+		cbAperture.setValue(in);
+	}
+
+	@Override
+	public void updateFocalLength(FocalLength in) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void updateIso(Iso in, List<Iso> values) {
+		cbIso.itemsProperty().get().clear();
+		cbIso.itemsProperty().get().addAll(values);
+		cbIso.setValue(in);
 	}
 }

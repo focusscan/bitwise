@@ -1,9 +1,15 @@
 package bitwise.apps.focusscan.gui;
 
 import java.io.IOException;
+import java.util.List;
 
 import bitwise.apps.focusscan.FocusScan;
+import bitwise.devices.camera.BatteryLevel;
 import bitwise.devices.camera.CameraHandle;
+import bitwise.devices.camera.ExposureTime;
+import bitwise.devices.camera.FNumber;
+import bitwise.devices.camera.FocalLength;
+import bitwise.devices.camera.Iso;
 import bitwise.devices.usbservice.UsbReady;
 import bitwise.devices.usbservice.UsbServiceHandle;
 import bitwise.engine.supervisor.Supervisor;
@@ -16,7 +22,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
-public class DeviceSelect extends BorderPane {
+public class DeviceSelect extends BorderPane implements CameraPropListener {
 	public static DeviceSelect showDeviceSelect(FocusScan app, Stage primaryStage) {
 		try {
 			DeviceSelect view = new DeviceSelect(app);
@@ -53,5 +59,25 @@ public class DeviceSelect extends BorderPane {
 		UsbReady<?> ready = deviceList.getSelectionModel().getSelectedItem();
 		if (null != ready)
 			app.fxdo_selectDevice(ready);
+	}
+
+	@Override
+	public void updateBatteryLevel(BatteryLevel in) {
+	}
+
+	@Override
+	public void updateExposureTime(ExposureTime in, List<ExposureTime> values) {
+	}
+
+	@Override
+	public void updateFNumber(FNumber in, List<FNumber> values) {
+	}
+
+	@Override
+	public void updateFocalLength(FocalLength in) {
+	}
+
+	@Override
+	public void updateIso(Iso in, List<Iso> values) {
 	}
 }
