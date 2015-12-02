@@ -17,6 +17,13 @@ public abstract class BaseUsbPtpCameraHandle<A extends BaseUsbPtpCamera<?>> exte
 	public void setCameraEventListener(CameraListener in) {
 		getService().setCameraListener(in);
 	}
+	
+	@Override
+	public GetCameraInfoRequest getCameraInfo(GetCameraInfoRequester requester) {
+		GetCameraInfo<A> r = new GetCameraInfo<A>(getService(), requester);
+		this.enqueueRequest(r);
+		return r;
+	}
 
 	@Override
 	public GetPropertyRequest<List<ImageFormat>> getImageFormats(GetPropertyRequester requester) {

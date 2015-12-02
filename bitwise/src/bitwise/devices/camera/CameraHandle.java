@@ -5,6 +5,8 @@ import java.util.List;
 public interface CameraHandle {
 	public void setCameraEventListener(CameraListener in);
 	
+	public GetCameraInfoRequest getCameraInfo(GetCameraInfoRequester requester);
+	
 	public LiveViewOnRequest liveViewOn(LiveViewOnRequester requester);
 	public LiveViewOffRequest liveViewOff(LiveViewOffRequester requester);
 	public GetLiveViewImageRequest getLiveViewImage(GetLiveViewImageRequester requester);

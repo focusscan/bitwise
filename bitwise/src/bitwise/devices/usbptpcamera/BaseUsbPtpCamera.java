@@ -55,12 +55,33 @@ public abstract class BaseUsbPtpCamera<H extends BaseUsbPtpCameraHandle<?>> exte
 	private BaseUsbPtpReader<Response> dataOutReader;
 	private BaseUsbPtpReader<Event> intrptReader;
 	
+	private String cameraManufacturer = "";
+	private String cameraModel = "";
+	private String cameraVersion = "";
+	private String cameraSerial = "";
+	
 	protected BaseUsbPtpCamera(UsbDevice in_device, byte in_interfaceNum, byte in_dataInNum, byte in_dataOutNum, byte in_intrptNum) {
 		super(in_device);
 		interfaceNum = in_interfaceNum;
 		dataInNum = in_dataInNum;
 		dataOutNum = in_dataOutNum;
 		intrptNum = in_intrptNum;
+	}
+	
+	public String getCameraManufacturer() {
+		return cameraManufacturer;
+	}
+	
+	public String getCameraModel() {
+		return cameraModel;
+	}
+	
+	public String getCameraVersion() {
+		return cameraVersion;
+	}
+	
+	public String getCameraSerial() {
+		return cameraSerial;
 	}
 	
 	private void getEndpoints() throws UsbClaimException, UsbNotActiveException, UsbDisconnectedException, UsbException {
@@ -387,6 +408,11 @@ public abstract class BaseUsbPtpCamera<H extends BaseUsbPtpCameraHandle<?>> exte
 		runOperation(request);
 		DeviceInfo info = request.getDecodedData();
 		if (null != info) {
+			cameraManufacturer = info.manufacturer;
+			cameraModel = info.model;
+			cameraVersion = info.deviceVersion;
+			cameraSerial = info.serialNumber;
+			
 			synchronized(Log.class) {
 				Log.log(this, "Device info:");
 				Log.log(this, " Versions: %04x %08x %04x %s", info.standardVersion, info.vendorExtensionID, info.vendorExtensionVersion, info.vendorExtensionDesc);

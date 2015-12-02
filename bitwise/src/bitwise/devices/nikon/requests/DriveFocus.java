@@ -17,10 +17,19 @@ public class DriveFocus extends BaseUsbPtpCameraRequest<BaseNikon, DriveFocusReq
 		steps = in_steps;
 		blocking = in_blocking;
 	}
-
+	
+	private Result result = Result.Nonblocking;
+	
+	@Override
+	public Result getDriveFocusResult() {
+		return result;
+	}
+	
 	@Override
 	protected void onServeRequest(RequestContext ctx) throws InterruptedException {
-		getService().driveFocus(direction, steps, blocking);
+		boolean r = getService().driveFocus(direction, steps, blocking);
+		if (blocking)
+			result = r ? Result.FocusMoved : Result.LimitReached;
 	}
 
 	@Override

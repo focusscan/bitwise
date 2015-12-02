@@ -7,4 +7,12 @@ public interface DriveFocusRequest extends Request {
 		TowardsNear,
 		TowardsFar,
 	}
+	
+	public static enum Result {
+		Nonblocking,
+		FocusMoved,
+		LimitReached,
+	}
+	
+	public Result getDriveFocusResult();
 }

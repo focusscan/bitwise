@@ -31,7 +31,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUsbDriverRequester, CameraListener, GetPropertyRequester, SetPropertyRequester, LiveViewOnRequester, LiveViewOffRequester, GetLiveViewImageRequester, DriveFocusRequester, TakeImageLVRequester {
+public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUsbDriverRequester, CameraListener, GetPropertyRequester, SetPropertyRequester, LiveViewOnRequester, LiveViewOffRequester, GetLiveViewImageRequester, DriveFocusRequester, TakeImageLVRequester, GetCameraInfoRequester {
 	private final FocusScanHandle handle = new FocusScanHandle(this);
 	protected FocusScanState state = null;
 	protected Stage stage = null;
@@ -395,5 +395,10 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 					((Scan) window).setImageSI(theSI);
 			}
 		});
+	}
+
+	@Override
+	public void notifyRequestComplete(GetCameraInfoRequest in) {
+		// Nothing to do here
 	}
 }

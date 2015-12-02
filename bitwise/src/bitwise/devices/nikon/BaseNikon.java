@@ -47,6 +47,14 @@ public abstract class BaseNikon extends BaseUsbPtpCamera<NikonHandle> {
 		return (null != request.getResponseCode() && request.getResponseCode().getResponseCode() == ResponseCode.deviceBusy);
 	}
 	
+	public short checkDeviceReady() throws InterruptedException {
+		DeviceReady request = new DeviceReady();
+		runOperation(request);
+		if (null == request.getResponseCode())
+			return 0;
+		return request.getResponseCode().getResponseCode();
+	}
+	
 	public boolean startLiveView() throws InterruptedException {
 		StartLiveView request = new StartLiveView();
 		runOperation(request);
@@ -78,13 +86,24 @@ public abstract class BaseNikon extends BaseUsbPtpCamera<NikonHandle> {
 		}
 		FocusDrive request = new FocusDrive(idirection, steps);
 		runOperation(request);
-		deviceBusy();
-		deviceBusy();
-		if (blocking) {
-			while(deviceBusy())
-				Thread.sleep(100);
+		
+		if (!request.isSuccess())
+			return false;
+		
+		final short responseCodeMfDriveEnd = (short) 0xa00c;
+		
+		int response = 0;
+		boolean ret = true;
+		boolean keepChecking = blocking;
+		for (int tries = 0; (tries < 2) || keepChecking; tries++) {
+			response = checkDeviceReady();
+			ret = ret && (response != responseCodeMfDriveEnd);
+			keepChecking = keepChecking && response == ResponseCode.deviceBusy;
+			if (keepChecking)
+				Thread.sleep(50);
 		}
-		return (null != request.getResponseCode() && request.getResponseCode().getResponseCode() == ResponseCode.success);
+		
+		return ret;
 	}
 	
 	public void getLiveViewImage(bitwise.devices.nikon.requests.GetLiveViewImage r) throws InterruptedException {
