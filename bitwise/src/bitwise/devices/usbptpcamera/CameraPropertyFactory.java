@@ -16,4 +16,5 @@ public interface CameraPropertyFactory {
 	public ImageFormat getImageFormat(short in) throws UsbPtpTypeCastException;
 	public Iso getIso(UsbPtpPrimType in) throws UsbPtpTypeCastException;
 	public StorageDevice getStorageDevice(BaseUsbPtpCamera.StorageIDwInfo in);
+	public WhiteBalanceMode getWhiteBalanceMode(UsbPtpPrimType currentValue) throws UsbPtpTypeCastException;
 }

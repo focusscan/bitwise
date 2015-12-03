@@ -9,6 +9,7 @@ import bitwise.devices.camera.ExposureTime;
 import bitwise.devices.camera.FNumber;
 import bitwise.devices.camera.FocalLength;
 import bitwise.devices.camera.Iso;
+import bitwise.devices.camera.WhiteBalanceMode;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
@@ -57,5 +58,9 @@ public class Completed extends BorderPane implements CameraPropListener {
 
 	@Override
 	public void updateIso(Iso in, List<Iso> values) {
+	}
+
+	@Override
+	public void updateWhiteBalance(WhiteBalanceMode in, List<WhiteBalanceMode> values) {
 	}
 }

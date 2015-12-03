@@ -7,6 +7,7 @@ import bitwise.devices.camera.ExposureTime;
 import bitwise.devices.camera.FNumber;
 import bitwise.devices.camera.FocalLength;
 import bitwise.devices.camera.Iso;
+import bitwise.devices.camera.WhiteBalanceMode;
 
 public interface CameraPropListener {
 	public void updateBatteryLevel(BatteryLevel in);
@@ -14,4 +15,5 @@ public interface CameraPropListener {
 	public void updateFNumber(FNumber in, List<FNumber> values);
 	public void updateFocalLength(FocalLength in);
 	public void updateIso(Iso in, List<Iso> values);
+	public void updateWhiteBalance(WhiteBalanceMode in, List<WhiteBalanceMode> values);
 }

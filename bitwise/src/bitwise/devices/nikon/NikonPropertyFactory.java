@@ -71,4 +71,31 @@ public class NikonPropertyFactory implements CameraPropertyFactory {
 	public StorageDevice getStorageDevice(BaseUsbPtpCamera.StorageIDwInfo in) {
 		return new StorageDevice(in.info.volumeLabel, in.storageID);
 	}
+
+	@Override
+	public WhiteBalanceMode getWhiteBalanceMode(UsbPtpPrimType in) throws UsbPtpTypeCastException {
+		Int16 raw = in.castTo(Int16.class);
+		switch (raw.value) {
+		case (short) 0x0002:
+			return new WhiteBalanceMode("Auto", raw.value);
+		case (short) 0x0004:
+			return new WhiteBalanceMode("Sunny", raw.value);
+		case (short) 0x0005:
+			return new WhiteBalanceMode("Flourescent", raw.value);
+		case (short) 0x0006:
+			return new WhiteBalanceMode("Incandescent", raw.value);
+		case (short) 0x0007:
+			return new WhiteBalanceMode("Flash", raw.value);
+		case (short) 0x8010:
+			return new WhiteBalanceMode("Cloudy", raw.value);
+		case (short) 0x8011:
+			return new WhiteBalanceMode("Shade", raw.value);
+		case (short) 0x8012:
+			return new WhiteBalanceMode("Choose color temp.", raw.value);
+		case (short) 0x8013:
+			return new WhiteBalanceMode("Preset manual", raw.value);
+		default:
+			return new WhiteBalanceMode(String.format("%04x", raw.value), raw.value);
+		}
+	}
 }

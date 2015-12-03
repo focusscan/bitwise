@@ -9,6 +9,7 @@ import bitwise.devices.camera.ExposureTime;
 import bitwise.devices.camera.FNumber;
 import bitwise.devices.camera.FocalLength;
 import bitwise.devices.camera.Iso;
+import bitwise.devices.camera.WhiteBalanceMode;
 import bitwise.gui.imageview.AspectImageView;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
@@ -103,5 +104,9 @@ public class Scan extends BorderPane implements CameraPropListener {
 
 	@Override
 	public void updateIso(Iso in, List<Iso> values) {
+	}
+	
+	@Override
+	public void updateWhiteBalance(WhiteBalanceMode in, List<WhiteBalanceMode> values) {
 	}
 }

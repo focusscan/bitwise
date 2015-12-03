@@ -45,10 +45,11 @@ public class ScanSetup extends BorderPane implements CameraPropListener {
 		return null;
 	}
 	
-	@FXML private Label cbFocalLength;
+	@FXML private Label lblFocalLength;
 	@FXML private ComboBox<Iso> cbIso;
 	@FXML private ComboBox<FNumber> cbAperture;
 	@FXML private ComboBox<ExposureTime> cbExposure;
+	@FXML private ComboBox<WhiteBalanceMode> cbWhiteBalance;
 	@FXML private ProgressBar batteryLevel;
 	@FXML private TextField scanName;
 	@FXML private TextField focusSteps;
@@ -84,6 +85,13 @@ public class ScanSetup extends BorderPane implements CameraPropListener {
 			public void changed(ObservableValue<? extends ExposureTime> obs, ExposureTime oldV, ExposureTime newV) {
 				if (null != newV && null != oldV)
 					app.fxdo_setExposureTime(newV);
+			}
+		});
+		cbWhiteBalance.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<WhiteBalanceMode>() {
+			@Override
+			public void changed(ObservableValue<? extends WhiteBalanceMode> obs, WhiteBalanceMode oldV, WhiteBalanceMode newV) {
+				if (null != newV && null != oldV)
+					app.fxdo_setWhiteBalance(newV);
 			}
 		});
 		focusSteps.textProperty().addListener(new ChangeListener<String>() {
@@ -192,7 +200,7 @@ public class ScanSetup extends BorderPane implements CameraPropListener {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
-				cbFocalLength.setText(in.toString());
+				lblFocalLength.setText(in.toString());
 			}
 		});
 	}
@@ -205,6 +213,18 @@ public class ScanSetup extends BorderPane implements CameraPropListener {
 				cbIso.itemsProperty().get().clear();
 				cbIso.itemsProperty().get().addAll(values);
 				cbIso.setValue(in);
+			}
+		});
+	}
+	
+	@Override
+	public void updateWhiteBalance(WhiteBalanceMode in, List<WhiteBalanceMode> values) {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				cbWhiteBalance.itemsProperty().get().clear();
+				cbWhiteBalance.itemsProperty().get().addAll(values);
+				cbWhiteBalance.setValue(in);
 			}
 		});
 	}

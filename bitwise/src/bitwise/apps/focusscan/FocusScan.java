@@ -112,6 +112,9 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 		case Iso:
 			window.updateIso((Iso) in.getValue(), (List<Iso>) in.getLegalValues());
 			break;
+		case WhiteBalance:
+			window.updateWhiteBalance((WhiteBalanceMode) in.getValue(), (List<WhiteBalanceMode>) in.getLegalValues());
+			break;
 		case ExposureProgramMode:
 		case FlashMode:
 		case FocusMode:
@@ -139,6 +142,9 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 			break;
 		case Iso:
 			camera.getIso(this);
+			break;
+		case WhiteBalance:
+			camera.getWhiteBalanceMode(this);
 			break;
 		case ExposureProgramMode:
 		case FlashMode:
@@ -174,6 +180,14 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 		}
 	}
 	
+	private volatile WhiteBalanceMode currentWhiteBalance = null;
+	public void fxdo_setWhiteBalance(WhiteBalanceMode in) {
+		if (null != cameraHandle && (null == currentWhiteBalance || !in.equals(currentWhiteBalance))) {
+			currentWhiteBalance = in;
+			cameraHandle.setWhiteBalanceMode(this, in);
+		}
+	}
+	
 	@Override
 	public void notifyRequestComplete(SetPropertyRequest<?> in) {
 		switch (in.getProperty()) {
@@ -185,6 +199,9 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 			break;
 		case Iso:
 			cameraHandle.getIso(this);
+			break;
+		case WhiteBalance:
+			cameraHandle.getWhiteBalanceMode(this);
 			break;
 		default:
 			Log.log(this, "I sent this request but I don't know what to do with it: %s", in);
@@ -214,6 +231,7 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 		try {
 			latch.await();
 			cameraHandle.getBatteryLevel(this);
+			cameraHandle.getWhiteBalanceMode(this);
 			cameraHandle.getExposureTime(this);
 			cameraHandle.getFNumber(this);
 			cameraHandle.getFocalLength(this);

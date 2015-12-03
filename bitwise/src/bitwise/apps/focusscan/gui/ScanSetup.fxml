@@ -20,7 +20,7 @@
 				<Region styleClass="spacer" />
 				<VBox alignment="bottom_center">
 					<Label text="Focal length" />
-					<Label fx:id="cbFocalLength" text="--" />
+					<Label fx:id="lblFocalLength" text="--" />
 				</VBox>
 				<VBox alignment="bottom_center">
 					<Label text="ISO" />
@@ -39,6 +39,13 @@
 				<VBox alignment="bottom_center">
 					<Label text="Exposure" />
 					<ComboBox fx:id="cbExposure" promptText="--">
+						<items />
+
+					</ComboBox>
+				</VBox>
+				<VBox alignment="bottom_center">
+					<Label text="White Balance" />
+					<ComboBox fx:id="cbWhiteBalance" promptText="--">
 						<items />
 
 					</ComboBox>
