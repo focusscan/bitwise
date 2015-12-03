@@ -3,6 +3,7 @@ package bitwise.gui.filesystem;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.PathMatcher;
+import java.util.Comparator;
 import java.util.function.Predicate;
 
 import bitwise.engine.supervisor.Supervisor;
@@ -12,6 +13,7 @@ import bitwise.filesystem.Node;
 import bitwise.gui.Workbench;
 import bitwise.log.Log;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -121,6 +123,7 @@ public class FileSystem extends StackPane {
 		TreeItem<NodeWrapper> ret = new TreeItem<>(new NodeWrapper(dir), icon);
 		for (Node child : dir.getChildren())
 			ret.getChildren().add(buildTreeItem(child));
+		sortTreeItem(ret);
 		dir.getChildren().addListener(new ListChangeListener<Node>() {
 			@Override
 			public void onChanged(javafx.collections.ListChangeListener.Change<? extends Node> change) {
@@ -136,8 +139,24 @@ public class FileSystem extends StackPane {
 						});
 					}
 				}
+				sortTreeItem(ret);
 			}
 		});
 		return ret;
+	}
+	
+	private void sortTreeItem(TreeItem<NodeWrapper> ti) {
+		FXCollections.sort(ti.getChildren(), new Comparator<TreeItem<NodeWrapper>>() {
+			@Override
+			public int compare(TreeItem<NodeWrapper> n1, TreeItem<NodeWrapper> n2) {
+				boolean n1_directory = null != n1.getValue().node.asDirectory();
+				boolean n2_directory = null != n2.getValue().node.asDirectory();
+				if (n1_directory && !n2_directory)
+					return -1;
+				if (!n1_directory && n2_directory)
+					return 1;
+				return n1.toString().compareTo(n2.toString());
+			}
+		});
 	}
 }
