@@ -158,16 +158,21 @@ public abstract class BaseCanon extends BaseUsbPtpCamera<CanonHandle> {
 	}
 	
 	public boolean driveFocus(DriveFocusRequest.Direction direction, int steps, boolean blocking) throws InterruptedException {
-		int focus = 0;
+		int focus = 1;
 		if (direction == DriveFocusRequest.Direction.TowardsFar)
 			focus |= 0x8000;
 		
-		if (steps > 3 || steps < 1) return false;
-		else focus += steps;
+//		if (steps > 3 || steps < 1) return false;
+//		else focus += steps;
 		
 		SetFocusDrive request = new SetFocusDrive(focus);
-		runOperation(request);
-		checkForCameraEvents();
+		for (int i = 0; i < steps; i++) {
+			runOperation(request);
+			Thread.sleep(500);
+			checkForCameraEvents();
+			if (request.getResponseCode().getResponseCode() != ResponseCode.success)
+				break;
+		}
 
 		return (null != request.getResponseCode() && request.getResponseCode().getResponseCode() == ResponseCode.success);
 	}

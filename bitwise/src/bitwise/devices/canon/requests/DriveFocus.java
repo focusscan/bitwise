@@ -30,7 +30,6 @@ public class DriveFocus extends BaseUsbPtpCameraRequest<BaseCanon, DriveFocusReq
 
 	@Override
 	public Result getDriveFocusResult() {
-		// TODO Auto-generated method stub
-		return null;
+		return Result.FocusMoved;		// Canon doesn't report whether the focus actually moved or not
 	}
 }
