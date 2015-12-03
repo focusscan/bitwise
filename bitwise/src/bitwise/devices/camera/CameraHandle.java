@@ -5,6 +5,8 @@ import java.util.List;
 public interface CameraHandle {
 	public void setCameraEventListener(CameraListener in);
 	
+	public GetCameraInfoRequest getCameraInfo(GetCameraInfoRequester requester);
+	
 	public LiveViewOnRequest liveViewOn(LiveViewOnRequester requester);
 	public LiveViewOffRequest liveViewOff(LiveViewOffRequester requester);
 	public GetLiveViewImageRequest getLiveViewImage(GetLiveViewImageRequester requester);
@@ -14,6 +16,7 @@ public interface CameraHandle {
 	public GetPropertyRequest<List<StorageDevice>> getStorageDevices(GetPropertyRequester requester);
 	public GetPropertyRequest<BatteryLevel> getBatteryLevel(GetPropertyRequester requester);
 	
+	public GetPropertyRequest<WhiteBalanceMode> getWhiteBalanceMode(GetPropertyRequester requester);
 	public GetPropertyRequest<ExposureProgramMode> getExposureProgramMode(GetPropertyRequester requester);
 	public GetPropertyRequest<ExposureTime> getExposureTime(GetPropertyRequester requester);
 	public GetPropertyRequest<FlashMode> getFlashMode(GetPropertyRequester requester);
@@ -22,6 +25,7 @@ public interface CameraHandle {
 	public GetPropertyRequest<FocusMode> getFocusMode(GetPropertyRequester requester);
 	public GetPropertyRequest<Iso> getIso(GetPropertyRequester requester);
 	
+	public SetPropertyRequest<WhiteBalanceMode> setWhiteBalanceMode(SetPropertyRequester requester, WhiteBalanceMode in);
 	public SetPropertyRequest<ExposureTime> setExposureTime(SetPropertyRequester requester, ExposureTime in);
 	public SetPropertyRequest<FNumber> setFNumber(SetPropertyRequester requester, FNumber in);
 	public SetPropertyRequest<Iso> setIso(SetPropertyRequester requester, Iso in);

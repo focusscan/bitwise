@@ -11,6 +11,7 @@ import bitwise.engine.supervisor.Supervisor;
 import bitwise.filesystem.Directory;
 import bitwise.gui.imageview.AspectImageView;
 import bitwise.log.Log;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -20,12 +21,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
-public class ScanSetup extends BorderPane {
+public class ScanSetup extends BorderPane implements CameraPropListener {
 	public static ScanSetup showScanSetup(FocusScan app, Stage primaryStage) {
 		try {
 			ScanSetup view = new ScanSetup(app);
@@ -43,9 +45,12 @@ public class ScanSetup extends BorderPane {
 		return null;
 	}
 	
+	@FXML private Label lblFocalLength;
 	@FXML private ComboBox<Iso> cbIso;
 	@FXML private ComboBox<FNumber> cbAperture;
 	@FXML private ComboBox<ExposureTime> cbExposure;
+	@FXML private ComboBox<WhiteBalanceMode> cbWhiteBalance;
+	@FXML private ProgressBar batteryLevel;
 	@FXML private TextField scanName;
 	@FXML private TextField focusSteps;
 	@FXML private TextField focusStepsPerImage;
@@ -82,6 +87,13 @@ public class ScanSetup extends BorderPane {
 					app.fxdo_setExposureTime(newV);
 			}
 		});
+		cbWhiteBalance.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<WhiteBalanceMode>() {
+			@Override
+			public void changed(ObservableValue<? extends WhiteBalanceMode> obs, WhiteBalanceMode oldV, WhiteBalanceMode newV) {
+				if (null != newV && null != oldV)
+					app.fxdo_setWhiteBalance(newV);
+			}
+		});
 		focusSteps.textProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -94,46 +106,6 @@ public class ScanSetup extends BorderPane {
 				updateImageCount();
 			}
 		});
-		
-		app.fxdo_Hello(this);
-	}
-	
-	public void setBatteryLevel(BatteryLevel value) {
-		
-	}
-	
-	public void setExposureProgramMode(ExposureProgramMode value) {
-		
-	}
-	
-	public void setExposureTime(ExposureTime value, List<ExposureTime> values) {
-		cbExposure.itemsProperty().get().clear();
-		cbExposure.itemsProperty().get().addAll(values);
-		cbExposure.setValue(value);
-	}
-	
-	public void setFlashMode(FlashMode value) {
-		
-	}
-	
-	public void setFNumber(FNumber value, List<FNumber> values) {
-		cbAperture.itemsProperty().get().clear();
-		cbAperture.itemsProperty().get().addAll(values);
-		cbAperture.setValue(value);
-	}
-	
-	public void setFocalLength(FocalLength value) {
-		
-	}
-	
-	public void setFocusMode(FocusMode value) {
-		
-	}
-	
-	public void setIso(Iso value, List<Iso> values) {
-		cbIso.itemsProperty().get().clear();
-		cbIso.itemsProperty().get().addAll(values);
-		cbIso.setValue(value);
 	}
 	
 	public void setImage(Image image) {
@@ -187,5 +159,73 @@ public class ScanSetup extends BorderPane {
 		} catch (Exception e) {
 			Log.log(app, "cannot parse %s %s", focusSteps.getText(), focusStepsPerImage.getText());
 		}
+	}
+
+	@Override
+	public void updateBatteryLevel(BatteryLevel in) {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				batteryLevel.setProgress(in.getValue() / 100.0);
+			}
+		});
+	}
+
+	@Override
+	public void updateExposureTime(ExposureTime in, List<ExposureTime> values) {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				cbExposure.itemsProperty().get().clear();
+				cbExposure.itemsProperty().get().addAll(values);
+				cbExposure.setValue(in);
+			}
+		});
+	}
+
+	@Override
+	public void updateFNumber(FNumber in, List<FNumber> values) {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				cbAperture.itemsProperty().get().clear();
+				cbAperture.itemsProperty().get().addAll(values);
+				cbAperture.setValue(in);
+			}
+		});
+	}
+
+	@Override
+	public void updateFocalLength(FocalLength in) {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				lblFocalLength.setText(in.toString());
+			}
+		});
+	}
+
+	@Override
+	public void updateIso(Iso in, List<Iso> values) {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				cbIso.itemsProperty().get().clear();
+				cbIso.itemsProperty().get().addAll(values);
+				cbIso.setValue(in);
+			}
+		});
+	}
+	
+	@Override
+	public void updateWhiteBalance(WhiteBalanceMode in, List<WhiteBalanceMode> values) {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				cbWhiteBalance.itemsProperty().get().clear();
+				cbWhiteBalance.itemsProperty().get().addAll(values);
+				cbWhiteBalance.setValue(in);
+			}
+		});
 	}
 }

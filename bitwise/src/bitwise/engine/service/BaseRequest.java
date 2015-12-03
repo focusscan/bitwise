@@ -71,7 +71,7 @@ public abstract class BaseRequest<S extends BaseService<?>, R extends BaseReques
 	
 	protected abstract void onServeRequest(RequestContext ctx) throws InterruptedException;
 	
-	protected final void serveRequest(ServiceRequestHandlerCertificate cert, RequestContext ctx) {
+	protected final void serveRequest(ServiceRequestHandlerCertificate cert, RequestContext ctx) throws InterruptedException {
 		if (null == cert)
 			throw new IllegalArgumentException("ServiceRequestHandlerCertificate");
 		if (null == ctx)
@@ -87,6 +87,7 @@ public abstract class BaseRequest<S extends BaseService<?>, R extends BaseReques
 				Log.log(this, "Serving interrupted");
 				requestState.notifyServingInterrupt(e);
 				getRequester().generalNotifyRequestFailure(this);
+				throw e;
 			} catch (Exception e) {
 				Log.logServingException(this, e);
 				requestState.notifyServingException(e);
@@ -100,7 +101,7 @@ public abstract class BaseRequest<S extends BaseService<?>, R extends BaseReques
 	
 	protected abstract void onEpilogueRequest(RequestContext ctx) throws InterruptedException;
 	
-	protected final void epilogueRequest(ServiceRequestHandlerCertificate cert, RequestContext ctx) {
+	protected final void epilogueRequest(ServiceRequestHandlerCertificate cert, RequestContext ctx) throws InterruptedException {
 		if (null == cert)
 			throw new IllegalArgumentException("ServiceRequestHandlerCertificate");
 		if (null == ctx)
@@ -114,6 +115,7 @@ public abstract class BaseRequest<S extends BaseService<?>, R extends BaseReques
 			} catch (InterruptedException e) {
 				Log.log(this, "Epilogue interrupted");
 				requestState.notifyEpilogueInterrupt(e);
+				throw e;
 			} catch (Exception e) {
 				Log.logEpilogueException(this, e);
 				requestState.notifyEpilogueException(e);

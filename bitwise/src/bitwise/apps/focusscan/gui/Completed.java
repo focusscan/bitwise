@@ -1,14 +1,21 @@
 package bitwise.apps.focusscan.gui;
 
 import java.io.IOException;
+import java.util.List;
 
 import bitwise.apps.focusscan.FocusScan;
+import bitwise.devices.camera.BatteryLevel;
+import bitwise.devices.camera.ExposureTime;
+import bitwise.devices.camera.FNumber;
+import bitwise.devices.camera.FocalLength;
+import bitwise.devices.camera.Iso;
+import bitwise.devices.camera.WhiteBalanceMode;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
-public class Completed extends BorderPane {
+public class Completed extends BorderPane implements CameraPropListener {
 	public static Completed showCompleted(FocusScan app, Stage primaryStage) {
 		try {
 			Completed view = new Completed(app);
@@ -26,15 +33,34 @@ public class Completed extends BorderPane {
 		return null;
 	}
 	
-	private final FocusScan app;
-	
 	private Completed(FocusScan in_app) throws IOException {
-		app = in_app;
 		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("Completed.fxml"));
 		fxmlLoader.setRoot(this);
 		fxmlLoader.setController(this);
 		fxmlLoader.load();
-		
-		app.fxdo_Hello(this);
+	}
+
+	@Override
+	public void updateBatteryLevel(BatteryLevel in) {
+	}
+
+	@Override
+	public void updateExposureTime(ExposureTime in, List<ExposureTime> values) {
+	}
+
+	@Override
+	public void updateFNumber(FNumber in, List<FNumber> values) {
+	}
+
+	@Override
+	public void updateFocalLength(FocalLength in) {
+	}
+
+	@Override
+	public void updateIso(Iso in, List<Iso> values) {
+	}
+
+	@Override
+	public void updateWhiteBalance(WhiteBalanceMode in, List<WhiteBalanceMode> values) {
 	}
 }

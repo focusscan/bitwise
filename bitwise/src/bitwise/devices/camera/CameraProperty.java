@@ -11,4 +11,5 @@ public enum CameraProperty {
 	Iso,
 	StorageDevices,
 	ImageFormats,
+	WhiteBalance,
 }

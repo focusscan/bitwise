@@ -17,6 +17,13 @@ public abstract class BaseUsbPtpCameraHandle<A extends BaseUsbPtpCamera<?>> exte
 	public void setCameraEventListener(CameraListener in) {
 		getService().setCameraListener(in);
 	}
+	
+	@Override
+	public GetCameraInfoRequest getCameraInfo(GetCameraInfoRequester requester) {
+		GetCameraInfo<A> r = new GetCameraInfo<A>(getService(), requester);
+		this.enqueueRequest(r);
+		return r;
+	}
 
 	@Override
 	public GetPropertyRequest<List<ImageFormat>> getImageFormats(GetPropertyRequester requester) {
@@ -39,6 +46,13 @@ public abstract class BaseUsbPtpCameraHandle<A extends BaseUsbPtpCamera<?>> exte
 		return r;
 	}
 
+	@Override
+	public GetPropertyRequest<WhiteBalanceMode> getWhiteBalanceMode(GetPropertyRequester requester) {
+		GetWhiteBalanceMode<A> r = new GetWhiteBalanceMode<A>(getService(), requester, getCameraPropertyFactory());
+		this.enqueueRequest(r);
+		return r;
+	}
+	
 	@Override
 	public GetPropertyRequest<ExposureProgramMode> getExposureProgramMode(GetPropertyRequester requester) {
 		GetExposureProgramMode<A> r = new GetExposureProgramMode<A>(getService(), requester, getCameraPropertyFactory());
@@ -87,7 +101,14 @@ public abstract class BaseUsbPtpCameraHandle<A extends BaseUsbPtpCamera<?>> exte
 		this.enqueueRequest(r);
 		return r;
 	}
-
+	
+	@Override
+	public SetPropertyRequest<WhiteBalanceMode> setWhiteBalanceMode(SetPropertyRequester requester, WhiteBalanceMode in) {
+		SetWhiteBalanceMode<A> r = new SetWhiteBalanceMode<A>(getService(), requester, in);
+		this.enqueueRequest(r);
+		return r;
+	}
+	
 	@Override
 	public SetPropertyRequest<ExposureTime> setExposureTime(SetPropertyRequester requester, ExposureTime in) {
 		SetExposureTime<A> r = new SetExposureTime<A>(getService(), requester, in);

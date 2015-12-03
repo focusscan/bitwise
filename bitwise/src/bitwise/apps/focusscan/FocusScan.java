@@ -1,29 +1,43 @@
 package bitwise.apps.focusscan;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+
+import javax.imageio.ImageIO;
 
 import bitwise.apps.BaseApp;
+import bitwise.apps.focusscan.gui.CameraPropListener;
 import bitwise.apps.focusscan.gui.Completed;
 import bitwise.apps.focusscan.gui.DeviceSelect;
 import bitwise.apps.focusscan.gui.Scan;
 import bitwise.apps.focusscan.gui.ScanSetup;
+import bitwise.apps.focusscan.gui.TestImage;
 import bitwise.devices.camera.*;
 import bitwise.devices.usbservice.UsbReady;
+import bitwise.devices.usbservice.UsbServiceHandle;
 import bitwise.devices.usbservice.requests.StartUsbDriver;
 import bitwise.devices.usbservice.requests.StartUsbDriverRequester;
 import bitwise.engine.service.BaseRequest;
-import bitwise.engine.service.BaseServiceTask;
+import bitwise.engine.supervisor.Supervisor;
 import bitwise.log.Log;
 import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUsbDriverRequester, CameraListener, GetPropertyRequester, SetPropertyRequester, LiveViewOnRequester, LiveViewOffRequester, GetLiveViewImageRequester, DriveFocusRequester, TakeImageLVRequester {
+public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUsbDriverRequester, CameraListener, GetPropertyRequester, SetPropertyRequester, LiveViewOnRequester, LiveViewOffRequester, GetLiveViewImageRequester, DriveFocusRequester, TakeImageLVRequester, GetCameraInfoRequester {
 	private final FocusScanHandle handle = new FocusScanHandle(this);
-	private FocusScanState state = new FocusScanStateDeviceSelect(this);
+	protected FocusScanState state = null;
 	protected Stage stage = null;
+	protected CameraPropListener window = null;
+	protected LiveViewTask liveViewTask = null;
+	protected ScanTask scanTask = null;
 	protected CameraHandle cameraHandle = null;
 	
 	protected FocusScan() {
@@ -38,6 +52,7 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 	@Override
 	protected boolean onStartService() {
 		Log.log(this, "Focus Scan starting");
+		final CountDownLatch latch = new CountDownLatch(1);
 		final FocusScan thing = this;
 		Platform.runLater(new Runnable() {
 			@Override
@@ -50,9 +65,17 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 						stopServiceFromWithin();
 					}
 				});
-				DeviceSelect.showDeviceSelect(thing, stage);
+				window = DeviceSelect.showDeviceSelect(thing, stage);
+				state = FocusScanState.DeviceSelect;
+				latch.countDown();
 			}
 		});
+		try {
+			latch.await();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return true;
 	}
 
@@ -75,19 +98,22 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 		}
 		switch (in.getProperty()) {
 		case BatteryLevel:
-			state.updateBatteryLevel((BatteryLevel) in.getValue());
+			window.updateBatteryLevel((BatteryLevel) in.getValue());
 			break;
 		case ExposureTime:
-			state.updateExposureTime((ExposureTime) in.getValue(), (List<ExposureTime>) in.getLegalValues());
+			window.updateExposureTime((ExposureTime) in.getValue(), (List<ExposureTime>) in.getLegalValues());
 			break;
 		case FNumber:
-			state.updateFNumber((FNumber) in.getValue(), (List<FNumber>) in.getLegalValues());
+			window.updateFNumber((FNumber) in.getValue(), (List<FNumber>) in.getLegalValues());
 			break;
 		case FocalLength:
-			state.updateFocalLength((FocalLength) in.getValue());
+			window.updateFocalLength((FocalLength) in.getValue());
 			break;
 		case Iso:
-			state.updateIso((Iso) in.getValue(), (List<Iso>) in.getLegalValues());
+			window.updateIso((Iso) in.getValue(), (List<Iso>) in.getLegalValues());
+			break;
+		case WhiteBalance:
+			window.updateWhiteBalance((WhiteBalanceMode) in.getValue(), (List<WhiteBalanceMode>) in.getLegalValues());
 			break;
 		case ExposureProgramMode:
 		case FlashMode:
@@ -117,6 +143,9 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 		case Iso:
 			camera.getIso(this);
 			break;
+		case WhiteBalance:
+			camera.getWhiteBalanceMode(this);
+			break;
 		case ExposureProgramMode:
 		case FlashMode:
 		case FocusMode:
@@ -128,24 +157,34 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 	}
 	
 	private volatile ExposureTime currentExposureTime = null;
-	private volatile FNumber currentFNumber = null;
-	private volatile Iso currentIso = null;
-	
 	public void fxdo_setExposureTime(ExposureTime in) {
 		if (null != cameraHandle && (null == currentExposureTime || !in.equals(currentExposureTime))) {
+			currentExposureTime = in;
 			cameraHandle.setExposureTime(this, in);
 		}
 	}
 	
+	private volatile FNumber currentFNumber = null;
 	public void fxdo_setFNumber(FNumber in) {
 		if (null != cameraHandle && (null == currentFNumber || !in.equals(currentFNumber))) {
+			currentFNumber = in;
 			cameraHandle.setFNumber(this, in);
 		}
 	}
 	
+	private volatile Iso currentIso = null;
 	public void fxdo_setIso(Iso in) {
 		if (null != cameraHandle && (null == currentIso || !in.equals(currentIso))) {
+			currentIso = in;
 			cameraHandle.setIso(this, in);
+		}
+	}
+	
+	private volatile WhiteBalanceMode currentWhiteBalance = null;
+	public void fxdo_setWhiteBalance(WhiteBalanceMode in) {
+		if (null != cameraHandle && (null == currentWhiteBalance || !in.equals(currentWhiteBalance))) {
+			currentWhiteBalance = in;
+			cameraHandle.setWhiteBalanceMode(this, in);
 		}
 	}
 	
@@ -161,107 +200,124 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 		case Iso:
 			cameraHandle.getIso(this);
 			break;
+		case WhiteBalance:
+			cameraHandle.getWhiteBalanceMode(this);
+			break;
 		default:
 			Log.log(this, "I sent this request but I don't know what to do with it: %s", in);
 		}
 	}
 	
 	public void fxdo_selectDevice(UsbReady<?> ready) {
-		try {
-			state = state.selectDevice(ready);
-		} catch (FocusScanException e) {
-			Log.logException(this, e);
-		}
+		UsbServiceHandle usbService = Supervisor.getInstance().getUsbServiceHandle();
+		usbService.startUsbDriver(this, ready);
 	}
 	
 	@Override
 	public synchronized void notifyRequestComplete(StartUsbDriver<?> in) {
+		cameraHandle = (CameraHandle) in.getHandle();
+		cameraHandle.setCameraEventListener(this);
+		
+		final CountDownLatch latch = new CountDownLatch(1);
 		final FocusScan thing = this;
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				window = ScanSetup.showScanSetup(thing, stage);
+				state = FocusScanState.ScanSetup;
+				latch.countDown();
+			}
+		});
 		try {
-			state = state.startUsbComplete(in);
-			Platform.runLater(new Runnable() {
-				@Override
-				public void run() {
-					ScanSetup.showScanSetup(thing, stage);
-				}
-			});
-		} catch (FocusScanException e) {
-			Log.logException(this, e);
+			latch.await();
+			cameraHandle.getBatteryLevel(this);
+			cameraHandle.getWhiteBalanceMode(this);
+			cameraHandle.getExposureTime(this);
+			cameraHandle.getFNumber(this);
+			cameraHandle.getFocalLength(this);
+			cameraHandle.getIso(this);
+			cameraHandle.liveViewOn(this);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-	}
-	
-	public synchronized void fxdo_Hello(ScanSetup in) {
-		try {
-			state = state.scanSetupHello(in);
-		} catch (FocusScanException e) {
-			Log.logException(this, e);
-		}
-	}
-	
-	public synchronized void fxdo_Hello(Scan in) {
-		try {
-			state = state.scanHello(in);
-		} catch (FocusScanException e) {
-			Log.logException(this, e);
-		}
-	}
-	
-	public synchronized void fxdo_Hello(Completed in) {
-		try {
-			state = state.completedHello(in);
-		} catch (FocusScanException e) {
-			Log.logException(this, e);
-		}
-	}
-	
-	protected void statedo_addServiceTask(BaseServiceTask<FocusScan> in) {
-		this.addServiceTask(in);
 	}
 	
 	@Override
 	public void notifyRequestComplete(LiveViewOnRequest in) {
-		try {
-			state = state.notifyLiveViewOn(in);
-		} catch (FocusScanException e) {
-			Log.logException(this, e);
-		}
+		liveViewTask = new LiveViewTask(this, cameraHandle);
+		this.addServiceTask(liveViewTask);
 	}
 	
 	@Override
 	public void notifyRequestComplete(LiveViewOffRequest in) {
-		try {
-			state = state.notifyLiveViewOff(in);
-		} catch (FocusScanException e) {
-			Log.logException(this, e);
-		}
 	}
 
 	@Override
 	public void notifyRequestComplete(GetLiveViewImageRequest in) {
-		try {
-			state = state.notifyLiveViewImage(in);
-		} catch (FocusScanException e) {
-			Log.logException(this, e);
-		}
-	}
-	
-	public void fxdo_takeTestImage() {
-		try {
-			state = state.takeTestImage();
-		} catch (FocusScanException e) {
-			Log.logException(this, e);
+		switch (state) {
+		case Completed:
+			break;
+		case DeviceSelect:
+			break;
+		case Scan:
+			break;
+		case ScanSetup:
+			try {
+				ByteArrayInputStream imageStream = new ByteArrayInputStream(in.getImage());
+				BufferedImage imageBuffered;
+					imageBuffered = ImageIO.read(imageStream);
+				final Image image = SwingFXUtils.toFXImage(imageBuffered, null);
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						((ScanSetup) window).setImage(image);
+					}
+				});
+			} catch (IOException e) {
+				Log.logException(this, e);
+			}
+			break;
+		default:
+			break;
 		}
 	}
 	
 	@Override
 	public void notifyRequestComplete(TakeImageLVRequest in) {
-		try {
-			state = state.notifyImage(in);
-		} catch (FocusScanException e) {
-			Log.logException(this, e);
+		switch (state) {
+		case Completed:
+			break;
+		case DeviceSelect:
+			break;
+		case Scan:
+			break;
+		case ScanSetup:
+			try {
+				ByteArrayInputStream imageStream = new ByteArrayInputStream(in.getImage());
+				BufferedImage imageBuffered;
+					imageBuffered = ImageIO.read(imageStream);
+				final Image image = SwingFXUtils.toFXImage(imageBuffered, null);
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						TestImage testImage = TestImage.showTestImage(new Stage());
+						testImage.setImage(image);
+					}
+				});
+			} catch (IOException e) {
+				Log.logException(this, e);
+			}
+			break;
+		default:
+			break;
 		}
 	}
 
+	public void fxdo_takeTestImage() {
+		cameraHandle.takeImageLV(this);
+	}
+	
 	public void fxdo_focusNear(int steps) {
 		cameraHandle.driveFocus(this, DriveFocusRequest.Direction.TowardsNear, steps, false);
 	}
@@ -272,60 +328,97 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 
 	@Override
 	public void notifyRequestComplete(DriveFocusRequest in) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	public synchronized void fxdo_scanNearToFar(Path scanName, int steps, int stepsPerImage) {
-		final FocusScan thing = this;
-		try {
-			state = state.startScan(scanName, steps, stepsPerImage);
-			Platform.runLater(new Runnable() {
-				@Override
-				public void run() {
-					Scan.showScan(thing, stage);
-				}
-			});
-		} catch (FocusScanException e) {
-			Log.logException(this, e);
+		if (null != liveViewTask) {
+			liveViewTask.cancel();
+			liveViewTask = null;
 		}
+		
+		window = Scan.showScan(this, stage);
+		state = FocusScanState.Scan;
+		
+		cameraHandle.getBatteryLevel(this);
+		
+		scanTask = new ScanTask(this, cameraHandle, scanName, steps, stepsPerImage);
+		this.addServiceTask(scanTask);
 	}
 	
 	public synchronized void fxdo_scanCancelled() {
-		final FocusScan thing = this;
-		try {
-			state = state.scanCancelled();
-			Platform.runLater(new Runnable() {
-				@Override
-				public void run() {
-					Completed.showCompleted(thing, stage);
-				}
-			});
-		} catch (FocusScanException e) {
-			Log.logException(this, e);
+		if (null != scanTask) {
+			scanTask.cancel();
+			scanTask = null;
 		}
+		cameraHandle.liveViewOff(this);
+		
+		window = Completed.showCompleted(this, stage);
+		state = FocusScanState.Completed;
 	}
 
 	public synchronized void notifyScanComplete() {
+		// This is invoked by scanTask on its way to exiting;
+		// hence no need to cancel scanTask.
+		scanTask = null;
+		cameraHandle.liveViewOff(this);
+		
+		final CountDownLatch latch = new CountDownLatch(1);
 		final FocusScan thing = this;
+		// state = state.scanComplete();
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				window = Completed.showCompleted(thing, stage);
+				state = FocusScanState.Completed;
+				latch.countDown();
+			}
+		});
 		try {
-			state = state.scanComplete();
-			Platform.runLater(new Runnable() {
-				@Override
-				public void run() {
-					Completed.showCompleted(thing, stage);
-				}
-			});
-		} catch (FocusScanException e) {
-			Log.logException(this, e);
+			latch.await();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
 	public void notifyScannedImage(byte[] lv, byte[] si) {
-		try {
-			state = state.scanNewImage(lv, si);
-		} catch (FocusScanException e) {
-			Log.logException(this, e);
+		Image imageLV = null;
+		Image imageSI = null;
+		if (null != lv) {
+			try {
+				ByteArrayInputStream imageStream = new ByteArrayInputStream(lv);
+				BufferedImage imageBuffered;
+					imageBuffered = ImageIO.read(imageStream);
+				imageLV = SwingFXUtils.toFXImage(imageBuffered, null);
+			} catch (IOException e) {
+				Log.logException(this, e);
+			}
 		}
+		if (null != si) {
+			try {
+				ByteArrayInputStream imageStream = new ByteArrayInputStream(si);
+				BufferedImage imageBuffered;
+					imageBuffered = ImageIO.read(imageStream);
+				imageSI = SwingFXUtils.toFXImage(imageBuffered, null);
+			} catch (IOException e) {
+				Log.logException(this, e);
+			}
+		}
+		final Image theLV = imageLV;
+		final Image theSI = imageSI;
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				if (null != theLV)
+					((Scan) window).setImageLV(theLV);
+				if (null != theSI)
+					((Scan) window).setImageSI(theSI);
+			}
+		});
+	}
+
+	@Override
+	public void notifyRequestComplete(GetCameraInfoRequest in) {
+		// Nothing to do here
 	}
 }

@@ -1,11 +1,15 @@
 package bitwise.devices.nikon;
 
 import bitwise.devices.camera.DriveFocusRequest;
+import bitwise.devices.nikon.events.NikonEventCode;
 import bitwise.devices.nikon.operations.*;
 import bitwise.devices.nikon.reponses.LiveViewObject;
 import bitwise.devices.usbptpcamera.BaseUsbPtpCamera;
 import bitwise.devices.usbptpcamera.coder.UsbPtpCoderException;
+import bitwise.devices.usbptpcamera.events.Event;
+import bitwise.devices.usbptpcamera.operations.DeleteObject;
 import bitwise.devices.usbptpcamera.operations.GetObject;
+import bitwise.devices.usbptpcamera.operations.GetObjectInfo;
 import bitwise.devices.usbptpcamera.responses.ResponseCode;
 import bitwise.devices.usbservice.UsbDevice;
 import bitwise.log.Log;
@@ -43,6 +47,14 @@ public abstract class BaseNikon extends BaseUsbPtpCamera<NikonHandle> {
 		return (null != request.getResponseCode() && request.getResponseCode().getResponseCode() == ResponseCode.deviceBusy);
 	}
 	
+	public short checkDeviceReady() throws InterruptedException {
+		DeviceReady request = new DeviceReady();
+		runOperation(request);
+		if (null == request.getResponseCode())
+			return 0;
+		return request.getResponseCode().getResponseCode();
+	}
+	
 	public boolean startLiveView() throws InterruptedException {
 		StartLiveView request = new StartLiveView();
 		runOperation(request);
@@ -74,13 +86,24 @@ public abstract class BaseNikon extends BaseUsbPtpCamera<NikonHandle> {
 		}
 		FocusDrive request = new FocusDrive(idirection, steps);
 		runOperation(request);
-		deviceBusy();
-		deviceBusy();
-		if (blocking) {
-			while(deviceBusy())
-				Thread.sleep(100);
+		
+		if (!request.isSuccess())
+			return false;
+		
+		final short responseCodeMfDriveEnd = (short) 0xa00c;
+		
+		int response = 0;
+		boolean ret = true;
+		boolean keepChecking = blocking;
+		for (int tries = 0; (tries < 2) || keepChecking; tries++) {
+			response = checkDeviceReady();
+			ret = ret && (response != responseCodeMfDriveEnd);
+			keepChecking = keepChecking && response == ResponseCode.deviceBusy;
+			if (keepChecking)
+				Thread.sleep(50);
 		}
-		return (null != request.getResponseCode() && request.getResponseCode().getResponseCode() == ResponseCode.success);
+		
+		return ret;
 	}
 	
 	public void getLiveViewImage(bitwise.devices.nikon.requests.GetLiveViewImage r) throws InterruptedException {
@@ -104,17 +127,47 @@ public abstract class BaseNikon extends BaseUsbPtpCamera<NikonHandle> {
 		deviceBusy();
 		deviceBusy();
 		while (deviceBusy())
-			Thread.sleep(100);
-		try {
-			if (0 < request.getObjectIDs().size()) {
-				int objectID = request.getObjectIDs().get(0).value;
-				GetObject imageRequest = new GetObject(objectID);
-				runOperation(imageRequest);
-				if (null != imageRequest.getResponseData() && 0 < imageRequest.getResponseData().getDataSize())
-					r.setImage(imageRequest.getResponseData().getData().getRemainingArray());
+			Thread.sleep(250);
+		boolean captureTerminated = false;
+		while (!captureTerminated) {
+			GetEvent getEvent = new GetEvent();
+			runOperation(getEvent);
+			if (!getEvent.isSuccess())
+				return;
+			try {
+				for (Event e : getEvent.getDecodedData()) {
+					{
+						StringBuilder args = new StringBuilder();
+						for (int arg : e.getArguments())
+							args.append(String.format("%08x", arg));
+						Log.log(this, "Event %04x %s", e.getEventCode(), args.toString());
+					}
+					if (NikonEventCode.objectAddedInSdram == e.getEventCode()) {
+						int objectID = e.getArguments()[0];
+						
+						GetObjectInfo infoRequest = new GetObjectInfo(objectID);
+						runOperation(infoRequest);
+						if (!infoRequest.isSuccess())
+							return;
+						Log.log(this, "Capture added file %s", infoRequest.getDecodedData().filename);
+						
+						GetObject imageRequest = new GetObject(objectID);
+						runOperation(imageRequest);
+						if (!imageRequest.isSuccess())
+							return;
+						if (null != imageRequest.getResponseData() && 0 < imageRequest.getResponseData().getDataSize())
+							r.setImage(imageRequest.getResponseData().getData().getRemainingArray());
+						
+						runOperation(new DeleteObject(objectID));
+					}
+					else if (NikonEventCode.captureCompleteRecInSdram == e.getEventCode()) {
+						captureTerminated = true;
+					}
+					Thread.sleep(250);
+				}
+			} catch (UsbPtpCoderException e) {
+				Log.logException(this, e);
 			}
-		} catch (UsbPtpCoderException e) {
-			Log.logException(this, e);
 		}
 	}
 }
