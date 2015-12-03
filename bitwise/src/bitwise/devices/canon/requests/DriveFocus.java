@@ -27,4 +27,10 @@ public class DriveFocus extends BaseUsbPtpCameraRequest<BaseCanon, DriveFocusReq
 	protected void onEpilogueRequest(RequestContext ctx) throws InterruptedException {
 		getRequester().notifyRequestComplete(this);
 	}
+
+	@Override
+	public Result getDriveFocusResult() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

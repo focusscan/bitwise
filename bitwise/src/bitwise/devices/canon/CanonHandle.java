@@ -1,7 +1,6 @@
 package bitwise.devices.canon;
 
 import bitwise.devices.camera.*;
-import bitwise.devices.camera.DriveFocusRequest.Direction;
 import bitwise.devices.canon.requests.*;
 import bitwise.devices.usbptpcamera.BaseUsbPtpCameraHandle;
 import bitwise.devices.usbptpcamera.CameraPropertyFactory;

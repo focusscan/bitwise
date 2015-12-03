@@ -63,9 +63,9 @@ public class GetFocusMode<A extends BaseUsbPtpCamera<?>> extends BaseUsbPtpCamer
 			if (null == prop)
 				return;
 			settable = prop.supportsSet();
-			value = propertyFactory.getFocusMode(prop.getCurrentValue());
-			if (null != prop.getValidValues() && prop.getValidValues() instanceof DevicePropertyEnum) {
-				DevicePropertyEnum enm = (DevicePropertyEnum) prop.getValidValues();
+			value = propertyFactory.getFocusMode(prop.currentValue);
+			if (null != prop.form && prop.form instanceof DevicePropertyEnum) {
+				DevicePropertyEnum enm = (DevicePropertyEnum) prop.form;
 				values = new ArrayList<>(enm.supportedValues.length);
 				for (UsbPtpPrimType sv : enm.supportedValues)
 					values.add(propertyFactory.getFocusMode(sv));

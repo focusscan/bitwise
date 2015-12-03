@@ -59,7 +59,7 @@ public class GetFocalLength<A extends BaseUsbPtpCamera<?>> extends BaseUsbPtpCam
 			if (null == prop)
 				return;
 			settable = prop.supportsSet();
-			value = propertyFactory.getFocalLength(prop.getCurrentValue());
+			value = propertyFactory.getFocalLength(prop.currentValue);
 			success = true;
 		} catch (UsbPtpException e) {
 			Log.logException(this, e);

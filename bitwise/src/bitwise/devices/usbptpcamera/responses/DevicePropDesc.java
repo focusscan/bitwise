@@ -6,13 +6,13 @@ import bitwise.devices.usbptpcamera.coder.UsbPtpCoderException;
 import bitwise.devices.usbptpcamera.coder.UsbPtpPrimType;
 
 public class DevicePropDesc {
-	protected short devicePropertyCode;
-	protected short dataType;
-	protected byte getSet;
-	protected UsbPtpPrimType factoryDefaultValue;
-	protected UsbPtpPrimType currentValue;
-	protected byte formFlag;
-	protected DevicePropertyForm form;
+	public short devicePropertyCode;
+	public short dataType;
+	public byte getSet;
+	public UsbPtpPrimType factoryDefaultValue;
+	public UsbPtpPrimType currentValue;
+	public byte formFlag;
+	public DevicePropertyForm form;
 	
 	public DevicePropDesc() {
 		devicePropertyCode = (short)0xffff;
@@ -64,21 +64,5 @@ public class DevicePropDesc {
 		default:
 			return DevicePropertyForm.Form.None;
 		}
-	}
-	
-	public short getDevicePropertyCode() {
-		return devicePropertyCode;
-	}
-	
-	public UsbPtpPrimType getFactoryDefaultValue() {
-		return factoryDefaultValue;
-	}
-	
-	public UsbPtpPrimType getCurrentValue() {
-		return currentValue;
-	}
-	
-	public DevicePropertyForm getValidValues() {
-		return form;
 	}
 }

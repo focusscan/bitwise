@@ -63,9 +63,9 @@ public class GetExposureTime<A extends BaseUsbPtpCamera<?>> extends BaseUsbPtpCa
 			if (null == prop)
 				return;
 			settable = prop.supportsSet();
-			value = propertyFactory.getExposureTime(prop.getCurrentValue());
-			if (null != prop.getValidValues() && prop.getValidValues() instanceof DevicePropertyEnum) {
-				DevicePropertyEnum enm = (DevicePropertyEnum) prop.getValidValues();
+			value = propertyFactory.getExposureTime(prop.currentValue);
+			if (null != prop.form && prop.form instanceof DevicePropertyEnum) {
+				DevicePropertyEnum enm = (DevicePropertyEnum) prop.form;
 				values = new ArrayList<>(enm.supportedValues.length);
 				for (UsbPtpPrimType sv : enm.supportedValues)
 					values.add(propertyFactory.getExposureTime(sv));

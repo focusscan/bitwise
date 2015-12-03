@@ -30,9 +30,9 @@ public class GetEvent extends Operation<Hashtable<Short, CanonDevicePropertyDesc
 				if (null == decoded) 
 					decoded = new Hashtable<>();
 			
-				CanonDevicePropertyDesc curr = decoded.get(propdesc.getDevicePropertyCode());
+				CanonDevicePropertyDesc curr = decoded.get(propdesc.devicePropertyCode);
 				if (null != curr) curr.update(propdesc);
-				else decoded.put(propdesc.getDevicePropertyCode(), propdesc);
+				else decoded.put(propdesc.devicePropertyCode, propdesc);
 			}			
 		}
 		return decoded;

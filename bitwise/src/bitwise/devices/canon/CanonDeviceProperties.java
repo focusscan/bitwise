@@ -11,9 +11,11 @@ public class CanonDeviceProperties {
 	public static final int ExposureIndex = 0xd103;
 	public static final int ExposureMode = 0xd105;
 	public static final int FocusMode = 0xd108;
+	public static final int WhiteBalance = 0xd109;
 	public static final int BatteryLevel = 0xd111;
 	public static final int CaptureTarget = 0xd11c;
 	public static final int EVFOutputDevice = 0xd1b0;
+
 	
 	/* This is hack-ish... Not a real "property" */
 	public static final int NewObjectReady = 0xffffc186;
@@ -37,6 +39,7 @@ public class CanonDeviceProperties {
 		case ExposureMode: return DevicePropCode.exposureProgramMode;
 		case FocusMode: return DevicePropCode.focusMode;
 		case BatteryLevel: return DevicePropCode.batteryLevel;
+		case WhiteBalance: return DevicePropCode.whiteBalance;
 		
 		/* Canon-specific properties just map to themselves */		
 		default: return (short)canonCode;
@@ -51,6 +54,7 @@ public class CanonDeviceProperties {
 		case DevicePropCode.exposureProgramMode: return ExposureMode;
 		case DevicePropCode.focusMode: return FocusMode;
 		case DevicePropCode.batteryLevel: return BatteryLevel;
+		case DevicePropCode.whiteBalance: return WhiteBalance;
 		
 		/* Canon-specific properties just map to themselves */
 		default: return 0xffff & ptpCode;
@@ -63,7 +67,8 @@ public class CanonDeviceProperties {
 				code == ExposureIndex ||
 				code == ExposureMode ||
 				code == FocusMode ||
-				code == BatteryLevel
+				code == BatteryLevel ||
+				code == WhiteBalance
 				);
 	}
 	
@@ -72,6 +77,8 @@ public class CanonDeviceProperties {
 	public static final HashMap<Integer,String> ExposureIndexValues = new HashMap<>();
 	public static final HashMap<Integer,String> ExposureModeValues = new HashMap<>();
 	public static final HashMap<Integer,String> FocusModeValues = new HashMap<>();
+	public static final HashMap<Integer,String> WhiteBalanceValues = new HashMap<>();
+	public static final HashMap<Integer,Integer> BatteryLevelValues = new HashMap<>();
 	
 	static
 	{
@@ -250,5 +257,22 @@ public class CanonDeviceProperties {
 	FocusModeValues.put(0x00, "One Shot");
 	FocusModeValues.put(0x01, "AI Focus");
 	FocusModeValues.put(0x02, "AI Servo");
+	
+	WhiteBalanceValues.put(0x00, "Auto");
+	WhiteBalanceValues.put(0x01, "Daylight");
+	WhiteBalanceValues.put(0x08, "Shadow");
+	WhiteBalanceValues.put(0x02, "Cloudy");
+	WhiteBalanceValues.put(0x03, "Tungsten");
+	WhiteBalanceValues.put(0x04, "Flourescent");
+	WhiteBalanceValues.put(0x05, "Flash");
+	WhiteBalanceValues.put(0x06, "Manual");
+	WhiteBalanceValues.put(0x09, "Color Temperature");
+	
+	BatteryLevelValues.put(0x0, 0);
+	BatteryLevelValues.put(0x1, 50);
+	BatteryLevelValues.put(0x2, 100);
+	BatteryLevelValues.put(0x4, 75);
+	BatteryLevelValues.put(0x5, 25);
+	
 	}
 }

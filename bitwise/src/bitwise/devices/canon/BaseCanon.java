@@ -6,14 +6,11 @@ import bitwise.devices.camera.DriveFocusRequest;
 import bitwise.devices.canon.CanonHandle;
 import bitwise.devices.canon.operations.*;
 import bitwise.devices.canon.responses.*;
-import bitwise.devices.nikon.operations.FocusDrive;
-import bitwise.devices.nikon.operations.InitiateCaptureLV;
 import bitwise.devices.usbptpcamera.BaseUsbPtpCamera;
 import bitwise.devices.usbptpcamera.coder.Int32;
 import bitwise.devices.usbptpcamera.coder.UsbPtpCoderException;
 import bitwise.devices.usbptpcamera.coder.UsbPtpPrimType;
 import bitwise.devices.usbptpcamera.coder.UsbPtpTypeCastException;
-import bitwise.devices.usbptpcamera.operations.GetObject;
 import bitwise.devices.usbptpcamera.responses.DevicePropDesc;
 import bitwise.devices.usbptpcamera.responses.DevicePropertyEnum;
 import bitwise.devices.usbptpcamera.responses.ResponseCode;
@@ -81,8 +78,8 @@ public abstract class BaseCanon extends BaseUsbPtpCamera<CanonHandle> {
 			CanonDevicePropertyDesc curr = currentDeviceProperties.get(key);
 			if (key == CanonDeviceProperties.NewObjectReady) {
 				try {
-					int objectID = ((DevicePropertyEnum)props.get(key).getValidValues()).supportedValues[0].castTo(Int32.class).value;
-					int objectSize = ((DevicePropertyEnum)props.get(key).getValidValues()).supportedValues[3].castTo(Int32.class).value;
+					int objectID = ((DevicePropertyEnum)props.get(key).form).supportedValues[0].castTo(Int32.class).value;
+					int objectSize = ((DevicePropertyEnum)props.get(key).form).supportedValues[3].castTo(Int32.class).value;
 					GetPartialObject imageRequest = new GetPartialObject(objectID, objectSize);
 					runOperation(imageRequest);
 					

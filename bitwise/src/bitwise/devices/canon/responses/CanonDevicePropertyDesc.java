@@ -4,6 +4,7 @@ import bitwise.devices.canon.CanonDeviceProperties;
 import bitwise.devices.usbptpcamera.coder.Int32;
 import bitwise.devices.usbptpcamera.coder.UsbPtpBuffer;
 import bitwise.devices.usbptpcamera.coder.UsbPtpCoderException;
+import bitwise.devices.usbptpcamera.operations.DevicePropCode;
 import bitwise.devices.usbptpcamera.responses.DevicePropDesc;
 import bitwise.devices.usbptpcamera.responses.DevicePropertyEnum;
 
@@ -45,8 +46,11 @@ public class CanonDevicePropertyDesc extends DevicePropDesc {
 			if (devicePropertyCode != (short) 0xffff) {
 				if (valueType == CurrentValue)
 					currentValue = entry[0];
-				else if (valueType == ValidRange)
-					form = new DevicePropertyEnum(entry);
+				else if (valueType == ValidRange) {
+					if (devicePropertyCode == DevicePropCode.batteryLevel)		// Canon doesn't report the battery level range, so hard-code it
+						form = new DevicePropertyEnum(new Int32[] {new Int32(0), new Int32(1), new Int32(2), new Int32(4), new Int32(5)});
+					else form = new DevicePropertyEnum(entry);
+				}
 			}
 		}		
 	}
@@ -54,16 +58,16 @@ public class CanonDevicePropertyDesc extends DevicePropDesc {
 	public static CanonDevicePropertyDesc readDevicePropertyDesc(UsbPtpBuffer buf) throws UsbPtpCoderException {
 		CanonDevicePropertyDesc propdesc = new CanonDevicePropertyDesc(buf);
 		
-		if (propdesc.getDevicePropertyCode() != (short)0xffff)
+		if (propdesc.devicePropertyCode != (short)0xffff)
 			return propdesc;
 		else return null;
 	}
 	
 	public void update(CanonDevicePropertyDesc p) {
-		if (null != p.getCurrentValue())
-			currentValue = p.getCurrentValue();
-		if (null != p.getValidValues())
-			form = p.getValidValues();
+		if (null != p.currentValue)
+			currentValue = p.currentValue;
+		if (null != p.form)
+			form = p.form;
 	}
 	
 	private Int32[] readEntry(int len32, int rem32, UsbPtpBuffer buf) throws UsbPtpCoderException {

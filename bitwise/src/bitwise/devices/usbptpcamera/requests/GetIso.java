@@ -63,9 +63,9 @@ public class GetIso<A extends BaseUsbPtpCamera<?>> extends BaseUsbPtpCameraReque
 			if (null == prop)
 				return;
 			settable = prop.supportsSet();
-			value = propertyFactory.getIso(prop.getCurrentValue());
-			if (null != prop.getValidValues() && prop.getValidValues() instanceof DevicePropertyEnum) {
-				DevicePropertyEnum enm = (DevicePropertyEnum) prop.getValidValues();
+			value = propertyFactory.getIso(prop.currentValue);
+			if (null != prop.form && prop.form instanceof DevicePropertyEnum) {
+				DevicePropertyEnum enm = (DevicePropertyEnum) prop.form;
 				values = new ArrayList<>(enm.supportedValues.length);
 				for (UsbPtpPrimType sv : enm.supportedValues)
 					values.add(propertyFactory.getIso(sv));

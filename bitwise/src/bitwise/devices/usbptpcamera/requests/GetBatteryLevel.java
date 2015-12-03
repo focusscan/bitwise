@@ -12,6 +12,7 @@ import bitwise.devices.usbptpcamera.CameraPropertyFactory;
 import bitwise.devices.usbptpcamera.UsbPtpException;
 import bitwise.devices.usbptpcamera.operations.DevicePropCode;
 import bitwise.devices.usbptpcamera.responses.DevicePropDesc;
+import bitwise.devices.usbptpcamera.responses.DevicePropertyEnum;
 import bitwise.devices.usbptpcamera.responses.DevicePropertyRange;
 import bitwise.engine.service.RequestContext;
 import bitwise.log.Log;
@@ -60,10 +61,17 @@ public class GetBatteryLevel<A extends BaseUsbPtpCamera<?>> extends BaseUsbPtpCa
 			if (null == prop)
 				return;
 			settable = prop.supportsSet();
-			if (null != prop.getValidValues() && prop.getValidValues() instanceof DevicePropertyRange) {
-				DevicePropertyRange range = (DevicePropertyRange) prop.getValidValues();
-				value = propertyFactory.getBatteryLevel(prop.getCurrentValue(), range.minimumValue, range.maximumValue);				
-				success = true;
+			if (null != prop.form) {
+				if (prop.form instanceof DevicePropertyRange) {
+					DevicePropertyRange range = (DevicePropertyRange) prop.form;
+					value = propertyFactory.getBatteryLevel(prop.currentValue, range.minimumValue, range.maximumValue);				
+					success = true;
+				}
+				else if (prop.form instanceof DevicePropertyEnum) {
+					DevicePropertyEnum values = (DevicePropertyEnum) prop.form;	// The min/max is ignored by Canon, so this is a bit of a kludge
+					value = propertyFactory.getBatteryLevel(prop.currentValue, values.supportedValues[0], values.supportedValues[0]);
+					success = true;
+				}
 			}
 		} catch (UsbPtpException e) {
 			Log.logException(this, e);

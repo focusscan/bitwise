@@ -352,18 +352,18 @@ public abstract class BaseUsbPtpCamera<H extends BaseUsbPtpCameraHandle<?>> exte
 		if (null != desc) {
 			synchronized(Log.class) {
 				Log.log(this, "Device prop desc: %04x", deviceProp);
-				Log.log(this, " Default %s current %s", desc.getFactoryDefaultValue(), desc.getCurrentValue());
+				Log.log(this, " Default %s current %s", desc.factoryDefaultValue, desc.currentValue);
 				Log.log(this, " Form %s %s", desc.supportsSet() ? "Set/Get" : "Get", desc.getFormEnum());
 				switch (desc.getFormEnum()) {
 				case Range:
 				{
-					DevicePropertyRange values = (DevicePropertyRange) desc.getValidValues();
+					DevicePropertyRange values = (DevicePropertyRange) desc.form;
 					Log.log(this, " Range [%s, %s] step by %s", values.minimumValue, values.maximumValue, values.stepSize);
 					break;
 				}
 				case Enum:
 				{
-					DevicePropertyEnum values = (DevicePropertyEnum) desc.getValidValues();
+					DevicePropertyEnum values = (DevicePropertyEnum) desc.form;
 					StringBuilder sb = new StringBuilder();
 					sb.append(" Enum");
 					for (UsbPtpPrimType val : values.supportedValues)
