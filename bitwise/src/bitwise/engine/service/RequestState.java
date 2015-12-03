@@ -58,7 +58,7 @@ public final class RequestState {
 	}
 	
 	protected synchronized boolean tryEnqueueEpilogueRequest() {
-		if (RequestStatus.Served == status) {
+		if (RequestStatus.Served == status || RequestStatus.ServingInterrupted == status || RequestStatus.ServingException == status) {
 			status = RequestStatus.EnqueuedEpilogue;
 			return true;
 		}

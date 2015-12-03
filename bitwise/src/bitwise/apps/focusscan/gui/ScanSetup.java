@@ -11,6 +11,7 @@ import bitwise.engine.supervisor.Supervisor;
 import bitwise.filesystem.Directory;
 import bitwise.gui.imageview.AspectImageView;
 import bitwise.log.Log;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -20,6 +21,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
@@ -43,9 +45,11 @@ public class ScanSetup extends BorderPane implements CameraPropListener {
 		return null;
 	}
 	
+	@FXML private Label cbFocalLength;
 	@FXML private ComboBox<Iso> cbIso;
 	@FXML private ComboBox<FNumber> cbAperture;
 	@FXML private ComboBox<ExposureTime> cbExposure;
+	@FXML private ProgressBar batteryLevel;
 	@FXML private TextField scanName;
 	@FXML private TextField focusSteps;
 	@FXML private TextField focusStepsPerImage;
@@ -151,34 +155,57 @@ public class ScanSetup extends BorderPane implements CameraPropListener {
 
 	@Override
 	public void updateBatteryLevel(BatteryLevel in) {
-		// TODO Auto-generated method stub
-		
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				batteryLevel.setProgress(in.getValue() / 100.0);
+			}
+		});
 	}
 
 	@Override
 	public void updateExposureTime(ExposureTime in, List<ExposureTime> values) {
-		cbExposure.itemsProperty().get().clear();
-		cbExposure.itemsProperty().get().addAll(values);
-		cbExposure.setValue(in);
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				cbExposure.itemsProperty().get().clear();
+				cbExposure.itemsProperty().get().addAll(values);
+				cbExposure.setValue(in);
+			}
+		});
 	}
 
 	@Override
 	public void updateFNumber(FNumber in, List<FNumber> values) {
-		cbAperture.itemsProperty().get().clear();
-		cbAperture.itemsProperty().get().addAll(values);
-		cbAperture.setValue(in);
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				cbAperture.itemsProperty().get().clear();
+				cbAperture.itemsProperty().get().addAll(values);
+				cbAperture.setValue(in);
+			}
+		});
 	}
 
 	@Override
 	public void updateFocalLength(FocalLength in) {
-		// TODO Auto-generated method stub
-		
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				cbFocalLength.setText(in.toString());
+			}
+		});
 	}
 
 	@Override
 	public void updateIso(Iso in, List<Iso> values) {
-		cbIso.itemsProperty().get().clear();
-		cbIso.itemsProperty().get().addAll(values);
-		cbIso.setValue(in);
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				cbIso.itemsProperty().get().clear();
+				cbIso.itemsProperty().get().addAll(values);
+				cbIso.setValue(in);
+			}
+		});
 	}
 }

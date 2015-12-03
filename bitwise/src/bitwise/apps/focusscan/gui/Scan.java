@@ -10,6 +10,7 @@ import bitwise.devices.camera.FNumber;
 import bitwise.devices.camera.FocalLength;
 import bitwise.devices.camera.Iso;
 import bitwise.gui.imageview.AspectImageView;
+import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ChangeListener;
@@ -18,6 +19,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -41,6 +43,7 @@ public class Scan extends BorderPane implements CameraPropListener {
 		return null;
 	}
 	
+	@FXML private ProgressBar batteryLevel;
 	@FXML private HBox border;
 	@FXML private AspectImageView imageViewLV;
 	@FXML private AspectImageView imageViewSI;
@@ -78,6 +81,12 @@ public class Scan extends BorderPane implements CameraPropListener {
 
 	@Override
 	public void updateBatteryLevel(BatteryLevel in) {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				batteryLevel.setProgress(in.getValue() / 100.0);
+			}
+		});
 	}
 
 	@Override

@@ -321,6 +321,8 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 		window = Scan.showScan(this, stage);
 		state = FocusScanState.Scan;
 		
+		cameraHandle.getBatteryLevel(this);
+		
 		scanTask = new ScanTask(this, cameraHandle, scanName, steps, stepsPerImage);
 		this.addServiceTask(scanTask);
 	}
