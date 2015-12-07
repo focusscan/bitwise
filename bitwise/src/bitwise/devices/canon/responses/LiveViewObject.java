@@ -7,7 +7,7 @@ public class LiveViewObject {
 	public final byte[] jpeg;
 	
 	public LiveViewObject(UsbPtpBuffer buf) throws UsbPtpCoderException {
-		int len_in_bytes = buf.getInt();
+		/* int len_in_bytes = */ buf.getInt();
 		buf.getInt();
 		
 		jpeg = buf.getRemainingArray();
