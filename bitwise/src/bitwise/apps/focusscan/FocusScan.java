@@ -345,6 +345,16 @@ public final class FocusScan extends BaseApp<FocusScanHandle> implements StartUs
 		this.addServiceTask(scanTask);
 	}
 	
+	public synchronized void fxdo_pauseScan() {
+		if (null != scanTask)
+			scanTask.pauseScan();
+	}
+	
+	public synchronized void fxdo_unpauseScan() {
+		if (null != scanTask)
+			scanTask.unpauseScan();
+	}
+	
 	public synchronized void fxdo_scanCancelled() {
 		if (null != scanTask) {
 			scanTask.cancel();

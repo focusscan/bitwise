@@ -13,14 +13,14 @@ public class Configuration {
 	}
 	
 	public boolean rememberInvalidContexts() {
-		return true;
+		return false;
 	}
 	
 	public boolean rememberDoneServiceTasks() {
-		return true;
+		return false;
 	}
 	
 	public boolean rememberDoneRequests() {
-		return true;
+		return false;
 	}
 }

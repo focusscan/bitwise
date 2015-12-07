@@ -12,7 +12,7 @@ public final class Log {
 	}
 	
 	private static void log(String kind, Thing<?> thing, String format, Object... args) {
-		System.out.println(String.format("[%8s] %24s - %s", kind, thing, String.format(format, args)));
+		// System.out.println(String.format("[%8s] %24s - %s", kind, thing, String.format(format, args)));
 	}
 	
 	public synchronized static void log(Thing<?> thing, String format, Object... args) {

@@ -20,6 +20,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
@@ -44,6 +45,7 @@ public class Scan extends BorderPane implements CameraPropListener {
 		return null;
 	}
 	
+	@FXML private Button btnPause;
 	@FXML private ProgressBar batteryLevel;
 	@FXML private HBox border;
 	@FXML private AspectImageView imageViewLV;
@@ -74,6 +76,21 @@ public class Scan extends BorderPane implements CameraPropListener {
 	
 	public void setImageSI(Image image) {
 		imageViewSI.setImage(image);
+	}
+	
+	private boolean isPaused = false;
+	
+	@FXML protected void pauseScan(ActionEvent event) {
+		if (!isPaused) {
+			app.fxdo_pauseScan();
+			isPaused = true;
+			btnPause.setText("Unpause");
+		}
+		else {
+			app.fxdo_unpauseScan();
+			isPaused = false;
+			btnPause.setText("Pause");
+		}
 	}
 	
 	@FXML protected void cancelScan(ActionEvent event) {

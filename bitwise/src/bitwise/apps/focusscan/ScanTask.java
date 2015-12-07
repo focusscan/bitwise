@@ -19,6 +19,7 @@ public class ScanTask extends BaseServiceTask<FocusScan> {
 	private final int steps;
 	private final int stepsPerImage;
 	private final CameraHandle cameraHandle;
+	private volatile boolean isPaused = false;
 	
 	protected ScanTask(FocusScan in_service, CameraHandle in_cameraHandle, Path in_scanPath, int in_steps, int in_stepsPerImage) {
 		super(in_service);
@@ -26,6 +27,14 @@ public class ScanTask extends BaseServiceTask<FocusScan> {
 		scanPath = in_scanPath;
 		steps = in_steps;
 		stepsPerImage = in_stepsPerImage;
+	}
+	
+	public void pauseScan() {
+		isPaused = true;
+	}
+	
+	public void unpauseScan() {
+		isPaused = false;
 	}
 
 	@Override
@@ -56,6 +65,13 @@ public class ScanTask extends BaseServiceTask<FocusScan> {
 			int stepsTaken = 0;
 			boolean takeAnother = true;
 			while (!isCancelled() && takeAnother) {
+				if (isPaused) {
+					System.gc();
+					while (isPaused && !isCancelled())
+						Thread.sleep(200);
+					if (isCancelled())
+						break;
+				}
 				
 				// Let the camera stabilize
 				Thread.sleep(1000);

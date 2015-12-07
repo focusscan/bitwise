@@ -24,6 +24,7 @@
 	<bottom>
 		<ToolBar>
 			<items>
+				<Button fx:id="btnPause" onAction="#pauseScan" text="Pause" />
 				<VBox alignment="bottom_center">
 					<Label text="Battery remaining" />
 					<ProgressBar fx:id="batteryLevel" prefWidth="100.0" progress="0.0" />
