@@ -17,7 +17,7 @@ public abstract class BaseService<H extends BaseServiceHandle<?, ?>> extends Thi
 	private final ServiceCertificate cert = new ServiceCertificate();
 	private ServiceRequestHandler requestHandler;
 	private ObservableList<BaseServiceTask<?>> serviceTasks = FXCollections.observableArrayList();
-	private ObservableList<BaseRequest<?, ?>> outRequests = FXCollections.observableArrayList();
+	// private ObservableList<BaseRequest<?, ?>> outRequests = FXCollections.observableArrayList();
 	private ObservableList<BaseApp<?>> childServices = FXCollections.observableArrayList();
 	private ObservableList<BaseDriver<?, ?>> childDrivers = FXCollections.observableArrayList();
 	
@@ -137,14 +137,16 @@ public abstract class BaseService<H extends BaseServiceHandle<?, ?>> extends Thi
 	
 	@Override
 	public final void generalNotifyRequestEnqueued(BaseRequest<?, ?> in) {
+		/*
 		BaseService<?> thing = this;
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
 				outRequests.add(in);
-				Log.log(thing, "(Inbound) request enqueued %s", in);
 			}
 		});
+		*/
+		Log.log(this, "(Inbound) request enqueued %s", in);
 	}
 	
 	protected abstract void onRequestComplete(BaseRequest<?, ?> in);
@@ -152,6 +154,7 @@ public abstract class BaseService<H extends BaseServiceHandle<?, ?>> extends Thi
 	@Override
 	public final void generalNotifyRequestComplete(BaseRequest<?, ?> in) {
 		Log.log(this, "(Outbound) request complete notification %s", in);
+		/*
 		if (!Configuration.getInstance().rememberDoneRequests()) {
 			Platform.runLater(new Runnable() {
 				@Override
@@ -160,6 +163,7 @@ public abstract class BaseService<H extends BaseServiceHandle<?, ?>> extends Thi
 				}
 			});
 		}
+		*/
 		onRequestComplete(in);
 		getServiceHandle().enqueueEpilogue(cert, in);
 	}
@@ -167,6 +171,7 @@ public abstract class BaseService<H extends BaseServiceHandle<?, ?>> extends Thi
 	@Override
 	public final void generalNotifyRequestFailure(BaseRequest<?, ?> in) {
 		Log.log(this, "(Outbound) request failure notification %s", in);
+		/*
 		if (!Configuration.getInstance().rememberDoneRequests()) {
 			Platform.runLater(new Runnable() {
 				@Override
@@ -175,6 +180,7 @@ public abstract class BaseService<H extends BaseServiceHandle<?, ?>> extends Thi
 				}
 			});
 		}
+		*/
 		onRequestComplete(in);
 		getServiceHandle().enqueueEpilogue(cert, in);
 	}
